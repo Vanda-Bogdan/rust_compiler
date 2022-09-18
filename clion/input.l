@@ -1,5 +1,13 @@
 %option noyywrap
 %option never-interactive
+%x CONST_STRING
+
+%{
+#include <stdio.h>
+#include <string.h>
+char string[1000];
+%}
+
 
 %%
 
@@ -42,12 +50,20 @@ async { printf("Found KW_ASYNC"); }
 await { printf("Found KW_AWAITE"); }
 dyn { printf("Found KW_DYN"); }
 
+
+\" {string[0]=0; BEGIN(CONST_STRING);}
+<CONST_STRING>[^\\\"]+ {strcat(string,yytext);}
+<CONST_STRING>\\(\\[ntbravf]|" ")* {strcat(string, "\\");}
+<CONST_STRING>\\n {strcat(string, "\n");}
+<CONST_STRING>\\t {strcat(string, "\t");}
+<CONST_STRING>\\b {strcat(string, "\b");}
+<CONST_STRING>\\v {strcat(string, "\v");}
+<CONST_STRING>\\f {strcat(string, "\f");}
+<CONST_STRING>\\r {strcat(string, "\r");}
+<CONST_STRING>\\a {strcat(string, "\a");}
+<CONST_STRING>\\\\ {strcat(string, "\\");}
+<CONST_STRING>\\\" {strcat(string, "\"");}
+<CONST_STRING>\" {printf("%s - CONST_STRING", string); BEGIN(INITIAL);}
+
 %%
 
-yywrap(){}
-
-int main()
-{
-  yylex();  
-  return 0; 
-}
