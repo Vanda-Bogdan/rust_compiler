@@ -1,11 +1,13 @@
 %option noyywrap
 %option never-interactive
 %x CONST_STRING
+%x MULTILINE_COMMENT
+%x ONELINE_COMMENT
 
 %{
 #include <stdio.h>
 #include <string.h>
-char string[1000];
+char buffer[1000];
 %}
 
 
@@ -51,19 +53,27 @@ await { printf("Found KW_AWAITE"); }
 dyn { printf("Found KW_DYN"); }
 
 
-\" {string[0]=0; BEGIN(CONST_STRING);}
-<CONST_STRING>[^\\\"]+ {strcat(string,yytext);}
-<CONST_STRING>\\(\\[ntbravf]|" ")* {strcat(string, "\\");}
-<CONST_STRING>\\n {strcat(string, "\n");}
-<CONST_STRING>\\t {strcat(string, "\t");}
-<CONST_STRING>\\b {strcat(string, "\b");}
-<CONST_STRING>\\v {strcat(string, "\v");}
-<CONST_STRING>\\f {strcat(string, "\f");}
-<CONST_STRING>\\r {strcat(string, "\r");}
-<CONST_STRING>\\a {strcat(string, "\a");}
-<CONST_STRING>\\\\ {strcat(string, "\\");}
-<CONST_STRING>\\\" {strcat(string, "\"");}
-<CONST_STRING>\" {printf("%s - CONST_STRING", string); BEGIN(INITIAL);}
+\" {buffer[0]=0; BEGIN(CONST_STRING);}
+<CONST_STRING>[^\\\"]+ {strcat(buffer,yytext);}
+<CONST_STRING>\\(\\[ntbravf]|" ")* {strcat(buffer, "");}
+<CONST_STRING>\\n {strcat(buffer, "\n");}
+<CONST_STRING>\\t {strcat(buffer, "\t");}
+<CONST_STRING>\\b {strcat(buffer, "\b");}
+<CONST_STRING>\\v {strcat(buffer, "\v");}
+<CONST_STRING>\\f {strcat(buffer, "\f");}
+<CONST_STRING>\\r {strcat(buffer, "\r");}
+<CONST_STRING>\\a {strcat(buffer, "\a");}
+<CONST_STRING>\\\\ {strcat(buffer, "\\");}
+<CONST_STRING>\\\" {strcat(buffer, "\"");}
+<CONST_STRING>\" {printf("%s - CONST_STRING", buffer); BEGIN(INITIAL);}
 
+\/\* {buffer[0]=0; BEGIN(MULTILINE_COMMENT);}
+<MULTILINE_COMMENT>[^\*\/]+ {strcat(buffer,yytext);}
+<MULTILINE_COMMENT>\* {strcat(buffer, "*");}
+<MULTILINE_COMMENT>\/ {strcat(buffer, "/");}
+<MULTILINE_COMMENT>\*\/ {printf("%s - MULTI_LINE_COMMENT", buffer); BEGIN(INITIAL);}
+
+\/\/ {buffer[0]=0; BEGIN(ONELINE_COMMENT);}
+<ONELINE_COMMENT>[^\\n]
 %%
 
