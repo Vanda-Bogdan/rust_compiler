@@ -1,3 +1,0 @@
-D:/Учеба/rust_compiler/clion/cmake-build-debug/CMakeFiles/clion_aboba.dir
-D:/Учеба/rust_compiler/clion/cmake-build-debug/CMakeFiles/edit_cache.dir
-D:/Учеба/rust_compiler/clion/cmake-build-debug/CMakeFiles/rebuild_cache.dir
