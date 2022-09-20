@@ -55,15 +55,10 @@ dyn { printf("Found KW_DYN"); }
 
 \" {buffer[0]=0; BEGIN(CONST_STRING);}
 <CONST_STRING>[^\\\"]+ {strcat(buffer,yytext);}
-<CONST_STRING>\\(\\[ntbravf]|" ")* {strcat(buffer, "");}
+<CONST_STRING>\\(\\[ntbravf]|" ")+ {strcat(buffer, "");}
+<CONST_STRING>\\\\ {strcat(buffer, "\\");}
 <CONST_STRING>\\n {strcat(buffer, "\n");}
 <CONST_STRING>\\t {strcat(buffer, "\t");}
-<CONST_STRING>\\b {strcat(buffer, "\b");}
-<CONST_STRING>\\v {strcat(buffer, "\v");}
-<CONST_STRING>\\f {strcat(buffer, "\f");}
-<CONST_STRING>\\r {strcat(buffer, "\r");}
-<CONST_STRING>\\a {strcat(buffer, "\a");}
-<CONST_STRING>\\\\ {strcat(buffer, "\\");}
 <CONST_STRING>\\\" {strcat(buffer, "\"");}
 <CONST_STRING>\" {printf("%s - CONST_STRING", buffer); BEGIN(INITIAL);}
 
