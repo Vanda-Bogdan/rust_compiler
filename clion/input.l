@@ -59,6 +59,7 @@ dyn { printf("Found KW_DYN"); }
 <CONST_STRING>\\\\ {strcat(buffer, "\\");}
 <CONST_STRING>\\n {strcat(buffer, "\n");}
 <CONST_STRING>\\t {strcat(buffer, "\t");}
+<CONST_STRING>\\r {strcat(buffer, "\r");}
 <CONST_STRING>\\\" {strcat(buffer, "\"");}
 <CONST_STRING>\" {printf("%s - CONST_STRING", buffer); BEGIN(INITIAL);}
 
@@ -66,9 +67,12 @@ dyn { printf("Found KW_DYN"); }
 <MULTILINE_COMMENT>[^\*\/]+ {strcat(buffer,yytext);}
 <MULTILINE_COMMENT>\* {strcat(buffer, "*");}
 <MULTILINE_COMMENT>\/ {strcat(buffer, "/");}
-<MULTILINE_COMMENT>\*\/ {printf("%s - MULTI_LINE_COMMENT", buffer); BEGIN(INITIAL);}
+<MULTILINE_COMMENT>\*\/ {printf("%s - MULTILINE_COMMENT", buffer); BEGIN(INITIAL);}
 
 \/\/ {buffer[0]=0; BEGIN(ONELINE_COMMENT);}
-<ONELINE_COMMENT>[^\\n]
+<ONELINE_COMMENT>[^\n] {strcat(buffer, yytext);}
+<ONELINE_COMMENT>\n {printf("%s - ONELINE_COMMENT\n", buffer); BEGIN(INITIAL);}
+<ONELINE_COMMENT><<EOF>> {printf("%s - ONELINE_COMMENT\n", buffer); BEGIN(INITIAL);}
+
 %%
 
