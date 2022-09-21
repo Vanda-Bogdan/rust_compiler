@@ -1,5 +1,8 @@
 %option noyywrap
 %option never-interactive
+
+NW [^A-Za-z_\d]
+
 %x CONST_STRING
 %x MULTILINE_COMMENT
 %x ONELINE_COMMENT
@@ -10,8 +13,9 @@
 char buffer[1000];
 %}
 
-
 %%
+
+{NW}[A-Za-z_][A-Za-z\d_]*{NW} { printf("%s - Found IDENTIFIER\n", yytext); }
 
 as { printf("Found KW_AS"); }
 break { printf("Found KW_BREAK"); }
@@ -60,29 +64,45 @@ dyn { printf("Found KW_DYN"); }
 <CONST_STRING>\\t {strcat(buffer, "\t");}
 <CONST_STRING>\\r {strcat(buffer, "\r");}
 <CONST_STRING>\\\" {strcat(buffer, "\"");}
-<CONST_STRING>\" {printf("%s - CONST_STRING", buffer); BEGIN(INITIAL);}
+<CONST_STRING>\" {printf("Found CONST_STRING - %s", buffer); BEGIN(INITIAL);}
 
 \/\* {buffer[0]=0; BEGIN(MULTILINE_COMMENT);}
 <MULTILINE_COMMENT>[^\*\/]+ {strcat(buffer,yytext);}
 <MULTILINE_COMMENT>\* {strcat(buffer, "*");}
 <MULTILINE_COMMENT>\/ {strcat(buffer, "/");}
-<MULTILINE_COMMENT>\*\/ {printf("%s - MULTILINE_COMMENT", buffer); BEGIN(INITIAL);}
+<MULTILINE_COMMENT>\*\/ {printf("Found MULTILINE_COMMENT - %s", buffer); BEGIN(INITIAL);}
 
 \/\/ {buffer[0]=0; BEGIN(ONELINE_COMMENT);}
 <ONELINE_COMMENT>[^\n] {strcat(buffer, yytext);}
-<ONELINE_COMMENT>\n {printf("%s - ONELINE_COMMENT\n", buffer); BEGIN(INITIAL);}
-<ONELINE_COMMENT><<EOF>> {printf("%s - ONELINE_COMMENT\n", buffer); BEGIN(INITIAL);}
+<ONELINE_COMMENT>\n {printf("Found ONELINE_COMMENT - %s\n", buffer); BEGIN(INITIAL);}
+<ONELINE_COMMENT><<EOF>> {printf("Found ONELINE_COMMENT - %s\n", buffer); BEGIN(INITIAL);}
 
-\+ { printf("Found PLUS_OPERATOR - %s", yytext); }
-\- { printf("Found MINUS_OPERATOR - %s", yytext); }
-\* { printf("Found MUL_OPERATOR - %s", yytext); }
-\/ { printf("Found DIV_OPERATOR - %s", yytext); }
-\<\= { printf("Found LESS_OR_EQUAL_OPERATOR - %s", yytext); }
-\>= { printf("Found MORE_OR_EQUAL_OPERATOR - %s", yytext); }
-\< { printf("Found LESS_OPERATOR - %s", yytext); }
-\> { printf("Found MORE_OPERATOR - %s", yytext); }
-== { printf("Found EQUAL_OPERATOR - %s", yytext); }
-\!= { printf("Found NOT_EQUAL_OPERATOR - %s", yytext); }
-= { printf("Found ASSIGNMENT_OPERATOR - %s", yytext); }
+\+ { printf("Found PLUS_OPERATOR - %s\n", yytext); }
+\- { printf("Found MINUS_OPERATOR - %s\n", yytext); }
+\* { printf("Found MUL_OPERATOR - %s\n", yytext); }
+\/ { printf("Found DIV_OPERATOR - %s\n", yytext); }
+\<= { printf("Found LESS_OR_EQUAL_OPERATOR - %s\n", yytext); }
+\>= { printf("Found MORE_OR_EQUAL_OPERATOR - %s\n", yytext); }
+\< { printf("Found LESS_OPERATOR - %s\n", yytext); }
+\> { printf("Found MORE_OPERATOR - %s\n", yytext); }
+\!= { printf("Found NOT_EQUAL_OPERATOR - %s\n", yytext); }
+= { printf("Found ASSIGNMENT_OPERATOR - %s\n", yytext); }
+
+== { printf("Found EQUAL_OPERATOR - %s\n", yytext); }
+\! { printf("Found NOT_OPERATOR - %s\n", yytext); }
+\|\| { printf("Found OR_OPERATOR - %s\n", yytext); }
+\&\& { printf("Found AND_OPERATOR - %s\n", yytext); }
+
+\[ { printf("Found SQUARE_BRACKET - %s\n", yytext); }
+\] { printf("Found SQUARE_BRACKET - %s\n", yytext); }
+\( { printf("Found ROUND_BRACKET - %s\n", yytext); }
+\) { printf("Found ROUND_BRACKET - %s\n", yytext); }
+\{ { printf("Found BRACE - %s\n", yytext); }
+\} { printf("Found BRACE - %s\n", yytext); }
+\; { printf("Found SEMICOLON - %s\n", yytext); }
+\, { printf("Found COMMA - %s\n", yytext); }
+\: { printf("Found COLON - %s\n", yytext); }
+
+
 
 %%
