@@ -52,7 +52,6 @@ async { printf("Found KW_ASYNC"); }
 await { printf("Found KW_AWAITE"); }
 dyn { printf("Found KW_DYN"); }
 
-
 \" {buffer[0]=0; BEGIN(CONST_STRING);}
 <CONST_STRING>[^\\\"]+ {strcat(buffer,yytext);}
 <CONST_STRING>\\(\\[ntbravf]|" ")+ {strcat(buffer, "");}
@@ -74,5 +73,16 @@ dyn { printf("Found KW_DYN"); }
 <ONELINE_COMMENT>\n {printf("%s - ONELINE_COMMENT\n", buffer); BEGIN(INITIAL);}
 <ONELINE_COMMENT><<EOF>> {printf("%s - ONELINE_COMMENT\n", buffer); BEGIN(INITIAL);}
 
-%%
+\+ { printf("Found PLUS_OPERATOR - %s", yytext); }
+\- { printf("Found MINUS_OPERATOR - %s", yytext); }
+\* { printf("Found MUL_OPERATOR - %s", yytext); }
+\/ { printf("Found DIV_OPERATOR - %s", yytext); }
+\<\= { printf("Found LESS_OR_EQUAL_OPERATOR - %s", yytext); }
+\>= { printf("Found MORE_OR_EQUAL_OPERATOR - %s", yytext); }
+\< { printf("Found LESS_OPERATOR - %s", yytext); }
+\> { printf("Found MORE_OPERATOR - %s", yytext); }
+== { printf("Found EQUAL_OPERATOR - %s", yytext); }
+\!= { printf("Found NOT_EQUAL_OPERATOR - %s", yytext); }
+= { printf("Found ASSIGNMENT_OPERATOR - %s", yytext); }
 
+%%
