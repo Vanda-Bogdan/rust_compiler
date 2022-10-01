@@ -12,6 +12,9 @@ DIGIT [0-9]
 #include <stdio.h>
 #include <string.h>
 char buffer[1000];
+int remove_char(char *s, int pos);
+void remove_underline();
+int int_buffer;
 %}
 
 %%
@@ -79,7 +82,13 @@ bool { printf("(%s) - Found KW_BOOLEAN\n", yytext); }
 <CHAR>\\0 {strcat(buffer, "\0");}
 <CHAR>\\r {strcat(buffer, "\r");}
 <CHAR>\\\" {strcat(buffer, "\"");}
-<CHAR>\' {printf("(%s) - Found CHAR\n", buffer); BEGIN(INITIAL);}
+<CHAR>\' {
+if(strlen(buffer)==1){
+printf("(%s) - Found CHAR\n", buffer); BEGIN(INITIAL);
+}else{
+printf("(%s) - Found ERROR_CHAR\n", buffer); BEGIN(INITIAL);
+}
+}
 
 \/\* {buffer[0]=0; BEGIN(MULTILINE_COMMENT);}
 <MULTILINE_COMMENT>[^\*\/]+ {strcat(buffer,yytext);}
@@ -122,14 +131,49 @@ bool { printf("(%s) - Found KW_BOOLEAN\n", yytext); }
 
 [a-zA-Z_][a-zA-Z0-9_]* { printf("(%s) - Found IDENTIFIER\n", yytext); }
 
-{DIGIT}(_?{DIGIT})* { printf("(%s) - Found DECIMAL_INTEGER\n", yytext); }
-0o(_?[0-7])+ { printf("(%s) - Found OCTAL_INTEGER\n", yytext); }
-0x(_?[0-9A-F])+ { printf("(%s) - Found HEXADECIMAL_INTEGER\n", yytext); }
-0b(_?[0-1])+ { printf("(%s) - Found BINARY_INTEGER\n", yytext); }
+{DIGIT}+(_+{DIGIT}*)+ {
+remove_underline();
+printf("(%d) - Found DECIMAL_INTEGER\n", atoi(yytext));
+}
 
+0o(_*[0-7])+ {
+remove_underline();
+printf("(%d) - Found OCTAL_INTEGER\n", strtol(yytext+2, NULL, 8));
+}
 
+0x(_*[0-9A-Fa-f])+ {
+remove_underline();
+printf("(%d) - Found HEXADECIMAL_INTEGER\n", strtol(yytext+2, NULL, 16));
+}
+
+0b(_*[0-1])+ {
+remove_underline();
+printf("(%d) - Found BINARY_INTEGER\n", strtol(yytext+2, NULL, 2));
+}
 
 " " {}
 \n {}
 
 %%
+
+int remove_char(char *s, int pos)
+{
+  int length = strlen(s);
+
+  if (pos >= length) return 0;
+
+  for (int i = pos; i < length; i++)
+    s[i] = s[i + 1];
+
+  return 1;
+}
+
+void remove_underline()
+{
+    char* ptr = strchr(yytext, '_');
+    while (ptr != NULL){
+        ptr = strchr(yytext, '_');
+        int pos = ptr - yytext;
+        remove_char(yytext, pos);
+    }
+}
