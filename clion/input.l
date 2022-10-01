@@ -11,13 +11,20 @@ DIGIT [0-9]
 %{
 #include <stdio.h>
 #include <string.h>
-char buffer[1000];
-int remove_char(char *s, int pos);
-void remove_underline();
-int int_buffer;
+#include <stdlib.h>
 %}
 
 %%
+
+%{
+char buffer[1000];
+int remove_char(char *s, int pos);
+void remove_underline();
+void remove_f64();
+void remove_i32();
+int int_buffer;
+%}
+
 
 as { printf("(%s) - Found KW_AS\n", yytext); }
 break { printf("(%s) - Found KW_BREAK\n", yytext); }
@@ -30,6 +37,7 @@ extern { printf("(%s) - Found KW_EXTERN\n", yytext); }
 false { printf("(%s) - Found KW_FALSE\n", yytext); }
 fn { printf("(%s) - Found KW_FN\n", yytext); }
 for { printf("(%s) - Found KW_FOR\n", yytext); }
+f64 { printf("(%s) - Found KW_FLOAT64\n", yytext); }
 if { printf("(%s) - Found KW_IF\n", yytext); }
 impl { printf("(%s) - Found KW_IMPL\n", yytext); }
 in { printf("(%s) - Found KW_IN\n", yytext); }
@@ -64,29 +72,33 @@ bool { printf("(%s) - Found KW_BOOLEAN\n", yytext); }
 
 \" {buffer[0]=0; BEGIN(CONST_STRING);}
 <CONST_STRING>[^\\\"]+ {strcat(buffer,yytext);}
-<CONST_STRING>\\(\\[ntr]|" ")+ {strcat(buffer, "");}
+<CONST_STRING>\\\n[\n\t\r ]* {strcat(buffer, "");}
 <CONST_STRING>\\\\ {strcat(buffer, "\\");}
 <CONST_STRING>\\n {strcat(buffer, "\n");}
 <CONST_STRING>\\t {strcat(buffer, "\t");}
 <CONST_STRING>\\0 {strcat(buffer, "\0");}
 <CONST_STRING>\\r {strcat(buffer, "\r");}
 <CONST_STRING>\\\" {strcat(buffer, "\"");}
+<CONST_STRING><<EOF>> {printf("(%s) - Found ERROR_STRING\n", buffer); BEGIN(INITIAL);}
+<CONST_STRING>\\ {printf("(%s) - Found NOT_ESCAPED_SLASH\n", buffer); BEGIN(INITIAL);}
 <CONST_STRING>\" {printf("(%s) - Found CONST_STRING\n", buffer); BEGIN(INITIAL);}
 
 \' {buffer[0]=0; BEGIN(CHAR);}
+<CHAR>\\x[0-7][A-Fa-f]\' { yytext[strlen(yytext)-1] = '\0'; itoa(strtol(yytext+2, NULL, 16), yytext, 10); printf( "(%s) - Found CHAR\n", yytext ); BEGIN(INITIAL);}
 <CHAR>[^\\\']+ {strcat(buffer,yytext);}
-<CHAR>\\(\\[ntr]|" ")+ {strcat(buffer, "");}
 <CHAR>\\\\ {strcat(buffer, "\\");}
 <CHAR>\\n {strcat(buffer, "\n");}
 <CHAR>\\t {strcat(buffer, "\t");}
 <CHAR>\\0 {strcat(buffer, "\0");}
 <CHAR>\\r {strcat(buffer, "\r");}
 <CHAR>\\\" {strcat(buffer, "\"");}
+<CHAR>\\\' {strcat(buffer, "\'");}
+<CHAR><<EOF>> {printf("(%s) - Error CHAR\n", buffer); BEGIN(INITIAL);}
 <CHAR>\' {
 if(strlen(buffer)==1){
 printf("(%s) - Found CHAR\n", buffer); BEGIN(INITIAL);
 }else{
-printf("(%s) - Found ERROR_CHAR\n", buffer); BEGIN(INITIAL);
+printf("(%s) - Error CHAR\n", buffer); BEGIN(INITIAL);
 }
 }
 
@@ -94,6 +106,7 @@ printf("(%s) - Found ERROR_CHAR\n", buffer); BEGIN(INITIAL);
 <MULTILINE_COMMENT>[^\*\/]+ {strcat(buffer,yytext);}
 <MULTILINE_COMMENT>\* {strcat(buffer, "*");}
 <MULTILINE_COMMENT>\/ {strcat(buffer, "/");}
+<MULTILINE_COMMENT><<EOF>> { printf("(%s) - Error COMMENT\n", buffer); BEGIN(INITIAL);}
 <MULTILINE_COMMENT>\*\/ {printf("(%s) - Found MULTILINE_COMMENT\n", buffer); BEGIN(INITIAL);}
 
 \/\/ {buffer[0]=0; BEGIN(ONELINE_COMMENT);}
@@ -118,6 +131,10 @@ printf("(%s) - Found ERROR_CHAR\n", buffer); BEGIN(INITIAL);
 \|\| { printf("(%s) - Found OR_OPERATOR\n", yytext); }
 \&\& { printf("(%s) - Found AND_OPERATOR\n", yytext); }
 
+\.\. { printf("(%s) - Found RANGE_OPERATOR\n", yytext); }
+\.\.\= { printf("(%s) - Found RANGE_EQUAL_OPERATOR\n", yytext); }
+\-\> { printf("(%s) - Found ARROW_OPERATOR\n", yytext); }
+
 \[ { printf("(%s) - Found SQUARE_BRACKET\n", yytext); }
 \] { printf("(%s) - Found SQUARE_BRACKET\n", yytext); }
 \( { printf("(%s) - Found ROUND_BRACKET\n", yytext); }
@@ -128,28 +145,45 @@ printf("(%s) - Found ERROR_CHAR\n", buffer); BEGIN(INITIAL);
 \, { printf("(%s) - Found COMMA\n", yytext); }
 \: { printf("(%s) - Found COLON\n", yytext); }
 \. { printf("(%s) - Found DOT\n", yytext); }
+\& { printf("(%s) - Found AMPERSAND\n", yytext); }
 
 [a-zA-Z_][a-zA-Z0-9_]* { printf("(%s) - Found IDENTIFIER\n", yytext); }
 
-{DIGIT}+(_+{DIGIT}*)+ {
+{DIGIT}+(_+{DIGIT}*)*(i32)? {
 remove_underline();
+remove_i32();
 printf("(%d) - Found DECIMAL_INTEGER\n", atoi(yytext));
 }
 
-0o(_*[0-7])+ {
+([0-9]_*)+(\.([0-9]_*))?[Ee][+-]?([0-9]|_)*[0-9]([0-9]|_)*(f64)? {
 remove_underline();
+remove_f64();
+printf("(%s) - Found FLOAT_CONST\n", yytext); }
+
+([0-9]_*)+(f64|\.(([0-9]_*)+(f64)?)) {
+remove_underline();
+remove_f64();
+printf("(%s) - Found FLOAT_CONST\n", yytext); }
+
+0o(_*[0-7])+(i32)? {
+remove_underline();
+remove_i32();
 printf("(%d) - Found OCTAL_INTEGER\n", strtol(yytext+2, NULL, 8));
 }
 
-0x(_*[0-9A-Fa-f])+ {
+0x(_*[0-9A-Fa-f])+(i32)? {
 remove_underline();
+remove_i32();
 printf("(%d) - Found HEXADECIMAL_INTEGER\n", strtol(yytext+2, NULL, 16));
 }
 
-0b(_*[0-1])+ {
+0b(_*[0-1])+(i32)? {
 remove_underline();
+remove_i32();
 printf("(%d) - Found BINARY_INTEGER\n", strtol(yytext+2, NULL, 2));
 }
+
+[0-9]*[a-zA-Z_][a-zA-Z0-9_]* { printf("(%s) - Error IDENTIFIER\n", yytext); }
 
 " " {}
 \n {}
@@ -173,6 +207,26 @@ void remove_underline()
     char* ptr = strchr(yytext, '_');
     while (ptr != NULL){
         ptr = strchr(yytext, '_');
+        int pos = ptr - yytext;
+        remove_char(yytext, pos);
+    }
+}
+
+void remove_f64()
+{
+    char* ptr = strstr(yytext, "f64");
+    while (ptr != NULL){
+        ptr = strstr(yytext, "f64");
+        int pos = ptr - yytext;
+        remove_char(yytext, pos);
+    }
+}
+
+void remove_i32()
+{
+    char* ptr = strstr(yytext, "i32");
+    while (ptr != NULL){
+        ptr = strstr(yytext, "i32");
         int pos = ptr - yytext;
         remove_char(yytext, pos);
     }
