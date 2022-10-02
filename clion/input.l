@@ -23,6 +23,7 @@ void remove_underline();
 void remove_f64();
 void remove_i32();
 int int_buffer;
+char buf_char[2];
 %}
 
 
@@ -34,7 +35,6 @@ crate { printf("(%s) - Found KW_CRATE\n", yytext); }
 else { printf("(%s) - Found KW_ELSE\n", yytext); }
 enum { printf("(%s) - Found KW_ENUM\n", yytext); }
 extern { printf("(%s) - Found KW_EXTERN\n", yytext); }
-false { printf("(%s) - Found KW_FALSE\n", yytext); }
 fn { printf("(%s) - Found KW_FN\n", yytext); }
 for { printf("(%s) - Found KW_FOR\n", yytext); }
 f64 { printf("(%s) - Found KW_FLOAT64\n", yytext); }
@@ -56,7 +56,6 @@ static { printf("(%s) - Found KW_STATIC\n", yytext); }
 struct { printf("(%s) - Found KW_STRUCT\n", yytext); }
 super { printf("(%s) - Found KW_SUPER\n", yytext); }
 trait { printf("(%s) - Found KW_TRAIT\n", yytext); }
-true { printf("(%s) - Found KW_TRUE\n", yytext); }
 type { printf("(%s) - Found KW_TYPE\n", yytext); }
 unsafe { printf("(%s) - Found KW_UNSAFE\n", yytext); }
 use { printf("(%s) - Found KW_USE\n", yytext); }
@@ -70,6 +69,9 @@ String { printf("(%s) - Found KW_STRING\n", yytext); }
 char { printf("(%s) - Found KW_CHAR\n", yytext); }
 bool { printf("(%s) - Found KW_BOOLEAN\n", yytext); }
 
+false { printf("(%s) - Found BOOLEAN_FALSE\n", yytext); }
+true { printf("(%s) - Found BOOLEAN_TRUE\n", yytext); }
+
 \" {buffer[0]=0; BEGIN(CONST_STRING);}
 <CONST_STRING>[^\\\"]+ {strcat(buffer,yytext);}
 <CONST_STRING>\\\n[\n\t\r ]* {strcat(buffer, "");}
@@ -79,12 +81,14 @@ bool { printf("(%s) - Found KW_BOOLEAN\n", yytext); }
 <CONST_STRING>\\0 {strcat(buffer, "\0");}
 <CONST_STRING>\\r {strcat(buffer, "\r");}
 <CONST_STRING>\\\" {strcat(buffer, "\"");}
+<CONST_STRING>\\\' {strcat(buffer, "\'");}
+<CONST_STRING>\\x[0-7][0-9A-Fa-f] { buf_char[0] = strtol(yytext+2, NULL, 16); buf_char[1] = 0; strcat(buffer, buf_char);}
 <CONST_STRING><<EOF>> {printf("(%s) - Found ERROR_STRING\n", buffer); BEGIN(INITIAL);}
 <CONST_STRING>\\ {printf("(%s) - Found NOT_ESCAPED_SLASH\n", buffer); BEGIN(INITIAL);}
 <CONST_STRING>\" {printf("(%s) - Found CONST_STRING\n", buffer); BEGIN(INITIAL);}
 
 \' {buffer[0]=0; BEGIN(CHAR);}
-<CHAR>\\x[0-7][A-Fa-f]\' { yytext[strlen(yytext)-1] = '\0'; itoa(strtol(yytext+2, NULL, 16), yytext, 10); printf( "(%s) - Found CHAR\n", yytext ); BEGIN(INITIAL);}
+<CHAR>\\x[0-7][0-9A-Fa-f]\' { yytext[strlen(yytext)-1] = '\0'; buf_char[0] = strtol(yytext+2, NULL, 16); printf( "(%c) - Found CHAR\n", buf_char[0] ); BEGIN(INITIAL);}
 <CHAR>[^\\\']+ {strcat(buffer,yytext);}
 <CHAR>\\\\ {strcat(buffer, "\\");}
 <CHAR>\\n {strcat(buffer, "\n");}
@@ -156,14 +160,16 @@ printf("(%d) - Found DECIMAL_INTEGER\n", atoi(yytext));
 }
 
 ([0-9]_*)+(\.([0-9]_*))?[Ee][+-]?([0-9]|_)*[0-9]([0-9]|_)*(f64)? {
-remove_underline();
 remove_f64();
-printf("(%s) - Found FLOAT_CONST\n", yytext); }
+remove_underline();
+printf("(%f) - Found FLOAT_CONST\n", atof(yytext));
+}
 
 ([0-9]_*)+(f64|\.(([0-9]_*)+(f64)?)) {
-remove_underline();
 remove_f64();
-printf("(%s) - Found FLOAT_CONST\n", yytext); }
+remove_underline();
+printf("(%f) - Found FLOAT_CONST\n", atof(yytext));
+}
 
 0o(_*[0-7])+(i32)? {
 remove_underline();
@@ -215,19 +221,17 @@ void remove_underline()
 void remove_f64()
 {
     char* ptr = strstr(yytext, "f64");
-    while (ptr != NULL){
-        ptr = strstr(yytext, "f64");
+    if (ptr != NULL){
         int pos = ptr - yytext;
-        remove_char(yytext, pos);
+        yytext[pos] = '\0';
     }
 }
 
 void remove_i32()
 {
     char* ptr = strstr(yytext, "i32");
-    while (ptr != NULL){
-        ptr = strstr(yytext, "i32");
-        int pos = ptr - yytext;
-        remove_char(yytext, pos);
-    }
+        if (ptr != NULL){
+            int pos = ptr - yytext;
+            yytext[pos] = '\0';
+        }
 }
