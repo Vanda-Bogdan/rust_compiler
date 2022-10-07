@@ -129,6 +129,7 @@ printf("(%s) - Error CHAR\n", buffer); BEGIN(INITIAL);
 \> { printf("(%s) - Found MORE_OPERATOR\n", yytext); }
 \!= { printf("(%s) - Found NOT_EQUAL_OPERATOR\n", yytext); }
 = { printf("(%s) - Found ASSIGNMENT_OPERATOR\n", yytext); }
+\^ { printf("(%s) - Found CIRCUMFLEX\n", yytext); }
 
 == { printf("(%s) - Found EQUAL_OPERATOR\n", yytext); }
 \! { printf("(%s) - Found NOT_OPERATOR\n", yytext); }
