@@ -611,7 +611,8 @@ char *yytext;
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#line 615 "lex.yy.c"
+char buffer[1000];
+#line 616 "lex.yy.c"
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -762,11 +763,11 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
 
-#line 17 "input.l"
+#line 18 "input.l"
 
 
 
-char buffer[1000];
+
 int remove_char(char *s, int pos);
 void remove_underline();
 void remove_f64();
@@ -776,7 +777,7 @@ char buf_char[2];
 
 
 
-#line 780 "lex.yy.c"
+#line 781 "lex.yy.c"
 
 	if ( yy_init )
 		{
@@ -861,345 +862,345 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 30 "input.l"
+#line 31 "input.l"
 { printf("(%s) - Found KW_AS\n", yytext); }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 31 "input.l"
+#line 32 "input.l"
 { printf("(%s) - Found KW_BREAK\n", yytext); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 32 "input.l"
+#line 33 "input.l"
 { printf("(%s) - Found KW_CONST\n", yytext); }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 33 "input.l"
+#line 34 "input.l"
 { printf("(%s) - Found KW_CONTINUE\n", yytext); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 34 "input.l"
+#line 35 "input.l"
 { printf("(%s) - Found KW_CRATE\n", yytext); }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 35 "input.l"
+#line 36 "input.l"
 { printf("(%s) - Found KW_ELSE\n", yytext); }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 36 "input.l"
+#line 37 "input.l"
 { printf("(%s) - Found KW_ENUM\n", yytext); }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 37 "input.l"
+#line 38 "input.l"
 { printf("(%s) - Found KW_EXTERN\n", yytext); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 38 "input.l"
+#line 39 "input.l"
 { printf("(%s) - Found KW_FN\n", yytext); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 39 "input.l"
+#line 40 "input.l"
 { printf("(%s) - Found KW_FOR\n", yytext); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 40 "input.l"
+#line 41 "input.l"
 { printf("(%s) - Found KW_FLOAT64\n", yytext); }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 41 "input.l"
+#line 42 "input.l"
 { printf("(%s) - Found KW_IF\n", yytext); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 42 "input.l"
+#line 43 "input.l"
 { printf("(%s) - Found KW_IMPL\n", yytext); }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 43 "input.l"
+#line 44 "input.l"
 { printf("(%s) - Found KW_IN\n", yytext); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 44 "input.l"
+#line 45 "input.l"
 { printf("(%s) - Found KW_LET\n", yytext); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 45 "input.l"
+#line 46 "input.l"
 { printf("(%s) - Found KW_LOOP\n", yytext); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 46 "input.l"
+#line 47 "input.l"
 { printf("(%s) - Found KW_MATCH\n", yytext); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 47 "input.l"
+#line 48 "input.l"
 { printf("(%s) - Found KW_MOD\n", yytext); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 48 "input.l"
+#line 49 "input.l"
 { printf("(%s) - Found KW_MOVE\n", yytext); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 49 "input.l"
+#line 50 "input.l"
 { printf("(%s) - Found KW_MUT\n", yytext); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 50 "input.l"
+#line 51 "input.l"
 { printf("(%s) - Found KW_PUB\n", yytext); }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 51 "input.l"
+#line 52 "input.l"
 { printf("(%s) - Found KW_REF\n", yytext); }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 52 "input.l"
+#line 53 "input.l"
 { printf("(%s) - Found KW_RETURN\n", yytext); }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 53 "input.l"
+#line 54 "input.l"
 { printf("(%s) - Found KW_SELFVALUE\n", yytext); }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 54 "input.l"
+#line 55 "input.l"
 { printf("(%s) - Found KW_SELFTYPE\n", yytext); }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 55 "input.l"
+#line 56 "input.l"
 { printf("(%s) - Found KW_STATIC\n", yytext); }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 56 "input.l"
+#line 57 "input.l"
 { printf("(%s) - Found KW_STRUCT\n", yytext); }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 57 "input.l"
+#line 58 "input.l"
 { printf("(%s) - Found KW_SUPER\n", yytext); }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 58 "input.l"
+#line 59 "input.l"
 { printf("(%s) - Found KW_TRAIT\n", yytext); }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 59 "input.l"
+#line 60 "input.l"
 { printf("(%s) - Found KW_TYPE\n", yytext); }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 60 "input.l"
+#line 61 "input.l"
 { printf("(%s) - Found KW_UNSAFE\n", yytext); }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 61 "input.l"
+#line 62 "input.l"
 { printf("(%s) - Found KW_USE\n", yytext); }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 62 "input.l"
+#line 63 "input.l"
 { printf("(%s) - Found KW_WHERE\n", yytext); }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 63 "input.l"
+#line 64 "input.l"
 { printf("(%s) - Found KW_WHILE\n", yytext); }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 64 "input.l"
+#line 65 "input.l"
 { printf("(%s) - Found KW_ASYNC\n", yytext); }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 65 "input.l"
+#line 66 "input.l"
 { printf("(%s) - Found KW_AWAITE\n", yytext); }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 66 "input.l"
+#line 67 "input.l"
 { printf("(%s) - Found KW_DYN\n", yytext); }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 67 "input.l"
+#line 68 "input.l"
 { printf("(%s) - Found KW_INTEGER32\n", yytext); }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 68 "input.l"
+#line 69 "input.l"
 { printf("(%s) - Found KW_STRING\n", yytext); }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 69 "input.l"
+#line 70 "input.l"
 { printf("(%s) - Found KW_CHAR\n", yytext); }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 70 "input.l"
+#line 71 "input.l"
 { printf("(%s) - Found KW_BOOLEAN\n", yytext); }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 72 "input.l"
+#line 73 "input.l"
 { printf("(%s) - Found BOOLEAN_FALSE\n", yytext); }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 73 "input.l"
+#line 74 "input.l"
 { printf("(%s) - Found BOOLEAN_TRUE\n", yytext); }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 75 "input.l"
+#line 76 "input.l"
 {buffer[0]=0; BEGIN(CONST_STRING);}
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 76 "input.l"
+#line 77 "input.l"
 {strcat(buffer,yytext);}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 77 "input.l"
+#line 78 "input.l"
 {strcat(buffer, "");}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 78 "input.l"
+#line 79 "input.l"
 {strcat(buffer, "\\");}
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 79 "input.l"
+#line 80 "input.l"
 {strcat(buffer, "\n");}
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 80 "input.l"
+#line 81 "input.l"
 {strcat(buffer, "\t");}
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 81 "input.l"
+#line 82 "input.l"
 {strcat(buffer, "\0");}
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 82 "input.l"
+#line 83 "input.l"
 {strcat(buffer, "\r");}
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 83 "input.l"
+#line 84 "input.l"
 {strcat(buffer, "\"");}
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 84 "input.l"
+#line 85 "input.l"
 {strcat(buffer, "\'");}
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 85 "input.l"
+#line 86 "input.l"
 { buf_char[0] = strtol(yytext+2, NULL, 16); buf_char[1] = 0; strcat(buffer, buf_char);}
 	YY_BREAK
 case YY_STATE_EOF(CONST_STRING):
-#line 86 "input.l"
+#line 87 "input.l"
 {printf("(%s) - Found ERROR_STRING\n", buffer); BEGIN(INITIAL);}
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 87 "input.l"
+#line 88 "input.l"
 {printf("(%s) - Found NOT_ESCAPED_SLASH\n", buffer); BEGIN(INITIAL);}
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 88 "input.l"
+#line 89 "input.l"
 {printf("(%s) - Found CONST_STRING\n", buffer); BEGIN(INITIAL);}
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 90 "input.l"
+#line 91 "input.l"
 {buffer[0]=0; BEGIN(CHAR);}
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 91 "input.l"
+#line 92 "input.l"
 { yytext[strlen(yytext)-1] = '\0'; buf_char[0] = strtol(yytext+2, NULL, 16); printf( "(%c) - Found CHAR\n", buf_char[0] ); BEGIN(INITIAL);}
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 92 "input.l"
+#line 93 "input.l"
 {strcat(buffer,yytext);}
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 93 "input.l"
+#line 94 "input.l"
 {strcat(buffer, "\\");}
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 94 "input.l"
+#line 95 "input.l"
 {strcat(buffer, "\n");}
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 95 "input.l"
+#line 96 "input.l"
 {strcat(buffer, "\t");}
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 96 "input.l"
+#line 97 "input.l"
 {strcat(buffer, "\0");}
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 97 "input.l"
+#line 98 "input.l"
 {strcat(buffer, "\r");}
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 98 "input.l"
+#line 99 "input.l"
 {strcat(buffer, "\"");}
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 99 "input.l"
+#line 100 "input.l"
 {strcat(buffer, "\'");}
 	YY_BREAK
 case YY_STATE_EOF(CHAR):
-#line 100 "input.l"
+#line 101 "input.l"
 {printf("(%s) - Error CHAR\n", buffer); BEGIN(INITIAL);}
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 101 "input.l"
+#line 102 "input.l"
 {
 if(strlen(buffer)==1){
 printf("(%s) - Found CHAR\n", buffer); BEGIN(INITIAL);
@@ -1210,272 +1211,272 @@ printf("(%s) - Error CHAR\n", buffer); BEGIN(INITIAL);
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 109 "input.l"
+#line 110 "input.l"
 {buffer[0]=0; BEGIN(MULTILINE_COMMENT);}
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 110 "input.l"
+#line 111 "input.l"
 {strcat(buffer,yytext);}
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 111 "input.l"
+#line 112 "input.l"
 {strcat(buffer, "*");}
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 112 "input.l"
+#line 113 "input.l"
 {strcat(buffer, "/");}
 	YY_BREAK
 case YY_STATE_EOF(MULTILINE_COMMENT):
-#line 113 "input.l"
+#line 114 "input.l"
 { printf("(%s) - Error COMMENT\n", buffer); BEGIN(INITIAL);}
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 114 "input.l"
+#line 115 "input.l"
 {printf("(%s) - Found MULTILINE_COMMENT\n", buffer); BEGIN(INITIAL);}
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 116 "input.l"
+#line 117 "input.l"
 {buffer[0]=0; BEGIN(ONELINE_COMMENT);}
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 117 "input.l"
+#line 118 "input.l"
 {strcat(buffer, yytext);}
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
-#line 118 "input.l"
+#line 119 "input.l"
 {printf("(%s) - Found ONELINE_COMMENT\n", buffer); BEGIN(INITIAL);}
 	YY_BREAK
 case YY_STATE_EOF(ONELINE_COMMENT):
-#line 119 "input.l"
+#line 120 "input.l"
 {printf("(%s) - Found ONELINE_COMMENT\n", buffer); BEGIN(INITIAL);}
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
-#line 122 "input.l"
+#line 123 "input.l"
 { printf("(%s) - Found PLUS_OPERATOR\n", yytext); }
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 123 "input.l"
+#line 124 "input.l"
 { printf("(%s) - Found MINUS_OPERATOR\n", yytext); }
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
-#line 124 "input.l"
+#line 125 "input.l"
 { printf("(%s) - Found MUL_OPERATOR\n", yytext); }
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 125 "input.l"
+#line 126 "input.l"
 { printf("(%s) - Found DIV_OPERATOR\n", yytext); }
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 126 "input.l"
+#line 127 "input.l"
 { printf("(%s) - Found LESS_OR_EQUAL_OPERATOR\n", yytext); }
 	YY_BREAK
 case 81:
 YY_RULE_SETUP
-#line 127 "input.l"
+#line 128 "input.l"
 { printf("(%s) - Found MORE_OR_EQUAL_OPERATOR\n", yytext); }
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 128 "input.l"
+#line 129 "input.l"
 { printf("(%s) - Found LESS_OPERATOR\n", yytext); }
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 129 "input.l"
+#line 130 "input.l"
 { printf("(%s) - Found MORE_OPERATOR\n", yytext); }
 	YY_BREAK
 case 84:
 YY_RULE_SETUP
-#line 130 "input.l"
+#line 131 "input.l"
 { printf("(%s) - Found NOT_EQUAL_OPERATOR\n", yytext); }
 	YY_BREAK
 case 85:
 YY_RULE_SETUP
-#line 131 "input.l"
+#line 132 "input.l"
 { printf("(%s) - Found ASSIGNMENT_OPERATOR\n", yytext); }
 	YY_BREAK
 case 86:
 YY_RULE_SETUP
-#line 133 "input.l"
+#line 134 "input.l"
 { printf("(%s) - Found EQUAL_OPERATOR\n", yytext); }
 	YY_BREAK
 case 87:
 YY_RULE_SETUP
-#line 134 "input.l"
+#line 135 "input.l"
 { printf("(%s) - Found NOT_OPERATOR\n", yytext); }
 	YY_BREAK
 case 88:
 YY_RULE_SETUP
-#line 135 "input.l"
+#line 136 "input.l"
 { printf("(%s) - Found OR_OPERATOR\n", yytext); }
 	YY_BREAK
 case 89:
 YY_RULE_SETUP
-#line 136 "input.l"
+#line 137 "input.l"
 { printf("(%s) - Found AND_OPERATOR\n", yytext); }
 	YY_BREAK
 case 90:
 YY_RULE_SETUP
-#line 138 "input.l"
+#line 139 "input.l"
 { printf("(%s) - Found RANGE_OPERATOR\n", yytext); }
 	YY_BREAK
 case 91:
 YY_RULE_SETUP
-#line 139 "input.l"
+#line 140 "input.l"
 { printf("(%s) - Found RANGE_EQUAL_OPERATOR\n", yytext); }
 	YY_BREAK
 case 92:
 YY_RULE_SETUP
-#line 140 "input.l"
+#line 141 "input.l"
 { printf("(%s) - Found ARROW_OPERATOR\n", yytext); }
 	YY_BREAK
 case 93:
 YY_RULE_SETUP
-#line 142 "input.l"
+#line 143 "input.l"
 { printf("(%s) - Found SQUARE_BRACKET\n", yytext); }
 	YY_BREAK
 case 94:
 YY_RULE_SETUP
-#line 143 "input.l"
+#line 144 "input.l"
 { printf("(%s) - Found SQUARE_BRACKET\n", yytext); }
 	YY_BREAK
 case 95:
 YY_RULE_SETUP
-#line 144 "input.l"
+#line 145 "input.l"
 { printf("(%s) - Found ROUND_BRACKET\n", yytext); }
 	YY_BREAK
 case 96:
 YY_RULE_SETUP
-#line 145 "input.l"
+#line 146 "input.l"
 { printf("(%s) - Found ROUND_BRACKET\n", yytext); }
 	YY_BREAK
 case 97:
 YY_RULE_SETUP
-#line 146 "input.l"
+#line 147 "input.l"
 { printf("(%s) - Found BRACE\n", yytext); }
 	YY_BREAK
 case 98:
 YY_RULE_SETUP
-#line 147 "input.l"
+#line 148 "input.l"
 { printf("(%s) - Found BRACE\n", yytext); }
 	YY_BREAK
 case 99:
 YY_RULE_SETUP
-#line 148 "input.l"
+#line 149 "input.l"
 { printf("(%s) - Found SEMICOLON\n", yytext); }
 	YY_BREAK
 case 100:
 YY_RULE_SETUP
-#line 149 "input.l"
+#line 150 "input.l"
 { printf("(%s) - Found COMMA\n", yytext); }
 	YY_BREAK
 case 101:
 YY_RULE_SETUP
-#line 150 "input.l"
+#line 151 "input.l"
 { printf("(%s) - Found COLON\n", yytext); }
 	YY_BREAK
 case 102:
 YY_RULE_SETUP
-#line 151 "input.l"
+#line 152 "input.l"
 { printf("(%s) - Found DOT\n", yytext); }
 	YY_BREAK
 case 103:
 YY_RULE_SETUP
-#line 152 "input.l"
+#line 153 "input.l"
 { printf("(%s) - Found AMPERSAND\n", yytext); }
 	YY_BREAK
 case 104:
 YY_RULE_SETUP
-#line 154 "input.l"
+#line 155 "input.l"
 { printf("(%s) - Found IDENTIFIER\n", yytext); }
 	YY_BREAK
 case 105:
 YY_RULE_SETUP
-#line 156 "input.l"
+#line 157 "input.l"
 {
 remove_underline();
 remove_i32();
-printf("(%d) - Found DECIMAL_INTEGER\n", atoi(yytext));
+printf("(%d) - Found DECIMAL_INTEGER\n", atoi(buffer));
 }
 	YY_BREAK
 case 106:
 YY_RULE_SETUP
-#line 162 "input.l"
+#line 163 "input.l"
 {
 remove_f64();
 remove_underline();
-printf("(%f) - Found FLOAT_CONST\n", atof(yytext));
+printf("(%f) - Found FLOAT_CONST\n", atof(buffer));
 }
 	YY_BREAK
 case 107:
 YY_RULE_SETUP
-#line 168 "input.l"
+#line 169 "input.l"
 {
 remove_f64();
 remove_underline();
-printf("(%f) - Found FLOAT_CONST\n", atof(yytext));
+printf("(%f) - Found FLOAT_CONST\n", atof(buffer));
 }
 	YY_BREAK
 case 108:
 YY_RULE_SETUP
-#line 174 "input.l"
+#line 175 "input.l"
 {
 remove_underline();
 remove_i32();
-printf("(%d) - Found OCTAL_INTEGER\n", strtol(yytext+2, NULL, 8));
+printf("(%d) - Found OCTAL_INTEGER\n", strtol(buffer+2, NULL, 8));
 }
 	YY_BREAK
 case 109:
 YY_RULE_SETUP
-#line 180 "input.l"
+#line 181 "input.l"
 {
 remove_underline();
 remove_i32();
-printf("(%d) - Found HEXADECIMAL_INTEGER\n", strtol(yytext+2, NULL, 16));
+printf("(%d) - Found HEXADECIMAL_INTEGER\n", strtol(buffer+2, NULL, 16));
 }
 	YY_BREAK
 case 110:
 YY_RULE_SETUP
-#line 186 "input.l"
+#line 187 "input.l"
 {
 remove_underline();
 remove_i32();
-printf("(%d) - Found BINARY_INTEGER\n", strtol(yytext+2, NULL, 2));
+printf("(%d) - Found BINARY_INTEGER\n", strtol(buffer+2, NULL, 2));
 }
 	YY_BREAK
 case 111:
 YY_RULE_SETUP
-#line 192 "input.l"
+#line 193 "input.l"
 { printf("(%s) - Error IDENTIFIER\n", yytext); }
 	YY_BREAK
 case 112:
 YY_RULE_SETUP
-#line 194 "input.l"
+#line 195 "input.l"
 {}
 	YY_BREAK
 case 113:
 YY_RULE_SETUP
-#line 195 "input.l"
+#line 196 "input.l"
 {}
 	YY_BREAK
 case 114:
 YY_RULE_SETUP
-#line 197 "input.l"
+#line 198 "input.l"
 ECHO;
 	YY_BREAK
-#line 1479 "lex.yy.c"
+#line 1480 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2361,7 +2362,7 @@ int main()
 	return 0;
 	}
 #endif
-#line 197 "input.l"
+#line 198 "input.l"
 
 
 int remove_char(char *s, int pos)
@@ -2378,28 +2379,31 @@ int remove_char(char *s, int pos)
 
 void remove_underline()
 {
-    char* ptr = strchr(yytext, '_');
+    strcpy(buffer, yytext);
+    char* ptr = strchr(buffer, '_');
     while (ptr != NULL){
-        ptr = strchr(yytext, '_');
-        int pos = ptr - yytext;
-        remove_char(yytext, pos);
+        ptr = strchr(buffer, '_');
+        int pos = ptr - buffer;
+        remove_char(buffer, pos);
     }
 }
 
 void remove_f64()
 {
-    char* ptr = strstr(yytext, "f64");
+    strcpy(buffer, yytext);
+    char* ptr = strstr(buffer, "f64");
     if (ptr != NULL){
-        int pos = ptr - yytext;
-        yytext[pos] = '\0';
+        int pos = ptr - buffer;
+        buffer[pos] = '\0';
     }
 }
 
 void remove_i32()
 {
-    char* ptr = strstr(yytext, "i32");
+    strcpy(buffer, yytext);
+    char* ptr = strstr(buffer, "i32");
         if (ptr != NULL){
-            int pos = ptr - yytext;
-            yytext[pos] = '\0';
+            int pos = ptr - buffer;
+            buffer[pos] = '\0';
         }
 }

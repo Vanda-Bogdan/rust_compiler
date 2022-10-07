@@ -12,12 +12,12 @@ DIGIT [0-9]
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+char buffer[1000];
 %}
 
 %%
 
 %{
-char buffer[1000];
 int remove_char(char *s, int pos);
 void remove_underline();
 void remove_f64();
@@ -156,37 +156,37 @@ printf("(%s) - Error CHAR\n", buffer); BEGIN(INITIAL);
 {DIGIT}+(_+{DIGIT}*)*(i32)? {
 remove_underline();
 remove_i32();
-printf("(%d) - Found DECIMAL_INTEGER\n", atoi(yytext));
+printf("(%d) - Found DECIMAL_INTEGER\n", atoi(buffer));
 }
 
 ([0-9]_*)+(\.([0-9]_*))?[Ee][+-]?([0-9]|_)*[0-9]([0-9]|_)*(f64)? {
 remove_f64();
 remove_underline();
-printf("(%f) - Found FLOAT_CONST\n", atof(yytext));
+printf("(%f) - Found FLOAT_CONST\n", atof(buffer));
 }
 
 ([0-9]_*)+(f64|\.(([0-9]_*)+(f64)?)) {
 remove_f64();
 remove_underline();
-printf("(%f) - Found FLOAT_CONST\n", atof(yytext));
+printf("(%f) - Found FLOAT_CONST\n", atof(buffer));
 }
 
 0o(_*[0-7])+(i32)? {
 remove_underline();
 remove_i32();
-printf("(%d) - Found OCTAL_INTEGER\n", strtol(yytext+2, NULL, 8));
+printf("(%d) - Found OCTAL_INTEGER\n", strtol(buffer+2, NULL, 8));
 }
 
 0x(_*[0-9A-Fa-f])+(i32)? {
 remove_underline();
 remove_i32();
-printf("(%d) - Found HEXADECIMAL_INTEGER\n", strtol(yytext+2, NULL, 16));
+printf("(%d) - Found HEXADECIMAL_INTEGER\n", strtol(buffer+2, NULL, 16));
 }
 
 0b(_*[0-1])+(i32)? {
 remove_underline();
 remove_i32();
-printf("(%d) - Found BINARY_INTEGER\n", strtol(yytext+2, NULL, 2));
+printf("(%d) - Found BINARY_INTEGER\n", strtol(buffer+2, NULL, 2));
 }
 
 [0-9]*[a-zA-Z_][a-zA-Z0-9_]* { printf("(%s) - Error IDENTIFIER\n", yytext); }
@@ -210,28 +210,31 @@ int remove_char(char *s, int pos)
 
 void remove_underline()
 {
-    char* ptr = strchr(yytext, '_');
+    strcpy(buffer, yytext);
+    char* ptr = strchr(buffer, '_');
     while (ptr != NULL){
-        ptr = strchr(yytext, '_');
-        int pos = ptr - yytext;
-        remove_char(yytext, pos);
+        ptr = strchr(buffer, '_');
+        int pos = ptr - buffer;
+        remove_char(buffer, pos);
     }
 }
 
 void remove_f64()
 {
-    char* ptr = strstr(yytext, "f64");
+    strcpy(buffer, yytext);
+    char* ptr = strstr(buffer, "f64");
     if (ptr != NULL){
-        int pos = ptr - yytext;
-        yytext[pos] = '\0';
+        int pos = ptr - buffer;
+        buffer[pos] = '\0';
     }
 }
 
 void remove_i32()
 {
-    char* ptr = strstr(yytext, "i32");
+    strcpy(buffer, yytext);
+    char* ptr = strstr(buffer, "i32");
         if (ptr != NULL){
-            int pos = ptr - yytext;
-            yytext[pos] = '\0';
+            int pos = ptr - buffer;
+            buffer[pos] = '\0';
         }
 }
