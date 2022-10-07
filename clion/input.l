@@ -123,6 +123,10 @@ printf("(%s) - Error CHAR\n", buffer); BEGIN(INITIAL);
 \- { printf("(%s) - Found MINUS_OPERATOR\n", yytext); }
 \* { printf("(%s) - Found MUL_OPERATOR\n", yytext); }
 \/ { printf("(%s) - Found DIV_OPERATOR\n", yytext); }
+\+\= { printf("(%s) - Found PLUS_ASSIGNMENT_OPERATOR\n", yytext); }
+\-\= { printf("(%s) - Found MINUS_ASSIGNMENT_OPERATOR\n", yytext); }
+\*\= { printf("(%s) - Found MUL_ASSIGNMENT_OPERATOR\n", yytext); }
+\/\= { printf("(%s) - Found DIV_ASSIGNMENT_OPERATOR\n", yytext); }
 \<= { printf("(%s) - Found LESS_OR_EQUAL_OPERATOR\n", yytext); }
 \>= { printf("(%s) - Found MORE_OR_EQUAL_OPERATOR\n", yytext); }
 \< { printf("(%s) - Found LESS_OPERATOR\n", yytext); }
@@ -130,6 +134,7 @@ printf("(%s) - Error CHAR\n", buffer); BEGIN(INITIAL);
 \!= { printf("(%s) - Found NOT_EQUAL_OPERATOR\n", yytext); }
 = { printf("(%s) - Found ASSIGNMENT_OPERATOR\n", yytext); }
 \^ { printf("(%s) - Found CIRCUMFLEX\n", yytext); }
+
 
 == { printf("(%s) - Found EQUAL_OPERATOR\n", yytext); }
 \! { printf("(%s) - Found NOT_OPERATOR\n", yytext); }
