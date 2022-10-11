@@ -5,11 +5,12 @@
 %token INT BOOL STRING FLOAT CHAR
 
 %token ';' '(' '{' '}'
-%token RL RIRL // .. ..=
+%token RANGE RANGE_IN // .. ..=
+%token RIGHT_ARROW
 
-%right '=' PLUS_ASGN MINUS_ASGN MUL_ASGN DIV_ASGN // = += -= *= /=
+%right '=' PLUS_ASGN MINUS_ASGN MUL_ASGN DIV_ASGN REM_ASGN// = += -= *= /= %=
 %left AND OR
-%left '<' '>' L_EQ G_EQ EQ N_EQ                    // <= >= == !=
+%left '<' '>' LESS_EQUAL GREATER_EQUAL EQUAL NOT_EQUAL     // <= >= == !=
 %left '+' '-'
 %left '*' '/'
 %left '!' UMINUS
@@ -17,101 +18,220 @@
 
 %%
 
-program : stmt_seq_e
+Program: Function
 ;
 
-while_stmt: WHILE '(' expr ')' '{' stmt_seq_e '}'
-          | WHILE expr '{' stmt_seq_e '}'
-          ;
+//--------------------Expressions---------------------
 
-if_stmt: IF '(' expr ')' '{' stmt_seq_e '}' //убрать, вернуть скобки в expr
-       | IF expr '{' stmt_seq_e '}'
-       | IF '(' expr ')' stmt_seq_e ELSE '{' stmt_seq_e '}'
-       | IF expr stmt_seq_e ELSE '{' stmt_seq_e '}'
-       ;
 
-for_stmt: FOR ID IN expr '{' stmt_seq_e '}'
-;
+ExprList_final: /*empty*/
+              | ExprList ','
+              | ExprList
+              ;
 
-loop_stmt: LOOP '{' stmt_seq_e '}'
-;
-
-expr: INT_CONST
-    | BOOL_CONST
-    | STRING_CONST
-    | FLOAT_CONST
-    | CHAR_CONST
-    | expr '+' expr
-    | expr '-' expr
-    | expr '*' expr
-    | expr '/' expr
-    | expr PLUS_ASGN expr
-    | expr MINUS_ASGN expr
-    | expr MUL_ASGN expr
-    | expr DIV_ASGN expr
-    | expr '=' expr
-    | expr '<' expr
-    | expr '>' expr
-    | expr L_EQ expr
-    | expr G_EQ expr
-    | expr EQ expr
-    | expr N_EQ expr
-    | expr AND expr
-    | expr OR expr
-    | '!' expr
-    | '-' expr %prec UMINUS
-    | ID
-    | ID '(' expr_list_e ')'
-    | '(' expr ')'
-    ;
-
-expr_list_e: /*empty*/
-           | expr_list
-           ;
-
-expr_list: expr
-         | expr_list ',' expr
-         ;
-
-stmt: expr ';'
-    | '{' stmt_seq_e '}'
-    | while_stmt
-    | for_stmt
-    | if_stmt
-    | loop_stmt
-    ;
-
-stmt_seq: stmt
-        | stmt_seq stmt
+ExprList: Expr
+        | ExprList ',' Expr
         ;
 
-stmt_seq_e: /*empty*/
-          | stmt_seq
+Expr : ExprWithoutBlock
+     | ExprWithBlock
+     ;
+
+//--------------------ExprWithoutBlock---------------------
+ExprWithoutBlock: Literal
+                | OperatorExpr
+                | BREAK Expr
+                | CONTINUE
+                | '(' Expr ')'
+                | ArrayExpr
+                | Expr '[' Expr ']'                     //Index
+                | Expr '(' ExprList_final ')'           //Call function
+                | Expr '.' ID '(' ExprList_final ')'    //Call method
+                | Expr '.' ID                           //Field access
+                | RangeExpr
+                | ReturnExpr
+                ;
+
+Literal: CHAR_LITERAL
+           | STRING_LITERAL
+           | INT_LITERAL
+           | FLOAT_LITERAL
+           | TRUE
+           | FALSE
+           ;
+
+OperatorExpr: Expr '+' Expr             //Arithmetic
+            | Expr '-' Expr
+            | Expr '*' Expr
+            | Expr '/' Expr
+            | Expr '%' Expr
+            | Expr EQUAL Expr           //Comparison
+            | Expr NOT_EQUAL Expr
+            | Expr '>' Expr
+            | Expr '<' Expr
+            | Expr GREATER_EQUAL Expr
+            | Expr LESS_EQUAL Expr
+            | Expr '?'                  //ErrorPropagation
+            | '-' Expr %prec UMINUS     //Negation
+            | '!' Expr
+            | Expr OR Expr              //Boolean
+            | Expr AND Expr
+            | Expr '=' Expr             //Assignment
+            | Expr PLUS_ASGN Expr
+            | Expr MINUS_ASGN Expr
+            | Expr MUL_ASGN Expr
+            | Expr DIV_ASGN Expr
+            | Expr REM_ASGN Expr
+
+ArrayExpr: '[' ExprList_final ']'       //Внутри скобок может быть пусто??
+         | '[' Expr ';' Expr ']'
+         ;
+
+RangeExpr: Expr RANGE Expr
+         | Expr RANGE
+         | RANGE Expr
+         | RANGE
+         | Expr RANGE_IN Expr
+         | RANGE_IN Expr
+         ;
+
+ReturnExpr: RETURN Expr
+          | RETURN
           ;
 
-var_declar: let ID ':' type ';'
-          | let ID '=' expr ';' // вариант указать тип (проверить возможность дефолтного значения)
-          ;
+//--------------------ExprWithBlock---------------------
+ExprWithBlock: BlockExpr
+             | LoopExpr
+             | WhileExpr
+             | ForExpr
+             | IfExpr
+             ;
 
-func_declar: FN ID '(' declar_parameters_e ')' stmt_seq_e
+LoopExpr: LOOP BlockExpr
 ;
 
-declar_parameters_e: /*empty*/
-                   | declar_parameters
+WhileExpr: WHILE Expr BlockExpr
+;
+
+ForExpr: FOR ID IN Expr BlockExpr
+;
+
+IfExpr: IF Expr BlockExpr
+      | IF Expr BlockExpr ELSE BlockExpr
+
+BlockExpr: '{' StmtList '}'
+
+
+//--------------------Statement---------------------
+
+StmtList: Stmt
+        | ExprWithoutBlock
+        | StmtList Stmt
+        | StmtList ExprWithoutBlock
+        ;
+
+Stmt: ';'
+    | ExprStmt
+    | LetStmt
+    | OtherStmt
+    ;
+
+ExprStmt: ExprWithoutBlock ';'
+        | ExprWithBlock
+        ;
+
+LetStmt: LET ID ':' Type '=' Expr ';'
+       | LET ID '=' Expr ';'
+       | LET ID ':' Type ';'
+       | LET ID ';'
+       ;
+
+//---------OtherStatement---------
+OtherStmt: Enum
+         | Function
+         | ConstStmt
+         | Struct
+         ;
+// ДОБВАИТЬ СЮДА ЕЩЕ??????
+
+
+//----Enum----
+Enum: ENUM ID '{' EnumItems '}'
+    | ENUM ID '{' EnumItems ',' '}'
+    ;
+
+EnumItems: EnumItem
+         | EnumItems ',' EnumItem
+         ;
+
+EnumItem: ID
+;
+
+//----Function----
+Function: fn ID '(' FuncParamList ')' FuncReturnType BlockExpr
+        | fn ID '(' FuncParamList ')' FuncReturnType ';'
+        | fn ID '(' FuncParamList ')' BlockExpr
+        | fn ID '(' FuncParamList ')' ';'
+        ;
+
+FuncParamList_final: /*empty*/
+                   | FuncParamList
+                   | FuncParamList ','
                    ;
 
-declar_parameters: declar_param
-                 | declar_parameters ',' declar_param
-                 ;
+FuncParamList: FuncParam
+             | FuncParamList ',' FuncParam
+             ;
 
-declar_param: ID ':' type
+FuncParam: Pattern ':' Type
 ;
 
-let: LET MUT
-   | LET
-   ;
+FuncReturnType: RIGHT_ARROW Type
+;
 
-type: INT
+
+//----Pattern----
+Pattern: Literal
+       | ID
+       | '(' Pattern ')'
+       | SlicePattern
+       ;
+
+SlicePattern: SlicePatternList
+            | SlicePatternList ','
+            ;
+
+SlicePatternList: Pattern
+                | SlicePatternList ',' Pattern
+                ;
+
+//----Struct----
+
+Struct: STRUCT ID '{' StructFields_final '}'
+      | STRUCT ID ';'
+      ;
+
+StructFields_final: /*empty*/
+                  | StructFields
+                  | StructFields ','
+                  ;
+
+StructFields: StructField
+            | StructFields ',' StructField
+            ;
+
+StructField: ID ':' Type
+;
+
+
+//---------ConstStatement---------
+ConstStmt: CONST ID ':' Type ';'
+         | CONST ID ':' Type '=' Expr ';'
+         ;
+
+
+//---------Type---------
+Type: INT
     | STRING
     | CHAR
     | FLOAT
