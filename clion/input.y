@@ -1,20 +1,25 @@
-%token FOR LOOP IN IF ELSE WHILE LET MUT FN
+%token FOR LOOP IN IF ELSE WHILE LET MUT FN BREAK CONTINUE RETURN ENUM CONST STRUCT IMPL TRAIT PUB CRATE SELF SUPER
 %token ID
 
-%token INT_CONST BOOL_CONST STRING_CONST FLOAT_CONST CHAR_CONST
+%token INT_LITERAL TRUE FALSE STRING_LITERAL FLOAT_LITERAL CHAR_LITERAL
 %token INT BOOL STRING FLOAT CHAR
 
 %token ';' '(' '{' '}'
 %token RANGE RANGE_IN // .. ..=
 %token RIGHT_ARROW
 
-%right '=' PLUS_ASGN MINUS_ASGN MUL_ASGN DIV_ASGN REM_ASGN// = += -= *= /= %=
+%right '=' PLUS_ASGN MINUS_ASGN MUL_ASGN DIV_ASGN REM_ASGN // = += -= *= /= %=
 %left AND OR
 %left '<' '>' LESS_EQUAL GREATER_EQUAL EQUAL NOT_EQUAL     // <= >= == !=
 %left '+' '-'
 %left '*' '/'
 %left '!' UMINUS
 %nonassoc ')'
+
+
+%{
+#include tree_nodes.h
+%}
 
 %%
 
@@ -50,15 +55,16 @@ ExprWithoutBlock: Literal
                 | Expr '.' ID                           //Field access
                 | RangeExpr
                 | ReturnExpr
+                | ID
                 ;
 
 Literal: CHAR_LITERAL
-           | STRING_LITERAL
-           | INT_LITERAL
-           | FLOAT_LITERAL
-           | TRUE
-           | FALSE
-           ;
+       | STRING_LITERAL
+       | INT_LITERAL
+       | FLOAT_LITERAL
+       | TRUE
+       | FALSE
+       ;
 
 OperatorExpr: Expr '+' Expr             //Arithmetic
             | Expr '-' Expr
@@ -82,6 +88,7 @@ OperatorExpr: Expr '+' Expr             //Arithmetic
             | Expr MUL_ASGN Expr
             | Expr DIV_ASGN Expr
             | Expr REM_ASGN Expr
+            ;
 
 ArrayExpr: '[' ExprList_final ']'       //Внутри скобок может быть пусто??
          | '[' Expr ';' Expr ']'
@@ -118,9 +125,10 @@ ForExpr: FOR ID IN Expr BlockExpr
 
 IfExpr: IF Expr BlockExpr
       | IF Expr BlockExpr ELSE BlockExpr
+      ;
 
 BlockExpr: '{' StmtList '}'
-
+;
 
 //--------------------Statement---------------------
 
@@ -134,9 +142,11 @@ Stmt: ';'
     | ExprStmt
     | LetStmt
     | OtherStmt
+    | Visibility OtherStmt
     ;
 
 ExprStmt: ExprWithoutBlock ';'
+        | ExprWithBlock ';'
         | ExprWithBlock
         ;
 
@@ -151,9 +161,9 @@ OtherStmt: Enum
          | Function
          | ConstStmt
          | Struct
+         | Trait
+         | Impl
          ;
-// ДОБВАИТЬ СЮДА ЕЩЕ??????
-
 
 //----Enum----
 Enum: ENUM ID '{' EnumItems '}'
@@ -164,14 +174,19 @@ EnumItems: EnumItem
          | EnumItems ',' EnumItem
          ;
 
-EnumItem: ID
-;
+EnumItem: Visibility ID
+        | ID
+        | Visibility ID '=' Expr
+        | ID '=' Expr
+        | Visibility ID '=' '{' StructFields_final '}'
+        | ID '=' '{' StructFields_final '}'
+        ;
 
 //----Function----
-Function: fn ID '(' FuncParamList ')' FuncReturnType BlockExpr
-        | fn ID '(' FuncParamList ')' FuncReturnType ';'
-        | fn ID '(' FuncParamList ')' BlockExpr
-        | fn ID '(' FuncParamList ')' ';'
+Function: FN ID '(' FuncParamList_final ')' FuncReturnType BlockExpr
+        | FN ID '(' FuncParamList_final ')' FuncReturnType ';'
+        | FN ID '(' FuncParamList_final ')' BlockExpr
+        | FN ID '(' FuncParamList_final ')' ';'
         ;
 
 FuncParamList_final: /*empty*/
@@ -183,29 +198,31 @@ FuncParamList: FuncParam
              | FuncParamList ',' FuncParam
              ;
 
-FuncParam: Pattern ':' Type
+FuncParam: ID ':' Type
 ;
 
 FuncReturnType: RIGHT_ARROW Type
 ;
 
 
-//----Pattern----
-Pattern: Literal
+//-----Pattern-----
+/*Pattern: Literal
        | ID
        | '(' Pattern ')'
        | SlicePattern
        ;
 
-SlicePattern: SlicePatternList
-            | SlicePatternList ','
+SlicePattern: '[' SlicePatternList ']'
+            | '[' SlicePatternList ',' ']'
             ;
+
 
 SlicePatternList: Pattern
                 | SlicePatternList ',' Pattern
                 ;
+*/
 
-//----Struct----
+//-----Struct-----
 
 Struct: STRUCT ID '{' StructFields_final '}'
       | STRUCT ID ';'
@@ -220,15 +237,47 @@ StructFields: StructField
             | StructFields ',' StructField
             ;
 
-StructField: ID ':' Type
+StructField: Visibility ID ':' Type
+           | ID ':' Type
+           ;
+
+//---------Implementation---------
+Impl: InherentImpl
+    | TraitImpl
+    ;
+
+InherentImpl: IMPL Type '{' AssociatedItems_final '}'
 ;
 
+TraitImpl: IMPL ID FOR Type '{' AssociatedItems_final '}'
+;
+
+//-------------Trait-------------
+Trait: TRAIT ID '{' AssociatedItems_final '}'
+;
+
+AssociatedItems_final: /*empty*/
+                     | AssociatedItems
+                     ;
+
+AssociatedItems: AssociatedItem
+               | AssociatedItems AssociatedItem
+               ;
+
+AssociatedItem: Visibility Function
+              | Function
+              | Visibility ConstantItem
+              | ConstantItem
+              ;
+
+ConstantItem: CONST ID ':' Type ';'
+            | CONST ID ':' Type '=' Expr ';'
+            ;
 
 //---------ConstStatement---------
 ConstStmt: CONST ID ':' Type ';'
          | CONST ID ':' Type '=' Expr ';'
          ;
-
 
 //---------Type---------
 Type: INT
@@ -237,3 +286,10 @@ Type: INT
     | FLOAT
     | BOOL
     ;
+
+//---------Visibility---------
+Visibility: PUB
+          | PUB '(' CRATE ')'
+          | PUB '(' SELF ')'
+          | PUB '(' SUPER ')'
+          ;
