@@ -12,7 +12,6 @@ DIGIT [0-9]
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-char buffer[1000];
 %}
 
 %%
@@ -24,8 +23,8 @@ void remove_f64();
 void remove_i32();
 int int_buffer;
 char buf_char[2];
+char buffer[1000];
 %}
-
 
 as { printf("(%s) - Found KW_AS\n", yytext); }
 break { printf("(%s) - Found KW_BREAK\n", yytext); }
@@ -37,7 +36,6 @@ enum { printf("(%s) - Found KW_ENUM\n", yytext); }
 extern { printf("(%s) - Found KW_EXTERN\n", yytext); }
 fn { printf("(%s) - Found KW_FN\n", yytext); }
 for { printf("(%s) - Found KW_FOR\n", yytext); }
-f64 { printf("(%s) - Found KW_FLOAT64\n", yytext); }
 if { printf("(%s) - Found KW_IF\n", yytext); }
 impl { printf("(%s) - Found KW_IMPL\n", yytext); }
 in { printf("(%s) - Found KW_IN\n", yytext); }
@@ -64,7 +62,6 @@ while { printf("(%s) - Found KW_WHILE\n", yytext); }
 async { printf("(%s) - Found KW_ASYNC\n", yytext); }
 await { printf("(%s) - Found KW_AWAITE\n", yytext); }
 dyn { printf("(%s) - Found KW_DYN\n", yytext); }
-i32 { printf("(%s) - Found KW_INTEGER32\n", yytext); }
 String { printf("(%s) - Found KW_STRING\n", yytext); }
 char { printf("(%s) - Found KW_CHAR\n", yytext); }
 bool { printf("(%s) - Found KW_BOOLEAN\n", yytext); }
@@ -160,45 +157,50 @@ printf("(%s) - Error CHAR\n", buffer); BEGIN(INITIAL);
 [a-zA-Z_][a-zA-Z0-9_]* { printf("(%s) - Found IDENTIFIER\n", yytext); }
 
 {DIGIT}+(_+{DIGIT}*)*(i32)? {
-remove_underline();
-remove_i32();
+strcpy(buffer, yytext);
+remove_underline(buffer);
+remove_i32(buffer);
 printf("(%d) - Found DECIMAL_INTEGER\n", atoi(buffer));
 }
 
 ([0-9]_*)+(\.([0-9]_*))?[Ee][+-]?([0-9]|_)*[0-9]([0-9]|_)*(f64)? {
-remove_f64();
-remove_underline();
+strcpy(buffer, yytext);
+remove_underline(buffer);
+remove_f64(buffer);
 printf("(%f) - Found FLOAT_CONST\n", atof(buffer));
 }
 
 ([0-9]_*)+(f64|\.(([0-9]_*)+(f64)?)) {
-remove_f64();
-remove_underline();
+strcpy(buffer, yytext);
+remove_underline(buffer);
+remove_f64(buffer);
 printf("(%f) - Found FLOAT_CONST\n", atof(buffer));
 }
 
 0o(_*[0-7])+(i32)? {
-remove_underline();
-remove_i32();
+strcpy(buffer, yytext);
+remove_underline(buffer);
+remove_i32(buffer);
 printf("(%d) - Found OCTAL_INTEGER\n", strtol(buffer+2, NULL, 8));
 }
 
 0x(_*[0-9A-Fa-f])+(i32)? {
-remove_underline();
-remove_i32();
+strcpy(buffer, yytext);
+remove_underline(buffer);
+remove_i32(buffer);
 printf("(%d) - Found HEXADECIMAL_INTEGER\n", strtol(buffer+2, NULL, 16));
 }
 
 0b(_*[0-1])+(i32)? {
-remove_underline();
-remove_i32();
+strcpy(buffer, yytext);
+remove_underline(buffer);
+remove_i32(buffer);
 printf("(%d) - Found BINARY_INTEGER\n", strtol(buffer+2, NULL, 2));
 }
 
 [0-9]*[a-zA-Z_][a-zA-Z0-9_]* { printf("(%s) - Error IDENTIFIER\n", yytext); }
 
-" " {}
-\n {}
+[[:space:]] {}
 
 %%
 
@@ -214,9 +216,8 @@ int remove_char(char *s, int pos)
   return 1;
 }
 
-void remove_underline()
+void remove_underline(char* buffer)
 {
-    strcpy(buffer, yytext);
     char* ptr = strchr(buffer, '_');
     while (ptr != NULL){
         ptr = strchr(buffer, '_');
@@ -225,9 +226,8 @@ void remove_underline()
     }
 }
 
-void remove_f64()
+void remove_f64(char* buffer)
 {
-    strcpy(buffer, yytext);
     char* ptr = strstr(buffer, "f64");
     if (ptr != NULL){
         int pos = ptr - buffer;
@@ -235,9 +235,8 @@ void remove_f64()
     }
 }
 
-void remove_i32()
+void remove_i32(char* buffer)
 {
-    strcpy(buffer, yytext);
     char* ptr = strstr(buffer, "i32");
         if (ptr != NULL){
             int pos = ptr - buffer;
