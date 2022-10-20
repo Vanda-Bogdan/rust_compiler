@@ -1,19 +1,23 @@
-%token FOR LOOP IN IF ELSE WHILE LET MUT FN BREAK CONTINUE RETURN ENUM CONST STRUCT IMPL TRAIT PUB CRATE SELF SUPER
+%token FOR LOOP IN IF ELSE WHILE LET MUT FN CONTINUE ENUM CONST STRUCT IMPL TRAIT PUB CRATE SELF SUPER
 %token ID
 
 %token INT_LITERAL TRUE FALSE STRING_LITERAL FLOAT_LITERAL CHAR_LITERAL
 %token INT BOOL STRING FLOAT CHAR
 
-%token ';' '(' '{' '}'
-%token RANGE RANGE_IN // .. ..=
+%token ';' '(' '}' ']'
+ // .. ..=
 %token RIGHT_ARROW
 
+%nonassoc RETURN BREAK
+%nonassoc '.' '[' '{'
 %right '=' PLUS_ASGN MINUS_ASGN MUL_ASGN DIV_ASGN REM_ASGN // = += -= *= /= %=
+%nonassoc RANGE RANGE_IN
 %left AND OR
 %left '<' '>' LESS_EQUAL GREATER_EQUAL EQUAL NOT_EQUAL     // <= >= == !=
 %left '+' '-'
-%left '*' '/'
+%left '*' '/' '%'
 %left '!' UMINUS
+%nonassoc '?'
 %nonassoc ')'
 
 
@@ -38,19 +42,14 @@ ExprList: Expr
         | ExprList ',' Expr
         ;
 
-Expr : ExprWithoutBlock
-     | ExprWithBlock
-     ;
-
-//--------------------ExprWithoutBlock---------------------
-ExprWithoutBlock: Literal
+Expr: Literal       { $$ = $1}
                 | OperatorExpr
-                | BREAK Expr
+                | BREAK
                 | CONTINUE
                 | '(' Expr ')'
                 | ArrayExpr
                 | Expr '[' Expr ']'                     //Index
-                | Expr '(' ExprList_final ')'           //Call function
+                | ID '(' ExprList_final ')'           //Call function
                 | Expr '.' ID '(' ExprList_final ')'    //Call method
                 | Expr '.' ID                           //Field access
                 | RangeExpr
@@ -58,7 +57,7 @@ ExprWithoutBlock: Literal
                 | ID
                 ;
 
-Literal: CHAR_LITERAL
+Literal: CHAR_LITERAL { $$ = ExprFromLiteral($1); }
        | STRING_LITERAL
        | INT_LITERAL
        | FLOAT_LITERAL
@@ -90,7 +89,7 @@ OperatorExpr: Expr '+' Expr             //Arithmetic
             | Expr REM_ASGN Expr
             ;
 
-ArrayExpr: '[' ExprList_final ']'       //Внутри скобок может быть пусто??
+ArrayExpr: '[' ExprList_final ']'
          | '[' Expr ';' Expr ']'
          ;
 
@@ -106,49 +105,43 @@ ReturnExpr: RETURN Expr
           | RETURN
           ;
 
-//--------------------ExprWithBlock---------------------
-ExprWithBlock: BlockExpr
-             | LoopExpr
-             | WhileExpr
-             | ForExpr
-             | IfExpr
+StmtWithBlock: IfStmt
+             | LoopStmt
+             | WhileStmt
+             | ForStmt
              ;
 
-LoopExpr: LOOP BlockExpr
+LoopStmt: LOOP BlockExpr
 ;
 
-WhileExpr: WHILE Expr BlockExpr
+WhileStmt: WHILE Expr BlockExpr
 ;
 
-ForExpr: FOR ID IN Expr BlockExpr
+ForStmt: FOR ID IN Expr BlockExpr
 ;
 
-IfExpr: IF Expr BlockExpr
+IfStmt: IF Expr BlockExpr
       | IF Expr BlockExpr ELSE BlockExpr
       ;
 
 BlockExpr: '{' StmtList '}'
-;
+         | '{' '}'
+         ;
 
 //--------------------Statement---------------------
 
 StmtList: Stmt
-        | ExprWithoutBlock
         | StmtList Stmt
-        | StmtList ExprWithoutBlock
         ;
 
 Stmt: ';'
-    | ExprStmt
+    | Expr ';'
+    | StmtWithBlock
     | LetStmt
     | OtherStmt
     | Visibility OtherStmt
     ;
 
-ExprStmt: ExprWithoutBlock ';'
-        | ExprWithBlock ';'
-        | ExprWithBlock
-        ;
 
 LetStmt: LET ID ':' Type '=' Expr ';'
        | LET ID '=' Expr ';'
@@ -203,24 +196,6 @@ FuncParam: ID ':' Type
 
 FuncReturnType: RIGHT_ARROW Type
 ;
-
-
-//-----Pattern-----
-/*Pattern: Literal
-       | ID
-       | '(' Pattern ')'
-       | SlicePattern
-       ;
-
-SlicePattern: '[' SlicePatternList ']'
-            | '[' SlicePatternList ',' ']'
-            ;
-
-
-SlicePatternList: Pattern
-                | SlicePatternList ',' Pattern
-                ;
-*/
 
 //-----Struct-----
 
