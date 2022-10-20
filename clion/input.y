@@ -43,21 +43,21 @@ ExprList: Expr
         ;
 
 Expr: Literal       { $$ = $1}
-                | OperatorExpr
-                | BREAK
-                | CONTINUE
-                | '(' Expr ')'
-                | ArrayExpr
-                | Expr '[' Expr ']'                     //Index
-                | ID '(' ExprList_final ')'           //Call function
-                | Expr '.' ID '(' ExprList_final ')'    //Call method
-                | Expr '.' ID                           //Field access
-                | RangeExpr
-                | ReturnExpr
-                | ID
-                ;
+    | OperatorExpr  {}
+    | BREAK
+    | CONTINUE
+    | '(' Expr ')'
+    | ArrayExpr
+    | Expr '[' Expr ']' {$$ = ExprFromIndex($1,$3)}                    //Index
+    | ID '(' ExprList_final ')'           //Call function
+    | Expr '.' ID '(' ExprList_final ')'    //Call method
+    | Expr '.' ID                           //Field access
+    | RangeExpr
+    | ReturnExpr
+    | ID
+    ;
 
-Literal: CHAR_LITERAL { $$ = ExprFromLiteral($1); }
+Literal: CHAR_LITERAL { $$ = ExprFromCharLiteral($1); }
        | STRING_LITERAL
        | INT_LITERAL
        | FLOAT_LITERAL
@@ -65,7 +65,7 @@ Literal: CHAR_LITERAL { $$ = ExprFromLiteral($1); }
        | FALSE
        ;
 
-OperatorExpr: Expr '+' Expr             //Arithmetic
+OperatorExpr: Expr '+' Expr { $$ = createBinaryExpr(global_id, plus, $1, $3) }            //Arithmetic
             | Expr '-' Expr
             | Expr '*' Expr
             | Expr '/' Expr
