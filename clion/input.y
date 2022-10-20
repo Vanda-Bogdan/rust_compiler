@@ -57,36 +57,36 @@ Expr: Literal       { $$ = $1}
     | ID
     ;
 
-Literal: CHAR_LITERAL { $$ = ExprFromCharLiteral($1); }
-       | STRING_LITERAL
-       | INT_LITERAL
-       | FLOAT_LITERAL
-       | TRUE
-       | FALSE
+Literal: CHAR_LITERAL       { $$ = ExprFromCharLiteral($1); }
+       | STRING_LITERAL     { $$ = ExprFromStringLiteral($1); }
+       | INT_LITERAL        { $$ = ExprFromIntLiteral($1); }
+       | FLOAT_LITERAL      { $$ = ExprFromFloatLiteral($1); }
+       | TRUE               { $$ = ExprFromTrue($1); }
+       | FALSE              { $$ = ExprFromFalse($1); }
        ;
 
-OperatorExpr: Expr '+' Expr { $$ = createBinaryExpr(global_id, plus, $1, $3) }            //Arithmetic
-            | Expr '-' Expr
-            | Expr '*' Expr
-            | Expr '/' Expr
-            | Expr '%' Expr
-            | Expr EQUAL Expr           //Comparison
-            | Expr NOT_EQUAL Expr
-            | Expr '>' Expr
-            | Expr '<' Expr
-            | Expr GREATER_EQUAL Expr
-            | Expr LESS_EQUAL Expr
-            | Expr '?'                  //ErrorPropagation
-            | '-' Expr %prec UMINUS     //Negation
-            | '!' Expr
-            | Expr OR Expr              //Boolean
-            | Expr AND Expr
-            | Expr '=' Expr             //Assignment
-            | Expr PLUS_ASGN Expr
-            | Expr MINUS_ASGN Expr
-            | Expr MUL_ASGN Expr
-            | Expr DIV_ASGN Expr
-            | Expr REM_ASGN Expr
+OperatorExpr: Expr '+' Expr                         { $$ = createExpr(global_id, plus, $1, $3) }            //Arithmetic
+            | Expr '-' Expr                         { $$ = createExpr(global_id, minus, $1, $3) }
+            | Expr '*' Expr                         { $$ = createExpr(global_id, mul, $1, $3) }
+            | Expr '/' Expr                         { $$ = createExpr(global_id, div, $1, $3) }
+            | Expr '%' Expr                         { $$ = createExpr(global_id, rem, $1, $3) }
+            | Expr EQUAL Expr                       { $$ = createExpr(global_id, equal, $1, $3) }           //Comparison
+            | Expr NOT_EQUAL Expr                   { $$ = createExpr(global_id, not_equal, $1, $3) }
+            | Expr '>' Expr                         { $$ = createExpr(global_id, greater, $1, $3) }
+            | Expr '<' Expr                         { $$ = createExpr(global_id, less, $1, $3) }
+            | Expr GREATER_EQUAL Expr               { $$ = createExpr(global_id, greater_equal, $1, $3) }
+            | Expr LESS_EQUAL Expr                  { $$ = createExpr(global_id, less_equal, $1, $3) }
+            | Expr '?'                              { $$ = createExpr(global_id, qt, $1, 0) }        //ErrorPropagation
+            | '-' Expr %prec UMINUS                 { $$ = createExpr(global_id, uminus, 0, $2) }    //Negation
+            | '!' Expr                              { $$ = createExpr(global_id, neg, 0, $2) }
+            | Expr OR Expr                          { $$ = createExpr(global_id, or, $1, $3) }           //Boolean
+            | Expr AND Expr                         { $$ = createExpr(global_id, and, $1, $3) }
+            | Expr '=' Expr                         { $$ = createExpr(global_id, asgn, $1, $3) }        //Assignment
+            | Expr PLUS_ASGN Expr                   { $$ = createExpr(global_id, plus_asgn, $1, $3) }
+            | Expr MINUS_ASGN Expr                  { $$ = createExpr(global_id, minus_asgn, $1, $3) }
+            | Expr MUL_ASGN Expr                    { $$ = createExpr(global_id, mul_asgn, $1, $3) }
+            | Expr DIV_ASGN Expr                    { $$ = createExpr(global_id, div_asgn, $1, $3) }
+            | Expr REM_ASGN Expr                    { $$ = createExpr(global_id, rem_asgn, $1, $3) }
             ;
 
 ArrayExpr: '[' ExprList_final ']'
