@@ -33,28 +33,28 @@ Program: Function
 //--------------------Expressions---------------------
 
 
-ExprList_final: /*empty*/
-              | ExprList ','
-              | ExprList
+ExprList_final: /*empty*/    {$$ = ExprFromType(expr_type empty)}
+              | ExprList ',' {$$ = $1}
+              | ExprList     {$$ = $1}
               ;
 
-ExprList: Expr
-        | ExprList ',' Expr
+ExprList: Expr               { $$ = ExprList($1)}
+        | ExprList ',' Expr  { $$ = ExprListAdd($1,$3)}
         ;
 
-Expr: Literal       { $$ = $1}
-    | OperatorExpr  {}
-    | BREAK
-    | CONTINUE
-    | '(' Expr ')'
-    | ArrayExpr
-    | Expr '[' Expr ']' {$$ = ExprFromIndex($1,$3)}                    //Index
-    | ID '(' ExprList_final ')'           //Call function
-    | Expr '.' ID '(' ExprList_final ')'    //Call method
-    | Expr '.' ID                           //Field access
-    | RangeExpr
-    | ReturnExpr
-    | ID
+Expr: Literal       { $$ = $1 }
+    | OperatorExpr  { $$ = $1 }
+    | BREAK         { $$ = ExprFromType(expr_type break_expr)}
+    | CONTINUE      { $$ = ExprFromType(expr_type continue_expr)}
+    | '(' Expr ')'  { $$ = $2 }
+    | ArrayExpr     { $$ = $1 }
+    | Expr '[' Expr ']'                   {$$ = ExprFromIndex($1,$3)} //Index
+    | ID '(' ExprList_final ')'           {$$ = ExprFromCall($1,$3)} //Call function
+    | Expr '.' ID '(' ExprList_final ')'  {$$ = ExprFromMethod($3,$1,$5)}  //Call method
+    | Expr '.' ID                         {$$ = ExprFromField($3,$1)}   //Field access
+    | RangeExpr     {$$ = $1}
+    | ReturnExpr    {$$ = $1}
+    | ID            {$$ = ExprFromId($1)}
     ;
 
 Literal: CHAR_LITERAL       { $$ = ExprFromCharLiteral($1); }
@@ -65,47 +65,51 @@ Literal: CHAR_LITERAL       { $$ = ExprFromCharLiteral($1); }
        | FALSE              { $$ = ExprFromFalse($1); }
        ;
 
-OperatorExpr: Expr '+' Expr                         { $$ = createExpr(global_id, plus, $1, $3) }            //Arithmetic
-            | Expr '-' Expr                         { $$ = createExpr(global_id, minus, $1, $3) }
-            | Expr '*' Expr                         { $$ = createExpr(global_id, mul, $1, $3) }
-            | Expr '/' Expr                         { $$ = createExpr(global_id, div, $1, $3) }
-            | Expr '%' Expr                         { $$ = createExpr(global_id, rem, $1, $3) }
-            | Expr EQUAL Expr                       { $$ = createExpr(global_id, equal, $1, $3) }           //Comparison
-            | Expr NOT_EQUAL Expr                   { $$ = createExpr(global_id, not_equal, $1, $3) }
-            | Expr '>' Expr                         { $$ = createExpr(global_id, greater, $1, $3) }
-            | Expr '<' Expr                         { $$ = createExpr(global_id, less, $1, $3) }
-            | Expr GREATER_EQUAL Expr               { $$ = createExpr(global_id, greater_equal, $1, $3) }
-            | Expr LESS_EQUAL Expr                  { $$ = createExpr(global_id, less_equal, $1, $3) }
-            | Expr '?'                              { $$ = createExpr(global_id, qt, $1, 0) }        //ErrorPropagation
-            | '-' Expr %prec UMINUS                 { $$ = createExpr(global_id, uminus, 0, $2) }    //Negation
-            | '!' Expr                              { $$ = createExpr(global_id, neg, 0, $2) }
-            | Expr OR Expr                          { $$ = createExpr(global_id, or, $1, $3) }           //Boolean
-            | Expr AND Expr                         { $$ = createExpr(global_id, and, $1, $3) }
-            | Expr '=' Expr                         { $$ = createExpr(global_id, asgn, $1, $3) }        //Assignment
-            | Expr PLUS_ASGN Expr                   { $$ = createExpr(global_id, plus_asgn, $1, $3) }
-            | Expr MINUS_ASGN Expr                  { $$ = createExpr(global_id, minus_asgn, $1, $3) }
-            | Expr MUL_ASGN Expr                    { $$ = createExpr(global_id, mul_asgn, $1, $3) }
-            | Expr DIV_ASGN Expr                    { $$ = createExpr(global_id, div_asgn, $1, $3) }
-            | Expr REM_ASGN Expr                    { $$ = createExpr(global_id, rem_asgn, $1, $3) }
+OperatorExpr: Expr '+' Expr                         { $$ = Expr(global_id, plus, $1, $3) }            //Arithmetic
+            | Expr '-' Expr                         { $$ = Expr(global_id, minus, $1, $3) }
+            | Expr '*' Expr                         { $$ = Expr(global_id, mul, $1, $3) }
+            | Expr '/' Expr                         { $$ = Expr(global_id, div_expr, $1, $3) }
+            | Expr '%' Expr                         { $$ = Expr(global_id, rem, $1, $3) }
+            | Expr EQUAL Expr                       { $$ = Expr(global_id, equal, $1, $3) }           //Comparison
+            | Expr NOT_EQUAL Expr                   { $$ = Expr(global_id, not_equal, $1, $3) }
+            | Expr '>' Expr                         { $$ = Expr(global_id, greater, $1, $3) }
+            | Expr '<' Expr                         { $$ = Expr(global_id, less, $1, $3) }
+            | Expr GREATER_EQUAL Expr               { $$ = Expr(global_id, greater_equal, $1, $3) }
+            | Expr LESS_EQUAL Expr                  { $$ = Expr(global_id, less_equal, $1, $3) }
+            | Expr '?'                              { $$ = Expr(global_id, qt, $1, 0) }        //ErrorPropagation
+            | '-' Expr %prec UMINUS                 { $$ = Expr(global_id, uminus, 0, $2) }    //Negation
+            | '!' Expr                              { $$ = Expr(global_id, neg, 0, $2) }
+            | Expr OR Expr                          { $$ = Expr(global_id, or, $1, $3) }           //Boolean
+            | Expr AND Expr                         { $$ = Expr(global_id, and, $1, $3) }
+            | Expr '=' Expr                         { $$ = Expr(global_id, asgn, $1, $3) }        //Assignment
+            | Expr PLUS_ASGN Expr                   { $$ = Expr(global_id, plus_asgn, $1, $3) }
+            | Expr MINUS_ASGN Expr                  { $$ = Expr(global_id, minus_asgn, $1, $3) }
+            | Expr MUL_ASGN Expr                    { $$ = Expr(global_id, mul_asgn, $1, $3) }
+            | Expr DIV_ASGN Expr                    { $$ = Expr(global_id, div_asgn, $1, $3) }
+            | Expr REM_ASGN Expr                    { $$ = Expr(global_id, rem_asgn, $1, $3) }
             ;
 
-ArrayExpr: '[' ExprList_final ']'
-         | '[' Expr ';' Expr ']'
+ArrayExpr: '[' ExprList_final ']' {$$ = $2}
+         | '[' Expr ';' Expr ']'  {$$ = ExprFromArray($2,$4)}
          ;
 
-RangeExpr: Expr RANGE Expr
-         | Expr RANGE
-         | RANGE Expr
-         | RANGE
-         | Expr RANGE_IN Expr
-         | RANGE_IN Expr
+RangeExpr: Expr RANGE Expr      {$$ = ExprFromRange($1,$3)}
+         | Expr RANGE           {$$ = ExprFromRange($1,0)}
+         | RANGE Expr           {$$ = ExprFromRange(0,$2)}    
+         | RANGE                {$$ = ExprFromRange(0,0)}
+         | Expr RANGE_IN Expr   {$$ = ExprFromRangeIn($1,$3)}
+         | RANGE_IN Expr        {$$ = ExprFromRangeIn(0,$2)}
          ;
 
-ReturnExpr: RETURN Expr
-          | RETURN
+ReturnExpr: RETURN Expr { $$ = ExprFromReturn($2)}
+          | RETURN      { $$ = ExprFromReturn(0)}
           ;
 
-StmtWithBlock: IfStmt
+BlockExpr: '{' StmtList '}'
+         | '{' '}'
+         ;
+//--------------------Statement---------------------
+ExprWithBlock: IfStmt
              | LoopStmt
              | WhileStmt
              | ForStmt
@@ -124,12 +128,6 @@ IfStmt: IF Expr BlockExpr
       | IF Expr BlockExpr ELSE BlockExpr
       ;
 
-BlockExpr: '{' StmtList '}'
-         | '{' '}'
-         ;
-
-//--------------------Statement---------------------
-
 StmtList: Stmt
         | StmtList Stmt
         ;
@@ -147,6 +145,10 @@ LetStmt: LET ID ':' Type '=' Expr ';'
        | LET ID '=' Expr ';'
        | LET ID ':' Type ';'
        | LET ID ';'
+       | LET MUT ID ':' Type '=' Expr ';'
+       | LET MUT ID '=' Expr ';'
+       | LET MUT ID ':' Type ';'
+       | LET MUT ID ';'
        ;
 
 //---------OtherStatement---------
@@ -192,7 +194,8 @@ FuncParamList: FuncParam
              ;
 
 FuncParam: ID ':' Type
-;
+         | MUT ID ':' Type
+         ;
 
 FuncReturnType: RIGHT_ARROW Type
 ;
