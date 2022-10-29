@@ -9,7 +9,7 @@
 %token RIGHT_ARROW
 
 %nonassoc RETURN BREAK
-%nonassoc '.' '[' '{'
+%nonassoc '.' '[' '{'        //todo О.А. ругался на это, забыл на че поменять
 %right '='
 %nonassoc RANGE RANGE_IN
 %left AND OR
@@ -162,10 +162,6 @@ RangeExpr: ExprWithBlock RANGE ExprWithBlock
          | RANGE_IN ExprWithoutBlock
          ;
 
-ReturnExpr: RETURN ExprWithBlock
-          | RETURN ExprWithoutBlock
-          | RETURN
-          ;
 //------------------ExprWithBlock-------------------
 ExprWithBlock: IfExpr
              | LoopExpr
@@ -202,8 +198,7 @@ StmtList: Stmt
 
 Stmt: ';'
     | ExprWithoutBlock ';'
-    | ExprWithBlock ';'
-    | ExprWithBlock
+    | ExprWithBlock ';'              //todo убрал правило Stmt->ExprWithBlock т.к. вызвало конфликт с этой строчкой, можно вернуть если поймем как решить
     | LetStmt
     | OtherStmt
     | Visibility OtherStmt
@@ -340,6 +335,7 @@ Type: INT
     | CHAR
     | FLOAT
     | BOOL
+    | ID
     ;
 
 //---------Visibility---------
