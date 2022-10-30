@@ -9,15 +9,16 @@
 %token RIGHT_ARROW
 
 %nonassoc RETURN BREAK
-%nonassoc '.' '[' '{'        //todo О.А. ругался на это, забыл на че поменять
+%nonassoc '{'
 %right '='
 %nonassoc RANGE RANGE_IN
 %left AND OR
 %left '<' '>' LESS_EQUAL GREATER_EQUAL EQUAL NOT_EQUAL     // <= >= == !=
 %left '+' '-'
-%left '*' '/' '%'
+%left '*' '/'
 %left '!' UMINUS
 %nonassoc '?'
+%left '.' '['
 %nonassoc ')'
 
 
