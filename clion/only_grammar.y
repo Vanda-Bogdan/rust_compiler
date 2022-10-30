@@ -46,7 +46,7 @@ ExprList: ExprWithBlock
         ;
 
 //------------------ExprWithoutBlock-------------------
-ExprWithoutBlock: Literal
+ExprWithoutBlock: Literal              { $$ = $1; }
                 | OperatorExpr
                 | BREAK ExprWithBlock
                 | BREAK ExprWithoutBlock
@@ -71,7 +71,7 @@ ExprWithoutBlock: Literal
                 | ID
                 ;
 
-Literal: CHAR_LITERAL
+Literal: CHAR_LITERAL      //expr
        | STRING_LITERAL
        | INT_LITERAL
        | FLOAT_LITERAL
@@ -249,8 +249,8 @@ EnumItem: Visibility ID
         ;
 
 //----Function----
-Function: FN ID '(' FuncParamList_final ')' FuncReturnType BlockExpr
-        | FN ID '(' FuncParamList_final ')' FuncReturnType ';'
+Function: FN ID '(' FuncParamList_final ')' RIGHT_ARROW Type BlockExpr
+        | FN ID '(' FuncParamList_final ')' RIGHT_ARROW Type ';'
         | FN ID '(' FuncParamList_final ')' BlockExpr
         | FN ID '(' FuncParamList_final ')' ';'
         ;
@@ -267,9 +267,6 @@ FuncParamList: FuncParam
 FuncParam: ID ':' Type
          | MUT ID ':' Type
          ;
-
-FuncReturnType: RIGHT_ARROW Type
-;
 
 //-----Struct-----
 

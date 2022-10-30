@@ -4,9 +4,8 @@
 //------------------------Expression-----------------------------------
 enum expr_type{
     plus, minus, mul, div_expr, rem, equal, not_equal, greater, less, greater_equal,
-    less_equal, qt, uminus, neg, or, and, asgn, plus_asgn, minus_asgn, mul_asgn, div_asgn, rem_asgn,
-    break_expr, continue_expr, return_expr, empty, array_expr, index_expr, range_expr, rangein_expr,
-    id, call_expr, method_expr, field_access_expr,
+    less_equal, qt, uminus, neg, or, and, asgn, break_expr, continue_expr, return_expr, empty, array_expr, index_expr, range_expr, rangein_expr,
+    id, call_expr, method_expr, field_access_expr, if_expr, loop_expr, loop_while
 };
 
 struct expr_node {
@@ -22,6 +21,8 @@ struct expr_node {
     struct expr_node * expr_left;
     struct expr_node * expr_right;
     struct expr_node * next;
+    struct stmt_node * body;
+    struct stmt_node * else_body;
 };
 
 
@@ -33,5 +34,8 @@ enum stmt_type {
 struct stmt_node{
     enum stmt_type type;
     struct expr_node* expr;
+    
 
 };
+
+
