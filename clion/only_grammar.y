@@ -201,8 +201,8 @@ Stmt: ';'
     | ExprWithoutBlock ';'
     | ExprWithBlock ';'              //todo убрал правило Stmt->ExprWithBlock т.к. вызвало конфликт с этой строчкой, можно вернуть если поймем как решить
     | LetStmt
-    | OtherStmt
-    | Visibility OtherStmt
+    | DeclarationStmt
+    | Visibility DeclarationStmt
     ;
 
 
@@ -220,8 +220,8 @@ LetStmt: LET ID ':' Type '=' ExprWithBlock ';'
        | LET ID ';'
        ;
 
-//---------OtherStatement---------
-OtherStmt: Enum
+//---------DeclarationStatement---------
+DeclarationStmt: Enum
          | Function
          | ConstStmt
          | Struct
@@ -244,8 +244,8 @@ EnumItem: Visibility ID
         | Visibility ID '=' ExprWithoutBlock
         | ID '=' ExprWithBlock
         | ID '=' ExprWithoutBlock
-        | Visibility ID '=' '{' StructFields_final '}'
-        | ID '=' '{' StructFields_final '}'
+        | Visibility ID '{' StructFields_final '}'
+        | ID '{' StructFields_final '}'
         ;
 
 //----Function----
@@ -312,14 +312,9 @@ AssociatedItems: AssociatedItem
 
 AssociatedItem: Visibility Function
               | Function
-              | Visibility ConstantItem
-              | ConstantItem
+              | Visibility ConstStmt
+              | ConstStmt
               ;
-
-ConstantItem: CONST ID ':' Type ';'
-            | CONST ID ':' Type '=' ExprWithBlock ';'
-            | CONST ID ':' Type '=' ExprWithoutBlock ';'
-            ;
 
 //---------ConstStatement---------
 ConstStmt: CONST ID ':' Type ';'
