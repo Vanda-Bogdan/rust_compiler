@@ -22,7 +22,7 @@ enum expr_type{
     less_equal, qt, uminus, neg, or, and, asgn, break_expr, continue_expr,
     return_expr, empty, array_expr, array_expr_auto_fill, index_expr,
     range_expr, range_in_expr, range_left, range_right, range_in_right,
-    id, call_expr, method_expr, field_access_expr, if_expr, loop_expr, loop_while,
+    id, call_expr, method_expr, field_access_expr, if_expr, loop_expr, loop_while, loop_for, block_expr,
     int_lit, float_lit, char_lit, string_lit, bool_lit
 };
 
@@ -39,8 +39,8 @@ struct expr_node {
     struct expr_node * expr_right;
     struct expr_node * next;
     struct expr_list_node * expr_list;
-    struct stmt_node * body;
-    struct stmt_node * else_body;
+    struct expr_node * body;
+    struct expr_node * else_body;
     struct stmt_list_node* stmt_list;
 };
 
