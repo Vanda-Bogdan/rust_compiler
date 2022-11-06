@@ -112,3 +112,94 @@ struct expr_node* RangeExpr(enum expr_type type, struct expr_node* left, struct 
     return new_node;
 }
 
+//--------------------------------------IfExpr
+struct expr_node* IfExpr(struct expr_node* condition, struct expr_node* body, struct expr_node* else_body) {
+    struct expr_node* new_node = (struct expr_node*) malloc(sizeof (struct expr_node));
+    new_node->ID = global_id++;
+    new_node->type = if_expr;
+    new_node->expr_left = condition;
+    new_node->body = body;
+    new_node->else_body = else_body;
+    return new_node;
+}
+
+//--------------------------------------CycleExpr
+struct expr_node* CycleExpr(enum expr_type type, struct expr_node* condition, struct expr_node* body, char* id) {
+    struct expr_node* new_node = (struct expr_node*) malloc(sizeof (struct expr_node));
+    new_node->ID = global_id++;
+    new_node->type = type;
+    new_node->expr_left = condition;
+    new_node->body = body;
+    new_node->Name = id;
+    return new_node;
+}
+
+//-------------------------------------BlockExpr
+struct expr_node* BlockExpr(struct stmt_list_node* stmt_list) {
+    struct expr_node* new_node = (struct expr_node*) malloc(sizeof (struct expr_node));
+    new_node->ID = global_id++;
+    new_node->type = block_expr;
+    new_node->stmt_list = stmt_list;
+    return new_node;
+}
+
+/*-------------------------------------------------StmtFunctions------------------------------------------------------*/
+
+//-------------------------------------ConstStmt
+struct const_stmt_node* ConstStmt(char* name, enum type type, struct expr_node* expr) {
+    struct const_stmt_node* new_node = (struct const_stmt_node*) malloc(sizeof (struct const_stmt_node));
+    new_node->ID = global_id++;
+    new_node->type = type;
+    new_node->name = name;
+    new_node->expr = expr;
+    return new_node;
+}
+
+//-----------------------------------Trait
+struct trait_node* TraitNode(char* name, struct associated_items_node* items) {
+    struct trait_node* new_node = (struct trait_node*) malloc(sizeof (struct trait_node));
+    new_node->ID = global_id++;
+    new_node->name = name;
+    new_node->items = items;
+    return new_node;
+}
+
+//----------------------------------AssociatedItem
+struct associated_item_node* AssociatedItemNode(enum visibility vis, struct function_node* fn, struct const_stmt_node* const_stmt) {
+    struct associated_item_node* new_node = (struct associated_item_node*) malloc(sizeof (struct associated_item_node));
+    new_node->ID = global_id++;
+    new_node->visibility = vis;
+    new_node->fn = fn;
+    new_node->const_stmt = const_stmt;
+    return new_node;
+}
+
+//---------------------------------AssociatedList
+struct associated_items_node* AssociatedList(struct associated_item_node* node) {
+    struct associated_items_node* new_node = (struct associated_items_node*) malloc(sizeof (struct associated_items_node));
+    new_node->ID = global_id++;
+    new_node->first = node;
+    new_node->last = node;
+    return new_node;
+}
+
+struct associated_items_node* AssociatedListAdd(struct associated_items_node* list, struct associated_item_node* last) {
+    list->last->next = last;
+    list->last = last;
+}
+
+struct associated_items_node* AssociatedListFinal(struct associated_items_node* list) {
+    return list;
+}
+
+//-------------------------------------Impl
+struct impl_node* ImplNode(enum impl_type impl_type, enum type type, char* name, struct associated_items_node* list) {
+    struct impl_node* new_node = (struct impl_node*) malloc(sizeof (struct impl_node));
+    new_node->ID = global_id++;
+    new_node->implType = impl_type;
+    new_node->type = type;
+    new_node->name = name;
+    new_node->items = list;
+    return new_node;
+}
+

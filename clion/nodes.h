@@ -171,7 +171,6 @@ struct const_stmt_node {
 /*-------------------------------------------------Trait--------------------------------------------------------------*/
 struct associated_item_node {
     int ID;
-    char* name;
     struct associated_item_node* next;
     struct function_node* fn;
     enum visibility visibility;
