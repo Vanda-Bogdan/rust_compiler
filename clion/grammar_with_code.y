@@ -1,3 +1,43 @@
+%{
+#include <stdio.h>
+#include "nodes.h"
+#include "function.c"
+#include "tree_print.h"
+void yyerror(char const *s);
+extern int yylex(void);
+%}
+
+%union {
+	struct program_node * prg;
+	struct expr_node * expr;
+	struct expr_list_node * expr_list;
+	struct stmt_node * stmt_;
+	struct stmt_list_node * stmt_list;
+	struct let_stmt_node * let_stmt;
+	struct decl_stmt_node * decl_stmt;
+	struct struct_item_node * struct_item;
+	struct struct_node * struct_;
+	struct struct_list_node * struct_items;
+	struct enum_node * enum_;
+	struct enum_item_node * enum_item;
+	struct enum_list_node * enum_items;
+	struct function_param_node * function_param;
+	struct function_node * function_;
+	struct function_params_node * function_params;
+	struct const_stmt_node * const_stmt;
+	struct associated_item_node * associated_item;
+	struct trait_node * trait_;
+	struct associated_items_node * associated_items;
+	struct impl_node * impl_;
+	int int_const;
+	char * string_const;
+	bool bool_const;
+	float float_const;
+	char char_const;
+	enum visibility vis;
+	enum type typ;
+}
+
 %token FOR LOOP IN IF ELSE WHILE LET MUT FN CONTINUE ENUM CONST STRUCT IMPL TRAIT PUB CRATE SELF SUPER
 %token ID
 
@@ -21,13 +61,7 @@
 %left '.' '['
 %nonassoc ')'
 
-
-%{
-#include tree_nodes.h
-%}
-
 %%
-
 Program: Function							{ $$ = ProgramCreate($1); }
 ;
 
@@ -316,3 +350,4 @@ Visibility: PUB								{ $$ = pub; }
           | PUB '(' SELF ')'						{ $$ = self; }
           | PUB '(' SUPER ')'						{ $$ = super; }
           ;
+%%
