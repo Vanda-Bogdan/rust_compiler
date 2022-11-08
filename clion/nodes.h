@@ -20,7 +20,7 @@ enum mutable {
 enum expr_type{
     plus, minus, mul, div_expr, equal, not_equal, greater, less, greater_equal,
     less_equal, qt, uminus, neg, or, and, asgn, break_expr, continue_expr,
-    return_expr, empty, array_expr, array_expr_auto_fill, index_expr,
+    return_expr, array_expr, array_expr_auto_fill, index_expr,
     range_expr, range_in_expr, range_left, range_right, range_in_right,
     id, call_expr, method_expr, field_access_expr, if_expr, loop_expr, loop_while, loop_for, block_expr,
     int_lit, float_lit, char_lit, string_lit, bool_lit
@@ -82,11 +82,12 @@ struct let_stmt_node {
 
 /*--------------------------------------DeclarationStmt---------------------------------------------------------------*/
 enum decl_stmt_type {
-    enum_, function_, constStmt_, struct_, trail_, impl_
+    enum_, function_, constStmt_, struct_, trait_, impl_
 };
 
 struct decl_stmt_node {
     int ID;
+    enum visibility visibility;
     enum decl_stmt_type type;
     struct struct_node* struct_item;
     struct function_node* function_item;
@@ -129,6 +130,7 @@ struct enum_item_node {
     enum visibility visibility;
     char* name;
     struct enum_item_node* next;
+    struct expr_node* expr;
     struct struct_list_node* struct_list;
 };
 
@@ -150,6 +152,7 @@ struct function_param_node {
 struct function_node {
     int ID;
     char* name;
+    enum type returnType;
     struct function_params_node* params;
     struct expr_node* body;
 };
