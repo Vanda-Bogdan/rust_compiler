@@ -3,12 +3,12 @@
 
 /*--------------------------------------------------Type--------------------------------------------------------------*/
 enum type {
-    int_, char_, string_, float_, bool_, id_
+    emptyType, int_, char_, string_, float_, bool_, id_
 };
 
 /*----------------------------------------------------Visibility------------------------------------------------------*/
 enum visibility {
-    pub, crate, self, super
+    emptyVisibility, pub, crate, self, super
 };
 
 /*---------------------------------------------------Mutable----------------------------------------------------------*/
@@ -52,14 +52,13 @@ struct expr_list_node {
 
 /*---------------------------------------------------Statement--------------------------------------------------------*/
 enum stmt_type {
-    semicolon, expr_stmt, stmtWithBlock, declaration, let
+    semicolon, expr, declaration, let
 };
 
 struct stmt_node{
     int ID;
     enum stmt_type type;
     struct expr_node* expr;
-    enum visibility visibility;
     struct decl_stmt_node* decl_stmt;
     struct let_stmt_node* let_stmt;
     struct stmt_node* next;

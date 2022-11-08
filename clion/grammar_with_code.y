@@ -28,7 +28,7 @@
 
 %%
 
-Program: Function
+Program: Function							{ $$ = ProgramCreate($1); }
 ;
 
 //--------------------Expressions---------------------
@@ -169,98 +169,107 @@ BlockExpr: '{' StmtList '}'						{ $$ = BlockExpr($2); }
 
 //--------------------Statement---------------------
 
-StmtList: Stmt
-        | StmtList Stmt
+StmtList: Stmt								{ $$ = StmtListNode($1); }
+        | StmtList Stmt							{ $$ = StmtListAdd($1, $2); }
         ;
 
-Stmt: ';'
-    | ExprWithoutBlock ';'
-    | ExprWithBlock ';'              //todo убрал правило Stmt->ExprWithBlock т.к. вызвало конфликт с этой строчкой, можно вернуть если поймем как решить
-    | LetStmt
-    | DeclarationStmt
-    | Visibility DeclarationStmt
+Stmt: ';'								{ $$ = StmtNode(semicolon, 0, 0, 0); }
+    | ExprWithoutBlock ';'						{ $$ = StmtNode(expr, $1, 0, 0); }
+    | ExprWithBlock ';'              					{ $$ = StmtNode(expr, $1, 0, 0); }
+    | LetStmt								{ $$ = StmtNode(let, 0, 0, $1); }
+    | DeclarationStmt							{ $$ = StmtNode(declaration, 0, $1, 0); }
     ;
 
 
-LetStmt: LET ID ':' Type '=' ExprWithBlock ';'
-       | LET ID ':' Type '=' ExprWithoutBlock ';'
-       | LET ID '=' ExprWithBlock ';'
-       | LET ID '=' ExprWithoutBlock ';'
-       | LET MUT ID ':' Type '=' ExprWithBlock ';'
-       | LET MUT ID ':' Type '=' ExprWithoutBlock ';'
-       | LET MUT ID '=' ExprWithBlock ';'
-       | LET MUT ID '=' ExprWithoutBlock ';'
-       | LET MUT ID ':' Type ';'
-       | LET MUT ID ';'
-       | LET ID ':' Type ';'
-       | LET ID ';'
+LetStmt: LET ID ':' Type '=' ExprWithBlock ';'				{ $$ = LetStmt($2, $4, notMut, $6); }
+       | LET ID ':' Type '=' ExprWithoutBlock ';'			{ $$ = LetStmt($2, $4, notMut, $6); }
+       | LET ID '=' ExprWithBlock ';'					{ $$ = LetStmt($2, 0, notMut, $4); }
+       | LET ID '=' ExprWithoutBlock ';'				{ $$ = LetStmt($2, 0, notMut, $4); }
+       | LET MUT ID ':' Type '=' ExprWithBlock ';'			{ $$ = LetStmt($3, $5, mut, $7); }
+       | LET MUT ID ':' Type '=' ExprWithoutBlock ';'			{ $$ = LetStmt($3, $5, mut, $7); }
+       | LET MUT ID '=' ExprWithBlock ';'				{ $$ = LetStmt($3, 0, mut, $5); }
+       | LET MUT ID '=' ExprWithoutBlock ';'				{ $$ = LetStmt($3, 0, mut, $5); }
+       | LET MUT ID ':' Type ';'					{ $$ = LetStmt($3, $5, mut, 0); }
+       | LET MUT ID ';'							{ $$ = LetStmt($3, 0, mut, 0); }
+       | LET ID ':' Type ';'						{ $$ = LetStmt($2, $4, notMut, 0); }
+       | LET ID ';'							{ $$ = LetStmt($2, 0, notMut, 0); }
        ;
 
 //---------DeclarationStatement---------
-DeclarationStmt: Enum
-         | Function
-         | ConstStmt
-         | Struct
-         | Trait
-         | Impl
-         ;
+DeclarationStmt: Enum							{ $$ = DeclarationEnum(self, $1); }
+               | Visibility Enum					{ $$ = DeclarationEnum($1, $2); }
+               | Function						{ $$ = DeclarationFunction(self, $1); }
+               | Visibility Function					{ $$ = DeclarationFunction($1, $2); }
+               | ConstStmt						{ $$ = DeclarationConst(self, $1); }
+               | Visibility ConstStmt					{ $$ = DeclarationConst($1, $2); }
+               | Struct							{ $$ = DeclarationStruct(self, $1); }
+               | Visibility Struct					{ $$ = DeclarationStruct($1, $2); }
+               | Trait							{ $$ = DeclarationTrait(self, $1); }
+               | Visibility Trait					{ $$ = DeclarationTrait($1, $2); }
+               | Impl							{ $$ = DeclarationImpl(self, $1); }
+               | Visibility Impl					{ $$ = DeclarationImpl($1, $2); }
+               ;
 
 //----Enum----
-Enum: ENUM ID '{' EnumItems '}'
-    | ENUM ID '{' EnumItems ',' '}'
+Enum: ENUM ID '{' EnumItems_final '}'					{ $$ = EnumNode($2, $4); }
     ;
 
-EnumItems: EnumItem
-         | EnumItems ',' EnumItem
+EnumItems_final: /*empty*/						{ $$ = EnumListFinal(0); }
+               | EnumItems						{ $$ = EnumListFinal($1); }
+               | EnumItems ','						{ $$ = EnumListFinal($1); }
+               ;
+
+EnumItems: EnumItem							{ $$ = EnumListNode($1); }
+         | EnumItems ',' EnumItem					{ $$ = EnumListAdd($1, $3); }
          ;
 
-EnumItem: Visibility ID
-        | ID
-        | Visibility ID '=' ExprWithBlock
-        | Visibility ID '=' ExprWithoutBlock
-        | ID '=' ExprWithBlock
-        | ID '=' ExprWithoutBlock
-        | Visibility ID '{' StructFields_final '}'
-        | ID '{' StructFields_final '}'
+EnumItem: Visibility ID							{ $$ = EnumItemNode($2, $1, 0, 0); }
+        | ID								{ $$ = EnumItemNode($1, 0, 0, 0); }
+        | Visibility ID '=' ExprWithBlock				{ $$ = EnumItemNode($2, $1, 0, $4); }
+        | Visibility ID '=' ExprWithoutBlock				{ $$ = EnumItemNode($2, $1, 0, $4); }
+        | ID '=' ExprWithBlock						{ $$ = EnumItemNode($1, 0, 0, $3); }
+        | ID '=' ExprWithoutBlock					{ $$ = EnumItemNode($1, 0, 0, $3); }
+        | Visibility ID '{' StructFields_final '}'			{ $$ = EnumItemNode($2, $1, $4, 0); }
+        | ID '{' StructFields_final '}'					{ $$ = EnumItemNode($1, 0, $3, 0); }
         ;
 
 //----Function----
-Function: FN ID '(' FuncParamList_final ')' RIGHT_ARROW Type BlockExpr
-        | FN ID '(' FuncParamList_final ')' RIGHT_ARROW Type ';'
-        | FN ID '(' FuncParamList_final ')' BlockExpr
-        | FN ID '(' FuncParamList_final ')' ';'
+Function: FN ID '(' FuncParamList_final ')' RIGHT_ARROW Type BlockExpr	{ $$ = FunctionNode($2, $7, $4, $8); }
+        | FN ID '(' FuncParamList_final ')' RIGHT_ARROW Type ';'	{ $$ = FunctionNode($2, $7, $4, 0); }
+        | FN ID '(' FuncParamList_final ')' BlockExpr			{ $$ = FunctionNode($2, 0, $4, $6); }
+        | FN ID '(' FuncParamList_final ')' ';'				{ $$ = FunctionNode($2, 0, $4, 0); }
         ;
 
-FuncParamList_final: /*empty*/
-                   | FuncParamList
-                   | FuncParamList ','
+FuncParamList_final: /*empty*/						{ $$ = FunctionParamsFinal(0); }
+                   | FuncParamList					{ $$ = FunctionParamsFinal($1); }
+                   | FuncParamList ','					{ $$ = FunctionParamsFinal($1); }
                    ;
 
-FuncParamList: FuncParam
-             | FuncParamList ',' FuncParam
+FuncParamList: FuncParam						{ $$ = FunctionParamsNode($1); }
+             | FuncParamList ',' FuncParam				{ $$ = FunctionParamsAdd($1, $3); }
              ;
 
-FuncParam: ID ':' Type
-         | MUT ID ':' Type
+FuncParam: ID ':' Type							{ $$ = FunctionParamNode($1, $3, notMut); }
+         | MUT ID ':' Type						{ $$ = FunctionParamNode($2, $4, mut); }
          ;
 
 //-----Struct-----
 
-Struct: STRUCT ID '{' StructFields_final '}'
-      | STRUCT ID ';'
+Struct: STRUCT ID '{' StructFields_final '}'				{ $$ = StructNode($2, $4); }
+      | STRUCT ID ';'							{ $$ = StructNode($2, 0); }
       ;
 
-StructFields_final: /*empty*/
-                  | StructFields
-                  | StructFields ','
+StructFields_final: /*empty*/						{ $$ = StructListFinal(0); }
+                  | StructFields					{ $$ = StructListFinal($1); }
+                  | StructFields ','					{ $$ = StructListFinal($1); }
                   ;
 
-StructFields: StructField
-            | StructFields ',' StructField
+StructFields: StructField						{ $$ = StructListNode($1); }
+            | StructFields ',' StructField				{ $$ = StructListAdd($1, $3); }
             ;
 
-StructField: Visibility ID ':' Type
-           | ID ':' Type
+StructField: Visibility ID ':' Type					{ $$ = StructItemNode($2, $4, $1); }
+           | ID ':' Type						{ $$ = StructItemNode($1, $3, self); }
            ;
 
 //---------Implementation---------
