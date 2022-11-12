@@ -38,6 +38,44 @@ extern int yylex(void);
 	enum type typ;
 }
 
+%type <prg>Program
+%type <expr>ExprWithoutBlock
+%type <expr>ExprWithBlock
+%type <expr>BlockExpr
+%type <expr_list>ExprList
+%type <expr_list>ExprList_final
+%type <stmt_>Stmt
+%type <stmt_list>StmtList
+%type <let_stmt>LetStmt
+%type <decl_stmt>DeclarationStmt
+%type <struct_item>StructField
+%type <struct_>Struct
+%type <struct_items>StructFields
+%type <struct_items>StructFields_final
+%type <enum_>Enum
+%type <enum_item>EnumItem
+%type <enum_items>EnumItems
+%type <enum_items>EnumItems_final
+%type <function_param>FuncParam
+%type <function_>Function
+%type <function_params>FuncParamList
+%type <function_params>FuncParamList_final
+%type <const_stmt>ConstStmt
+%type <associated_item>AssociatedItem
+%type <trait_>Trait
+%type <associated_items>AssociatedItems
+%type <associated_items>AssociatedItems_final
+%type <impl_>Impl
+%type <int_const>INT_LITERAL
+%type <string_const>STRING_LITERAL
+%type <string_const>ID
+%type <bool_const>TRUE
+%type <bool_const>FALSE
+%type <float_const>FLOAT_LITERAL
+%type <char_const>CHAR_LITERAL
+%type <vis>Visibility
+%type <typ>Type
+
 %token FOR LOOP IN IF ELSE WHILE LET MUT FN CONTINUE ENUM CONST STRUCT IMPL TRAIT PUB CRATE SELF SUPER
 %token ID
 
