@@ -4,7 +4,7 @@
 %x CONST_STRING
 %x MULTILINE_COMMENT
 %x ONELINE_COMMENT
-%x CHAR
+%x CHAR_
 
 DIGIT [0-9]
 
@@ -12,6 +12,7 @@ DIGIT [0-9]
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "grammar_with_code.tab.h"
 %}
 
 %%
@@ -88,22 +89,21 @@ strcpy(yylval.string_const, buffer);
 return STRING_LITERAL;
 }
 
-\' {buffer[0]=0; BEGIN(CHAR);}
-<CHAR>\\x[0-7][0-9A-Fa-f]\' { yytext[strlen(yytext)-1] = '\0'; buf_char[0] = strtol(yytext+2, NULL, 16); printf( "(%c) - Found CHAR\n", buf_char[0] ); BEGIN(INITIAL);}
-<CHAR>[^\\\']+ {strcat(buffer,yytext);}
-<CHAR>\\\\ {strcat(buffer, "\\");}
-<CHAR>\\n {strcat(buffer, "\n");}
-<CHAR>\\t {strcat(buffer, "\t");}
-<CHAR>\\0 {strcat(buffer, "\0");}
-<CHAR>\\r {strcat(buffer, "\r");}
-<CHAR>\\\" {strcat(buffer, "\"");}
-<CHAR>\\\' {strcat(buffer, "\'");}
-<CHAR><<EOF>> {printf("(%s) - Error CHAR\n", buffer); BEGIN(INITIAL);}
-<CHAR>\' {
+\' {buffer[0]=0; BEGIN(CHAR_);}
+<CHAR_>\\x[0-7][0-9A-Fa-f]\' { yytext[strlen(yytext)-1] = '\0'; buf_char[0] = strtol(yytext+2, NULL, 16); printf( "(%c) - Found CHAR\n", buf_char[0] ); BEGIN(INITIAL);}
+<CHAR_>[^\\\']+ {strcat(buffer,yytext);}
+<CHAR_>\\\\ {strcat(buffer, "\\");}
+<CHAR_>\\n {strcat(buffer, "\n");}
+<CHAR_>\\t {strcat(buffer, "\t");}
+<CHAR_>\\0 {strcat(buffer, "\0");}
+<CHAR_>\\r {strcat(buffer, "\r");}
+<CHAR_>\\\" {strcat(buffer, "\"");}
+<CHAR_>\\\' {strcat(buffer, "\'");}
+<CHAR_><<EOF>> {printf("(%s) - Error CHAR\n", buffer); BEGIN(INITIAL);}
+<CHAR_>\' {
 if(strlen(buffer)==1){
 printf("(%s) - Found CHAR\n", buffer); BEGIN(INITIAL);
-yylval.char_const=(char *)malloc(strlen(buffer)+1);
-strcpy(yylval.char_const, buffer);
+yylval.char_const=buffer[0];
 return CHAR_LITERAL;
 }else{
 printf("(%s) - Error CHAR\n", buffer); BEGIN(INITIAL);

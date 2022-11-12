@@ -12,6 +12,7 @@ struct expr_node* OperatorExpr(enum expr_type type, struct expr_node* left, stru
     new_node->type = type;
     new_node->expr_left = left;
     new_node->expr_right = right;
+    new_node->next = NULL;
     return new_node;
 }
 
@@ -21,6 +22,7 @@ struct expr_node* ExprFromBoolLiteral(bool value) {
     new_node->ID = global_id++;
     new_node->type = bool_lit;
     new_node->Bool = value;
+    new_node->next = NULL;
     return new_node;
 }
 
@@ -29,6 +31,7 @@ struct expr_node* ExprFromIntLiteral(int value) {
     new_node->ID = global_id++;
     new_node->type = int_lit;
     new_node->Int = value;
+    new_node->next = NULL;
     return new_node;
 }
 
@@ -37,6 +40,7 @@ struct expr_node* ExprFromFloatLiteral(float value) {
     new_node->ID = global_id++;
     new_node->type = float_lit;
     new_node->Float = value;
+    new_node->next = NULL;
     return new_node;
 }
 
@@ -45,6 +49,7 @@ struct expr_node* ExprFromCharLiteral(char value) {
     new_node->ID = global_id++;
     new_node->type = char_lit;
     new_node->Char = value;
+    new_node->next = NULL;
     return new_node;
 }
 
@@ -53,6 +58,7 @@ struct expr_node* ExprFromStringLiteral(char* value) {
     new_node->ID = global_id++;
     new_node->type = string_lit;
     new_node->String = value;
+    new_node->next = NULL;
     return new_node;
 }
 
@@ -64,6 +70,7 @@ struct expr_node* CallAccessExpr(enum expr_type type, char* name, struct expr_no
     new_node->Name = name;
     new_node->expr_left = expr;
     new_node->expr_list = expr_list;
+    new_node->next = NULL;
     return new_node;
 }
 
@@ -91,6 +98,7 @@ struct expr_node* ArrExprFromList(struct expr_list_node* expr_list) {
     new_node->ID = global_id++;
     new_node->type = array_expr;
     new_node->expr_list = expr_list;
+    new_node->next = NULL;
     return new_node;
 }
 
@@ -100,6 +108,7 @@ struct expr_node* ArrExprAutoFill(struct expr_node* first, struct expr_node* sec
     new_node->type = array_expr_auto_fill;
     new_node->expr_left = first;
     new_node->expr_right = second;
+    new_node->next = NULL;
     return new_node;
 }
 
@@ -107,8 +116,10 @@ struct expr_node* ArrExprAutoFill(struct expr_node* first, struct expr_node* sec
 struct expr_node* RangeExpr(enum expr_type type, struct expr_node* left, struct  expr_node* right) {
     struct expr_node* new_node = (struct expr_node*) malloc(sizeof (struct expr_node));
     new_node->ID = global_id++;
+    new_node->type = type;
     new_node->expr_left = left;
     new_node->expr_right = right;
+    new_node->next = NULL;
     return new_node;
 }
 
@@ -120,6 +131,7 @@ struct expr_node* IfExpr(struct expr_node* condition, struct expr_node* body, st
     new_node->expr_left = condition;
     new_node->body = body;
     new_node->else_body = else_body;
+    new_node->next = NULL;
     return new_node;
 }
 
@@ -131,6 +143,7 @@ struct expr_node* CycleExpr(enum expr_type type, struct expr_node* condition, st
     new_node->expr_left = condition;
     new_node->body = body;
     new_node->Name = id;
+    new_node->next = NULL;
     return new_node;
 }
 
@@ -140,6 +153,7 @@ struct expr_node* BlockExpr(struct stmt_list_node* stmt_list) {
     new_node->ID = global_id++;
     new_node->type = block_expr;
     new_node->stmt_list = stmt_list;
+    new_node->next = NULL;
     return new_node;
 }
 
@@ -171,6 +185,7 @@ struct associated_item_node* AssociatedItemNode(enum visibility vis, struct func
     new_node->visibility = vis;
     new_node->fn = fn;
     new_node->const_stmt = const_stmt;
+    new_node->next = NULL;
     return new_node;
 }
 
@@ -218,6 +233,7 @@ struct struct_item_node* StructItemNode(char* name, enum type type, enum visibil
     new_node->name = name;
     new_node->type = type;
     new_node->visibility = visibility;
+    new_node->next = NULL;
     return new_node;
 }
 
@@ -255,6 +271,7 @@ struct function_param_node* FunctionParamNode(char* name, enum type type, enum m
     new_node->name = name;
     new_node->type = type;
     new_node->mutable = mut;
+    new_node->next = NULL;
     return new_node;
 }
 
@@ -291,6 +308,7 @@ struct enum_item_node* EnumItemNode(char* name, enum visibility visibility, stru
     new_node->visibility = visibility;
     new_node->struct_list = fields;
     new_node->expr = expr;
+    new_node->next = NULL;
     return new_node;
 }
 
@@ -406,6 +424,7 @@ struct stmt_node* StmtNode(enum stmt_type type, struct expr_node* expr_node, str
     new_node->expr = expr_node;
     new_node->decl_stmt = decl_node;
     new_node->let_stmt = let_node;
+    new_node->next = NULL;
     return  new_node;
 }
 
@@ -431,3 +450,7 @@ struct program_node* ProgramCreate(struct function_node* main) {
     return new_node;
 }
 
+void yyerror(char const *s)
+{
+    printf("%s",s);
+}

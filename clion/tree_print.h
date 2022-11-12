@@ -4,9 +4,8 @@
 #include "nodes.h"
 
 FILE *fp;
-char * filename = "";
-char global_buffer[100];
-char name_buffer[100];
+char * filename = "tree.txt";
+char name_buffer[200];
 
 void declaration_print(int ID, char *name);
 void function_print(struct function_node *func);
@@ -33,8 +32,8 @@ void impl_print(struct impl_node *impl_node);
 
 int program_print(struct program_node *prg)
 {
-    if((fp = fopen(filename, "w")!=NULL)){
-        fputs("digraph G {", fp);
+    if((fp = fopen(filename, "w"))){
+        fputs("digraph G {\n", fp);
 
         declaration_print(prg->ID, "program");
         connection_print(prg->ID, prg->main->ID);
@@ -49,22 +48,28 @@ int program_print(struct program_node *prg)
 
 void declaration_print(int ID, char *name){
 
-    char buffer[100];
-    char id_buffer[17];
+    char buffer[200];
+    buffer[0] = 0;
+    char id_buffer[25];
+    id_buffer[0] = 0;
+
     strcat(buffer, "id");
     strcat(buffer, itoa(ID, id_buffer, 10));
     strcat(buffer, "[label=\"");
     strcat(buffer, name);
     strcat(buffer, " id=");
     strcat(buffer, itoa(ID, id_buffer, 10));
-    strcat(buffer, "\"");
+    strcat(buffer, "\"]\n");
     fputs(buffer, fp);
 }
 
 void declaration_print2(int ID, char *type, char *name){
 
-    char buffer[100];
-    char id_buffer[17];
+    char buffer[200];
+    buffer[0] = 0;
+    char id_buffer[25];
+    id_buffer[0] = 0;
+
     strcat(buffer, "id");
     strcat(buffer, itoa(ID, id_buffer, 10));
     strcat(buffer, "[label=\"");
@@ -73,19 +78,23 @@ void declaration_print2(int ID, char *type, char *name){
     strcat(buffer, name);
     strcat(buffer, " id=");
     strcat(buffer, itoa(ID, id_buffer, 10));
-    strcat(buffer, "\"");
+    strcat(buffer, "\"]\n");
     fputs(buffer, fp);
 }
 
 void connection_print(int parent_ID, int child_ID){
 
     char buffer[100];
+    buffer[0] = 0;
     char id_buffer[17];
+    id_buffer[0] = 0;
+
     strcat(buffer, "id");
     strcat(buffer, itoa(parent_ID, id_buffer, 10));
     strcat(buffer, "->id");
     id_buffer[0] = 0;
     strcat(buffer, itoa(child_ID, id_buffer, 10));
+    strcat(buffer, "\n");
     fputs(buffer, fp);
 }
 
@@ -146,7 +155,7 @@ void expr_print(struct expr_node *expr){
             break;
 
         case mul:
-            declaration_print(expr->ID, "-");
+            declaration_print(expr->ID, "*");
             connection_print(expr->ID, expr->expr_left->ID);
             expr_print(expr->expr_left);
             connection_print(expr->ID, expr->expr_right->ID);
@@ -320,7 +329,7 @@ void expr_print(struct expr_node *expr){
             break;
 
         case id:
-            declaration_print(expr->ID, expr->Name);
+            declaration_print2(expr->ID, "name:",expr->Name);
             break;
 
         case call_expr:
@@ -332,11 +341,13 @@ void expr_print(struct expr_node *expr){
             break;
 
         case method_expr:
-            declaration_print(expr->ID, expr->Name);
+            declaration_print2(expr->ID, "method:",expr->Name);
             connection_print(expr->ID, expr->expr_left->ID);
             expr_print(expr->expr_left);
-            connection_print(expr->ID, expr->expr_list->ID);
-            expr_list_print(expr->expr_list);
+            if(expr->expr_list!=NULL){
+                connection_print(expr->ID, expr->expr_list->ID);
+                expr_list_print(expr->expr_list);
+            }
             break;
 
         case field_access_expr:
@@ -353,8 +364,11 @@ void expr_print(struct expr_node *expr){
             connection_print(expr->ID, expr->body->ID);
             expr_print(expr->body);
 
-            connection_print(expr->ID, expr->body->ID);
-            expr_print(expr->else_body);
+            if(expr->else_body!=NULL){
+                connection_print(expr->ID, expr->else_body->ID);
+                expr_print(expr->else_body);
+            }
+
             break;
 
         case loop_expr:
@@ -378,6 +392,11 @@ void expr_print(struct expr_node *expr){
         case loop_while:
             declaration_print(expr->ID, "while");
             connection_print(expr->ID, expr->expr_left->ID);
+            expr_print(expr->expr_left);
+            if(expr->body!=NULL){
+                connection_print(expr->ID, expr->body->ID);
+                expr_print(expr->body);
+            }
             break;
 
         case block_expr:
@@ -407,8 +426,6 @@ void expr_print(struct expr_node *expr){
         case string_lit:
             declaration_print(expr->ID, "string_lit");
             break;
-
-
     }
 }
 
@@ -522,12 +539,13 @@ void decl_stmt_print(struct decl_stmt_node *decl_stmt){
 
 void let_stmt_print(struct let_stmt_node *let_stmt){
 
-    char type[20];
+    char type[200];
+    type[0] = 0;
     if(let_stmt->mutable==mut){
-        strcat(type, "let mut ");
+        strcat(type, "let mut");
     }
     else{
-        strcat(type, "let ");
+        strcat(type, "let");
     }
     declaration_print2(let_stmt->ID, type, let_stmt->name);
 
