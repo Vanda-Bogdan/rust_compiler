@@ -23,7 +23,7 @@ enum expr_type{
     less_equal, qt, uminus, neg, or, and, asgn, break_expr, continue_expr,
     return_expr, array_expr, array_expr_auto_fill, index_expr,
     range_expr, range_in_expr, range_left, range_right, range_in_right,
-    id, call_expr, method_expr, field_access_expr, if_expr, loop_expr, loop_while, loop_for, block_expr,
+    id, self_expr, call_expr, method_expr, field_access_expr, if_expr, loop_expr, loop_while, loop_for, block_expr,
     int_lit, float_lit, char_lit, string_lit, bool_lit
 };
 
@@ -149,6 +149,10 @@ struct function_param_node {
     enum type type;
 };
 
+enum func_type {
+    method_self, method_mut_self, associated
+};
+
 struct function_node {
     int ID;
     char* name;
@@ -159,6 +163,7 @@ struct function_node {
 
 struct function_params_node {
     int ID;
+    enum func_type funcType;
     struct function_param_node* first;
     struct function_param_node* last;
 };
@@ -208,7 +213,8 @@ struct impl_node {
 /*---------------------------------------------------FinalNode--------------------------------------------------------*/
 struct program_node {
     int ID;
-    struct function_node* main;
+    //struct function_node* main;
+    struct stmt_list_node* stmt_list;
 };
 
 

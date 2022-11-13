@@ -36,9 +36,9 @@ int program_print(struct program_node *prg)
         fputs("digraph G {\n", fp);
 
         declaration_print(prg->ID, "program");
-        connection_print(prg->ID, prg->main->ID);
+        connection_print(prg->ID, prg->stmt_list->ID);
 
-        function_print(prg->main);
+        stmt_list_print(prg->stmt_list);
 
         fputs("}", fp);
         fclose(fp);
@@ -113,7 +113,21 @@ void function_print(struct function_node *func){
 
 void function_params_print(struct function_params_node *params){
 
-    declaration_print(params->ID, "params");
+    char func_type[20];
+    func_type[0] = 0;
+    switch (params->funcType) {
+        case method_self:
+            strcat(func_type, "method_self");
+            break;
+        case method_mut_self:
+            strcat(func_type, "method_mut_self");
+            break;
+        case associated:
+            strcat(func_type, "associated");
+            break;
+    }
+
+    declaration_print2(params->ID, func_type,"params");
 
     struct function_param_node *current = params->first;
     while(current!=NULL){
@@ -332,8 +346,12 @@ void expr_print(struct expr_node *expr){
             declaration_print2(expr->ID, "name:",expr->Name);
             break;
 
+        case self_expr:
+            declaration_print2(expr->ID, "self:",expr->Name);
+            break;
+
         case call_expr:
-            declaration_print(expr->ID, expr->Name);
+            declaration_print2(expr->ID, "call method:",expr->Name);
             if(expr->expr_list!=NULL){
                 connection_print(expr->ID, expr->expr_list->ID);
                 expr_list_print(expr->expr_list);
@@ -480,6 +498,7 @@ void stmt_list_print(struct stmt_list_node *stmt_list){
 
 void decl_stmt_print(struct decl_stmt_node *decl_stmt){
     char visibility[20];
+    visibility[0] = 0;
     switch (decl_stmt->visibility) {
         case pub:
             strcat(visibility, "pub");
@@ -557,8 +576,10 @@ void let_stmt_print(struct let_stmt_node *let_stmt){
 
 void enum_print(struct enum_node *enum_node){
     declaration_print(enum_node->ID, enum_node->name);
-    connection_print(enum_node->ID, enum_node->items->ID);
-    enum_list_print(enum_node->items);
+    if(enum_node->items!=NULL){
+        connection_print(enum_node->ID, enum_node->items->ID);
+        enum_list_print(enum_node->items);
+    }
 }
 
 void enum_list_print(struct enum_list_node *enum_list){
@@ -575,6 +596,7 @@ void enum_list_print(struct enum_list_node *enum_list){
 void enum_item_print(struct enum_item_node *enum_item){
 
     char visibility[20];
+    visibility[0] = 0;
     switch (enum_item->visibility) {
         case pub:
             strcat(visibility, "pub");
@@ -632,6 +654,7 @@ void struct_items_print(struct struct_list_node *struct_items){
 
 void struct_item_print(struct struct_item_node *struct_item){
     char visibility[20];
+    visibility[0] = 0;
     switch (struct_item->visibility) {
         case pub:
             strcat(visibility, "pub");
@@ -654,8 +677,10 @@ void struct_item_print(struct struct_item_node *struct_item){
 
 void trait_print(struct trait_node *trait_node){
     declaration_print(trait_node->ID, trait_node->name);
-    connection_print(trait_node->ID, trait_node->items->ID);
-    associated_items_print(trait_node->items);
+    if(trait_node->items!=NULL){
+        connection_print(trait_node->ID, trait_node->items->ID);
+        associated_items_print(trait_node->items);
+    }
 }
 
 void associated_items_print(struct associated_items_node *items){
@@ -672,6 +697,7 @@ void associated_items_print(struct associated_items_node *items){
 
 void associated_item_print(struct associated_item_node *item){
     char visibility[20];
+    visibility[0] = 0;
     switch (item->visibility) {
         case pub:
             strcat(visibility, "pub");
@@ -689,13 +715,14 @@ void associated_item_print(struct associated_item_node *item){
             strcat(visibility, "default");
             break;
     }
-    declaration_print2(item->ID, visibility, "associated_item");
 
     if(item->fn!=NULL){
+        declaration_print2(item->ID, visibility, "function");
         connection_print(item->ID, item->fn->ID);
         function_print(item->fn);
     }
     if(item->const_stmt!=NULL){
+        declaration_print2(item->ID, visibility, "const_item");
         connection_print(item->ID, item->const_stmt->ID);
         const_stmt_print(item->const_stmt);
     }
@@ -703,6 +730,7 @@ void associated_item_print(struct associated_item_node *item){
 
 void impl_print(struct impl_node *impl_node){
     char impl_type[20];
+    impl_type[0] = 0;
     switch (impl_node->implType) {
         case inherent:
             strcat(impl_type, "inherent");
@@ -711,8 +739,14 @@ void impl_print(struct impl_node *impl_node){
             strcat(impl_type, "trait");
             break;
     }
+    if(impl_node->name!=NULL){
+        declaration_print2(impl_node->ID, impl_type, impl_node->name);
+    }else{
+        declaration_print(impl_node->ID, impl_type);
+    }
 
-    declaration_print2(impl_node->ID, impl_type, impl_node->name);
-    connection_print(impl_node->ID,impl_node->items->ID);
-    associated_items_print(impl_node->items);
+    if(impl_node->items!=NULL){
+        connection_print(impl_node->ID,impl_node->items->ID);
+        associated_items_print(impl_node->items);
+    }
 }

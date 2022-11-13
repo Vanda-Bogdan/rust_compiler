@@ -12,6 +12,8 @@ DIGIT [0-9]
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "nodes.h"
+#include "stdbool.h"
 #include "grammar_with_code.tab.h"
 %}
 
@@ -62,9 +64,11 @@ while { printf("(%s) - Found KW_WHILE\n", yytext); return WHILE;}
 async { printf("(%s) - Found KW_ASYNC\n", yytext);}
 await { printf("(%s) - Found KW_AWAITE\n", yytext);}
 dyn { printf("(%s) - Found KW_DYN\n", yytext);}
-String { printf("(%s) - Found KW_STRING\n", yytext);}
+String { printf("(%s) - Found KW_STRING\n", yytext); return STRING;}
 char { printf("(%s) - Found KW_CHAR\n", yytext); return CHAR;}
 bool { printf("(%s) - Found KW_BOOLEAN\n", yytext); return BOOL;}
+&self { printf("(%s) - Found KW_SELF_PARAM\n", yytext); return SELF_PARAM;}
+&mut[[:space:]]+self { printf("(%s) - Found KW_MUT_SELF_PARAM\n", yytext); return MUT_SELF_PARAM;}
 
 false { printf("(%s) - Found BOOLEAN_FALSE\n", yytext); return FALSE;}
 true { printf("(%s) - Found BOOLEAN_TRUE\n", yytext); return TRUE;}

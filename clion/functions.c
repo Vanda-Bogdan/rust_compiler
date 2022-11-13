@@ -288,8 +288,20 @@ struct function_params_node* FunctionParamsAdd(struct function_params_node* list
     list->last = last;
 }
 
-struct function_params_node* FunctionParamsFinal(struct function_params_node* list) {
-    return list;
+struct function_params_node* FunctionParamsFinal(enum func_type func_type, struct function_params_node* list) {
+
+    if(list==NULL){
+        struct function_params_node* new_node = (struct function_params_node*) malloc(sizeof (struct function_params_node));
+        new_node->ID = global_id++;
+        new_node->funcType = func_type;
+        new_node->first = NULL;
+        new_node->last = NULL;
+        return new_node;
+    }
+    else{
+        list->funcType = func_type;
+        return list;
+    }
 }
 
 //-------------------------------------Enum
@@ -341,12 +353,14 @@ struct decl_stmt_node* DeclarationEnum(enum visibility visibility, struct enum_n
     if (visibility != pub) {
         curVis = self;
     }
-    struct enum_item_node* current = node->items->first;
-    while (current != NULL) {
-        if (current->visibility == emptyVisibility) {
-            current->visibility = curVis;
+    if(node->items!= NULL){
+        struct enum_item_node* current = node->items->first;
+        while (current != NULL) {
+            if (current->visibility == emptyVisibility) {
+                current->visibility = curVis;
+            }
+            current = current->next;
         }
-        current = current->next;
     }
 
     return new_node;
@@ -386,12 +400,14 @@ struct decl_stmt_node* DeclarationTrait(enum visibility visibility, struct trait
     if (visibility != pub) {
         curVis = self;
     }
-    struct associated_item_node* current = node->items->first;
-    while (current != NULL) {
-        if (current->visibility == emptyVisibility) {
-            current->visibility = curVis;
+    if(node->items!=NULL){
+        struct associated_item_node* current = node->items->first;
+        while (current != NULL) {
+            if (current->visibility == emptyVisibility) {
+                current->visibility = curVis;
+            }
+            current = current->next;
         }
-        current = current->next;
     }
 
     return new_node;
@@ -443,10 +459,10 @@ struct stmt_list_node* StmtListAdd(struct stmt_list_node* list, struct stmt_node
 
 /*---------------------------------------------------------Program----------------------------------------------------*/
 
-struct program_node* ProgramCreate(struct function_node* main) {
+struct program_node* ProgramCreate(struct stmt_list_node* stmt_list) {
     struct program_node* new_node = (struct program_node*) malloc(sizeof (struct program_node));
     new_node->ID = global_id++;
-    new_node->main = main;
+    new_node->stmt_list = stmt_list;
     return new_node;
 }
 

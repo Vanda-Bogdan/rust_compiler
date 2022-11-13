@@ -77,7 +77,7 @@ struct program_node * prg;
 %type <vis>Visibility
 %type <typ>Type
 
-%token FOR LOOP IN IF ELSE WHILE LET MUT FN CONTINUE ENUM CONST STRUCT IMPL TRAIT PUB CRATE SELF SUPER
+%token FOR LOOP IN IF ELSE WHILE LET MUT FN CONTINUE ENUM CONST STRUCT IMPL TRAIT PUB CRATE SELF SUPER SELF_PARAM MUT_SELF_PARAM
 %token ID
 
 %token INT_LITERAL TRUE FALSE STRING_LITERAL FLOAT_LITERAL CHAR_LITERAL
@@ -101,8 +101,8 @@ struct program_node * prg;
 %nonassoc ')'
 
 %%
-Program: Function							{ $$ = prg = ProgramCreate($1); }
-;
+Program: StmtList							{ $$ = prg = ProgramCreate($1); }
+       ;
 
 //--------------------Expressions---------------------
 
@@ -222,6 +222,7 @@ ExprWithoutBlock: CHAR_LITERAL      					{ $$ = ExprFromCharLiteral($1); }
                 | RETURN ExprWithoutBlock				{ $$ = OperatorExpr(return_expr, $2, 0); }
                 | RETURN						{ $$ = OperatorExpr(return_expr, 0, 0); }
                 | ID							{ $$ = CallAccessExpr(id, $1, 0, 0); }
+                | SELF                          { $$ = CallAccessExpr(self_expr, "self", 0, 0); }
                 ;
 
 //------------------ExprWithBlock-------------------
@@ -287,9 +288,9 @@ DeclarationStmt: Enum							{ $$ = DeclarationEnum(self, $1); }
 Enum: ENUM ID '{' EnumItems_final '}'					{ $$ = EnumNode($2, $4); }
     ;
 
-EnumItems_final: /*empty*/						{ $$ = EnumListFinal(0); }
+EnumItems_final: /*empty*/						{ $$ = 0; }
                | EnumItems						{ $$ = EnumListFinal($1); }
-               | EnumItems ','						{ $$ = EnumListFinal($1); }
+               | EnumItems ','					{ $$ = EnumListFinal($1); } //по красоте сделать
                ;
 
 EnumItems: EnumItem							{ $$ = EnumListNode($1); }
@@ -313,9 +314,17 @@ Function: FN ID '(' FuncParamList_final ')' RIGHT_ARROW Type BlockExpr	{ $$ = Fu
         | FN ID '(' FuncParamList_final ')' ';'				{ $$ = FunctionNode($2, 0, $4, 0); }
         ;
 
-FuncParamList_final: /*empty*/						{ $$ = FunctionParamsFinal(0); }
-                   | FuncParamList					{ $$ = FunctionParamsFinal($1); }
-                   | FuncParamList ','					{ $$ = FunctionParamsFinal($1); }
+FuncParamList_final: /*empty*/						        { $$ = FunctionParamsFinal(associated, 0); }
+                   | SELF_PARAM                             { $$ = FunctionParamsFinal(method_self, 0); }
+                   | SELF_PARAM ','                         { $$ = FunctionParamsFinal(method_self, 0); }
+                   | MUT_SELF_PARAM                         { $$ = FunctionParamsFinal(method_mut_self, 0); }
+                   | MUT_SELF_PARAM ','                     { $$ = FunctionParamsFinal(method_mut_self, 0); }
+                   | FuncParamList					        { $$ = FunctionParamsFinal(associated, $1); }
+                   | FuncParamList ','				        { $$ = FunctionParamsFinal(associated, $1); }
+                   | SELF_PARAM ',' FuncParamList 		    { $$ = FunctionParamsFinal(method_self, $3); }
+                   | SELF_PARAM ',' FuncParamList ',' 	    { $$ = FunctionParamsFinal(method_self, $3); }
+                   | MUT_SELF_PARAM ',' FuncParamList 		{ $$ = FunctionParamsFinal(method_mut_self, $3); }
+                   | MUT_SELF_PARAM ',' FuncParamList ',' 	{ $$ = FunctionParamsFinal(method_mut_self, $3); }
                    ;
 
 FuncParamList: FuncParam						{ $$ = FunctionParamsNode($1); }
