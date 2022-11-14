@@ -5,7 +5,7 @@
 
 FILE *fp;
 char * filename = "tree.txt";
-char name_buffer[200];
+char name_buffer[50];
 
 void declaration_print(int ID, char *name);
 void function_print(struct function_node *func);
@@ -464,23 +464,31 @@ void expr_print(struct expr_node *expr){
             break;
 
         case int_lit:
-            declaration_print(expr->ID, "int_lit");
+            name_buffer[0] = 0;
+            declaration_print2(expr->ID, "int_lit:",  itoa(expr->Int,name_buffer,10));
             break;
 
         case float_lit:
-            declaration_print(expr->ID, "float_lit");
+            name_buffer[0] = 0;
+            declaration_print2(expr->ID, "float_lit:", gcvt(expr->Float, 5,name_buffer)); //todo 5 - кол-во цифр для вывода, можно поменять
             break;
 
         case bool_lit:
-            declaration_print(expr->ID, "bool_lit");
+            if(expr->Bool){
+                declaration_print2(expr->ID, "bool_lit:", "true");
+            }
+            else{
+                declaration_print2(expr->ID, "bool_lit:", "false");
+            }
             break;
 
         case char_lit:
-            declaration_print(expr->ID, "char_lit");
+            name_buffer[0] = expr->Char;
+            declaration_print2(expr->ID, "char_lit:", name_buffer);
             break;
 
         case string_lit:
-            declaration_print(expr->ID, "string_lit");
+            declaration_print2(expr->ID, "string_lit:", expr->String);
             break;
 
         case struct_expr:
