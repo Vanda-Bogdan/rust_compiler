@@ -205,7 +205,7 @@ remove_underline(buffer);
 remove_i32(buffer);
 printf("(%d) - Found OCTAL_INTEGER\n", strtol(buffer+2, NULL, 8));
 yylval.float_const=strtol(buffer+2, NULL, 8);
-return FLOAT_LITERAL;
+return INT_LITERAL;
 }
 
 0x(_*[0-9A-Fa-f])+(i32)? {

@@ -345,11 +345,11 @@ void expr_print(struct expr_node *expr){
             break;
 
         case id:
-            declaration_print2(expr->ID, "name:",expr->Name);
+            declaration_print2(expr->ID, "identifier:",expr->Name);
             break;
 
         case self_expr:
-            declaration_print2(expr->ID, "self:",expr->Name);
+            declaration_print2(expr->ID, "this:",expr->Name);
             break;
 
         case call_expr:
@@ -432,7 +432,7 @@ void expr_print(struct expr_node *expr){
             break;
 
         case float_lit:
-            declaration_print(expr->ID, "float_int");
+            declaration_print(expr->ID, "float_lit");
             break;
 
         case bool_lit:
@@ -445,6 +445,20 @@ void expr_print(struct expr_node *expr){
 
         case string_lit:
             declaration_print(expr->ID, "string_lit");
+            break;
+
+        case struct_expr:
+            declaration_print(expr->ID, "struct_expr");
+            if(expr->expr_list!=NULL){
+                connection_print(expr->ID, expr->expr_list->ID);
+                expr_list_print(expr->expr_list);
+            }
+            break;
+
+        case struct_field_expr:
+            declaration_print2(expr->ID, "identifier:",expr->Name);
+            connection_print(expr->ID, expr->expr_left->ID);
+            expr_print(expr->expr_left);
             break;
     }
 }
@@ -521,7 +535,7 @@ void decl_stmt_print(struct decl_stmt_node *decl_stmt){
 
     switch (decl_stmt->type) {
         case enum_:
-            declaration_print2(decl_stmt->ID, visibility, " enum");
+            declaration_print2(decl_stmt->ID, visibility, "enum");
             connection_print(decl_stmt->ID, decl_stmt->enum_item->ID);
             enum_print(decl_stmt->enum_item);
             break;

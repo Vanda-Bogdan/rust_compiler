@@ -30,13 +30,13 @@ struct program_node * prg;
 	struct trait_node * trait_;
 	struct associated_items_node * associated_items;
 	struct impl_node * impl_;
+	struct type_node * type_;
 	int int_const;
 	char * string_const;
 	bool bool_const;
 	float float_const;
 	char char_const;
 	enum visibility vis;
-	enum type typ;
 }
 
 %type <prg>Program
@@ -75,7 +75,8 @@ struct program_node * prg;
 %type <float_const>FLOAT_LITERAL
 %type <char_const>CHAR_LITERAL
 %type <vis>Visibility
-%type <typ>Type
+%type <type_>Type
+%type <expr>StructExprField
 
 %token FOR LOOP IN IF ELSE WHILE LET MUT FN CONTINUE ENUM CONST STRUCT IMPL TRAIT PUB CRATE SELF SUPER SELF_PARAM MUT_SELF_PARAM
 %token ID
@@ -89,6 +90,7 @@ struct program_node * prg;
 
 %nonassoc RETURN BREAK
 %nonassoc '{'
+%right ':'
 %right '='
 %nonassoc RANGE RANGE_IN
 %left AND OR
@@ -223,9 +225,14 @@ ExprWithoutBlock: CHAR_LITERAL      					{ $$ = ExprFromCharLiteral($1); }
                 | RETURN						{ $$ = OperatorExpr(return_expr, 0, 0); }
                 | ID							{ $$ = CallAccessExpr(id, $1, 0, 0); }
                 | SELF                          { $$ = CallAccessExpr(self_expr, "self", 0, 0); }
+                | ID '{' ExprList_final '}'         { $$ = StructExpr($1, $3); }
+                | StructExprField                            { $$ = $1 ;}
                 ;
 
 
+StructExprField: ID ':' ExprWithBlock           { $$ = ExprFromStructField($1, $3); }
+               | ID ':' ExprWithoutBlock        { $$ = ExprFromStructField($1, $3); }
+               ;
 
 //------------------ExprWithBlock-------------------
 ExprWithBlock: LOOP BlockExpr						{ $$ = CycleExpr(loop_expr, 0, $2, 0); }
@@ -386,14 +393,14 @@ ConstStmt: CONST ID ':' Type ';'					{ $$ = ConstStmt($2, $4, 0); }
          ;
 
 //---------Type---------
-Type: INT								{ $$ = int_; }
-    | STRING							{ $$ = string_; }
-    | CHAR								{ $$ = char_; }
-    | FLOAT								{ $$ = float_; }
-    | BOOL								{ $$ = bool_; }
-    | ID								{ $$ = id_; }
-    | '[' Type ';' ExprWithBlock ']'    { $$ = array_}
-    | '[' Type ';' ExprWithoutBlock ']' { $$ = array_}
+Type: INT								{ $$ = TypeFromLiteral(int_); }
+    | STRING							{ $$ = TypeFromLiteral(string_); }
+    | CHAR								{ $$ = TypeFromLiteral(char_); }
+    | FLOAT								{ $$ = TypeFromLiteral(float_); }
+    | BOOL								{ $$ = TypeFromLiteral(bool_); }
+    | ID								{ $$ = TypeFromLiteral(id_); }
+    | '[' Type ';' ExprWithBlock ']'    { $$ = TypeFromArray($2, $4);}
+    | '[' Type ';' ExprWithoutBlock ']' { $$ = TypeFromArray($2, $4);}
     ;
 
 //---------Visibility---------

@@ -157,10 +157,31 @@ struct expr_node* BlockExpr(struct stmt_list_node* stmt_list) {
     return new_node;
 }
 
+//-------------------------------------StructExpr
+struct expr_node* StructExpr(char* name, struct expr_list_node* expr_list) {
+    struct expr_node* new_node = (struct expr_node*) malloc(sizeof (struct expr_node));
+    new_node->ID = global_id++;
+    new_node->type = struct_expr;
+    new_node->Name = name;
+    new_node->expr_list = expr_list;
+    new_node->next = NULL;
+    return new_node;
+}
+
+struct expr_node* ExprFromStructField(char* name, struct expr_node* expr){
+    struct expr_node* new_node = (struct expr_node*) malloc(sizeof (struct expr_node));
+    new_node->ID = global_id++;
+    new_node->type = struct_field_expr;
+    new_node->Name = name;
+    new_node->expr_left = expr;
+    new_node->next = NULL;
+    return new_node;
+}
+
 /*-------------------------------------------------StmtFunctions------------------------------------------------------*/
 
 //-------------------------------------ConstStmt
-struct const_stmt_node* ConstStmt(char* name, enum type type, struct expr_node* expr) {
+struct const_stmt_node* ConstStmt(char* name, struct type_node* type, struct expr_node* expr) {
     struct const_stmt_node* new_node = (struct const_stmt_node*) malloc(sizeof (struct const_stmt_node));
     new_node->ID = global_id++;
     new_node->type = type;
@@ -201,6 +222,7 @@ struct associated_items_node* AssociatedList(struct associated_item_node* node) 
 struct associated_items_node* AssociatedListAdd(struct associated_items_node* list, struct associated_item_node* last) {
     list->last->next = last;
     list->last = last;
+    return list;
 }
 
 struct associated_items_node* AssociatedListFinal(struct associated_items_node* list) {
@@ -208,7 +230,7 @@ struct associated_items_node* AssociatedListFinal(struct associated_items_node* 
 }
 
 //-------------------------------------Impl
-struct impl_node* ImplNode(enum impl_type impl_type, enum type type, char* name, struct associated_items_node* list) {
+struct impl_node* ImplNode(enum impl_type impl_type, struct type_node* type, char* name, struct associated_items_node* list) {
     struct impl_node* new_node = (struct impl_node*) malloc(sizeof (struct impl_node));
     new_node->ID = global_id++;
     new_node->implType = impl_type;
@@ -227,7 +249,7 @@ struct struct_node* StructNode(char* name, struct struct_list_node* struct_list)
     return new_node;
 }
 
-struct struct_item_node* StructItemNode(char* name, enum type type, enum visibility visibility) {
+struct struct_item_node* StructItemNode(char* name, struct type_node* type, enum visibility visibility) {
     struct struct_item_node* new_node = (struct struct_item_node*) malloc(sizeof (struct struct_item_node));
     new_node->ID = global_id++;
     new_node->name = name;
@@ -255,7 +277,7 @@ struct struct_list_node* StructListFinal(struct struct_list_node* list) {
 }
 
 //-------------------------------------Function
-struct function_node* FunctionNode(char* name, enum type returnType, struct function_params_node* params, struct expr_node* body) {
+struct function_node* FunctionNode(char* name, struct type_node* returnType, struct function_params_node* params, struct expr_node* body) {
     struct function_node* new_node = (struct function_node*) malloc(sizeof (struct function_node));
     new_node->ID = global_id++;
     new_node->name = name;
@@ -265,7 +287,7 @@ struct function_node* FunctionNode(char* name, enum type returnType, struct func
     return new_node;
 }
 
-struct function_param_node* FunctionParamNode(char* name, enum type type, enum mutable mut) {
+struct function_param_node* FunctionParamNode(char* name, struct type_node* type, enum mutable mut) {
     struct function_param_node* new_node = (struct function_param_node*) malloc(sizeof (struct function_param_node));
     new_node->ID = global_id++;
     new_node->name = name;
@@ -422,7 +444,7 @@ struct decl_stmt_node* DeclarationImpl(enum visibility visibility, struct impl_n
 }
 
 //----------------------------------------LetStmt
-struct let_stmt_node* LetStmt(char* name, enum type type, enum mutable mut, struct expr_node* expr) {
+struct let_stmt_node* LetStmt(char* name, struct type_node* type, enum mutable mut, struct expr_node* expr) {
     struct let_stmt_node* new_node = (struct let_stmt_node*) malloc(sizeof (struct let_stmt_node));
     new_node->ID = global_id++;
     new_node->name = name;
@@ -469,4 +491,21 @@ struct program_node* ProgramCreate(struct stmt_list_node* stmt_list) {
 void yyerror(char const *s)
 {
     printf("%s",s);
+}
+
+/*---------------------------------------------------------Type----------------------------------------------------*/
+
+struct type_node* TypeFromLiteral(enum type type){
+    struct type_node* new_node = (struct type_node*) malloc(sizeof (struct type_node));
+    new_node->type = type;
+    new_node->typeArr = NULL;
+    new_node->exprArr = NULL;
+    return new_node;
+}
+
+struct type_node* TypeFromArray(struct type_node* type, struct expr_node* expr){
+    struct type_node* new_node = (struct type_node*) malloc(sizeof (struct type_node));
+    new_node->typeArr = type;
+    new_node->exprArr = expr;
+    return new_node;
 }

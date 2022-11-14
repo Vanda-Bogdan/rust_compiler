@@ -10,7 +10,7 @@ enum type {
 struct type_node{
     enum type type;
     struct type_node* typeArr;
-    struct expr_node* expr;
+    struct expr_node* exprArr;
 };
 
 /*----------------------------------------------------Visibility------------------------------------------------------*/
@@ -30,7 +30,7 @@ enum expr_type{
     return_expr, array_expr, array_expr_auto_fill, index_expr,
     range_expr, range_in_expr, range_left, range_right, range_in_right,
     id, self_expr, call_expr, method_expr, field_access_expr, if_expr, loop_expr, loop_while, loop_for, block_expr,
-    int_lit, float_lit, char_lit, string_lit, bool_lit
+    int_lit, float_lit, char_lit, string_lit, bool_lit, struct_expr, struct_field_expr
 };
 
 struct expr_node {
@@ -82,7 +82,7 @@ struct let_stmt_node {
     int ID;
     char* name;
     enum mutable mutable;
-    enum type type;
+    struct type_node* type;
     struct expr_node* expr;
 };
 
@@ -108,7 +108,7 @@ struct struct_item_node {
     int ID;
     char* name;
     struct struct_item_node* next;
-    enum type type;
+    struct type_node* type;
     enum visibility visibility;
 };
 
@@ -152,7 +152,7 @@ struct function_param_node {
     char* name;
     enum mutable mutable;
     struct function_param_node* next;
-    enum type type;
+    struct type_node* type;
 };
 
 enum func_type {
@@ -162,7 +162,7 @@ enum func_type {
 struct function_node {
     int ID;
     char* name;
-    enum type returnType;
+    struct type_node* returnType;
     struct function_params_node* params;
     struct expr_node* body;
 };
@@ -178,7 +178,7 @@ struct function_params_node {
 struct const_stmt_node {
     int ID;
     char* name;
-    enum type type;
+    struct type_node* type;
     struct expr_node* expr;
 };
 
@@ -212,7 +212,7 @@ struct impl_node {
     int ID;
     char* name;
     enum impl_type implType;
-    enum type type;
+    struct type_node* type;
     struct associated_items_node* items;
 };
 
