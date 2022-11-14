@@ -86,6 +86,7 @@ struct expr_list_node* ExprList(struct expr_node* expr) {
 struct expr_list_node* ExprListAdd(struct expr_list_node* expr_list, struct expr_node* expr) {
     expr_list->last->next = expr;
     expr_list->last = expr;
+    return expr_list;
 }
 
 struct expr_list_node* ExprListFinal(struct expr_list_node* expr_list) {
@@ -270,6 +271,7 @@ struct struct_list_node* StructListNode(struct struct_item_node* node) {
 struct struct_list_node* StructListAdd(struct struct_list_node* list, struct struct_item_node* last) {
     list->last->next = last;
     list->last = last;
+    return list;
 }
 
 struct struct_list_node* StructListFinal(struct struct_list_node* list) {
@@ -281,7 +283,19 @@ struct function_node* FunctionNode(char* name, struct type_node* returnType, str
     struct function_node* new_node = (struct function_node*) malloc(sizeof (struct function_node));
     new_node->ID = global_id++;
     new_node->name = name;
-    new_node->returnType = returnType;
+
+    if(returnType==NULL){
+        struct type_node* new_type_node = (struct type_node*) malloc(sizeof (struct type_node));
+        new_type_node->ID = global_id++;
+        new_type_node->typeArr = NULL;
+        new_type_node->exprArr = NULL;
+        new_type_node->type = emptyType;
+        new_node->returnType = new_type_node;
+    }
+    else{
+        new_node->returnType = returnType;
+    }
+
     new_node->params = params;
     new_node->body = body;
     return new_node;
@@ -308,6 +322,7 @@ struct function_params_node* FunctionParamsNode(struct function_param_node* node
 struct function_params_node* FunctionParamsAdd(struct function_params_node* list, struct function_param_node* last) {
     list->last->next = last;
     list->last = last;
+    return list;
 }
 
 struct function_params_node* FunctionParamsFinal(enum func_type func_type, struct function_params_node* list) {
@@ -357,6 +372,7 @@ struct enum_list_node* EnumListNode(struct enum_item_node* node) {
 struct enum_list_node* EnumListAdd(struct enum_list_node* list, struct enum_item_node* last) {
     list->last->next = last;
     list->last = last;
+    return list;
 }
 
 struct enum_list_node* EnumListFinal(struct enum_list_node* list) {
@@ -448,7 +464,19 @@ struct let_stmt_node* LetStmt(char* name, struct type_node* type, enum mutable m
     struct let_stmt_node* new_node = (struct let_stmt_node*) malloc(sizeof (struct let_stmt_node));
     new_node->ID = global_id++;
     new_node->name = name;
-    new_node->type = type;
+
+    if(type==NULL){
+        struct type_node* new_type_node = (struct type_node*) malloc(sizeof (struct type_node));
+        new_type_node->ID = global_id++;
+        new_type_node->typeArr = NULL;
+        new_type_node->exprArr = NULL;
+        new_type_node->type = emptyType;
+        new_node->type = new_type_node;
+    }
+    else{
+        new_node->type = type;
+    }
+
     new_node->mutable = mut;
     new_node->expr = expr;
     return  new_node;
@@ -477,6 +505,7 @@ struct stmt_list_node* StmtListNode(struct stmt_node* node) {
 struct stmt_list_node* StmtListAdd(struct stmt_list_node* list, struct stmt_node* last) {
     list->last->next = last;
     list->last = last;
+    return list;
 }
 
 /*---------------------------------------------------------Program----------------------------------------------------*/
@@ -497,6 +526,7 @@ void yyerror(char const *s)
 
 struct type_node* TypeFromLiteral(enum type type){
     struct type_node* new_node = (struct type_node*) malloc(sizeof (struct type_node));
+    new_node->ID = global_id++;
     new_node->type = type;
     new_node->typeArr = NULL;
     new_node->exprArr = NULL;
@@ -505,6 +535,7 @@ struct type_node* TypeFromLiteral(enum type type){
 
 struct type_node* TypeFromArray(struct type_node* type, struct expr_node* expr){
     struct type_node* new_node = (struct type_node*) malloc(sizeof (struct type_node));
+    new_node->ID = global_id++;
     new_node->typeArr = type;
     new_node->exprArr = expr;
     return new_node;

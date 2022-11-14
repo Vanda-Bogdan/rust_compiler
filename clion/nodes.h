@@ -8,6 +8,7 @@ enum type {
 };
 
 struct type_node{
+    int ID;
     enum type type;
     struct type_node* typeArr;
     struct expr_node* exprArr;

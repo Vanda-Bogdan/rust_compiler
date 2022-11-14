@@ -10,6 +10,8 @@ char name_buffer[200];
 void declaration_print(int ID, char *name);
 void function_print(struct function_node *func);
 void connection_print(int parent_ID, int child_ID);
+char* type(enum type type);
+void type_print(struct type_node *type_node);
 void expr_print(struct expr_node *expr);
 void function_params_print(struct function_params_node *params);
 void function_param_print(struct function_param_node *param);
@@ -98,9 +100,41 @@ void connection_print(int parent_ID, int child_ID){
     fputs(buffer, fp);
 }
 
+char* type(enum type type){
+    switch (type) {
+        case emptyType:
+            return "emptyType";
+        case int_:
+            return "int";
+        case char_:
+            return "char";
+        case string_:
+            return "String";
+        case float_:
+            return "float";
+        case bool_:
+            return "bool";
+        case id_:
+            return "idType";
+        case array_:
+            return "arrayType";
+    }
+}
+
+void type_print(struct type_node *type_node){
+    declaration_print2(type_node->ID, "type:",type(type_node->type));
+    if(type_node->typeArr!=NULL){
+        connection_print(type_node->ID, type_node->typeArr->ID);
+        type_print(type_node->typeArr);
+    }
+}
+
 void function_print(struct function_node *func){
 
     declaration_print(func->ID, func->name);
+
+    connection_print(func->ID, func->returnType->ID);
+    type_print(func->returnType);
 
     if(func->params!=NULL){
         connection_print(func->ID, func->params->ID);
@@ -140,6 +174,8 @@ void function_params_print(struct function_params_node *params){
 void function_param_print(struct function_param_node *param){
 
     declaration_print(param->ID, param->name);
+    connection_print(param->ID, param->type->ID);
+    type_print(param->type);
 }
 
 void expr_print(struct expr_node *expr){
@@ -574,15 +610,18 @@ void decl_stmt_print(struct decl_stmt_node *decl_stmt){
 
 void let_stmt_print(struct let_stmt_node *let_stmt){
 
-    char type[200];
+    char type[20];
     type[0] = 0;
     if(let_stmt->mutable==mut){
-        strcat(type, "let mut");
+        strcat(type, "mutable");
     }
     else{
-        strcat(type, "let");
+        strcat(type, "not_mutable");
     }
     declaration_print2(let_stmt->ID, type, let_stmt->name);
+
+    connection_print(let_stmt->ID, let_stmt->type->ID);
+    type_print(let_stmt->type);
 
     if(let_stmt->expr!=NULL){
         connection_print(let_stmt->ID, let_stmt->expr->ID);
@@ -643,6 +682,8 @@ void enum_item_print(struct enum_item_node *enum_item){
 
 void const_stmt_print(struct const_stmt_node *const_stmt){
     declaration_print(const_stmt->ID, const_stmt->name);
+    connection_print(const_stmt->ID, const_stmt->type->ID);
+    type_print(const_stmt->type);
     if(const_stmt->expr!=NULL){
         connection_print(const_stmt->ID, const_stmt->expr->ID);
         expr_print(const_stmt->expr);
@@ -689,6 +730,8 @@ void struct_item_print(struct struct_item_node *struct_item){
             break;
     }
     declaration_print2(struct_item->ID, visibility, struct_item->name);
+    connection_print(struct_item->ID, struct_item->type->ID);
+    type_print(struct_item->type);
 }
 
 void trait_print(struct trait_node *trait_node){
@@ -760,6 +803,9 @@ void impl_print(struct impl_node *impl_node){
     }else{
         declaration_print(impl_node->ID, impl_type);
     }
+
+    connection_print(impl_node->ID, impl_node->type->ID);
+    type_print(impl_node->type);
 
     if(impl_node->items!=NULL){
         connection_print(impl_node->ID,impl_node->items->ID);
