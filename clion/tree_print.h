@@ -338,8 +338,10 @@ void expr_print(struct expr_node *expr){
         case array_expr_auto_fill:
             declaration_print(expr->ID, "[Expr;Expr]");
 
-            connection_print(expr->ID, expr->expr_list->ID);
-            expr_list_print(expr->expr_list);
+            connection_print(expr->ID, expr->expr_left->ID);
+            expr_print(expr->expr_left);
+            connection_print(expr->ID, expr->expr_right->ID);
+            expr_print(expr->expr_right);
             break;
 
         case id:
@@ -525,31 +527,31 @@ void decl_stmt_print(struct decl_stmt_node *decl_stmt){
             break;
 
         case function_:
-            declaration_print2(decl_stmt->ID, visibility, " function");
+            declaration_print2(decl_stmt->ID, visibility, "function");
             connection_print(decl_stmt->ID, decl_stmt->function_item->ID);
             function_print(decl_stmt->function_item);
             break;
 
         case constStmt_:
-            declaration_print2(decl_stmt->ID, visibility, " const_stmt");
+            declaration_print2(decl_stmt->ID, visibility, "const_stmt");
             connection_print(decl_stmt->ID, decl_stmt->const_stmt_item->ID);
             const_stmt_print(decl_stmt->const_stmt_item);
             break;
 
         case struct_:
-            declaration_print2(decl_stmt->ID, visibility," struct");
+            declaration_print2(decl_stmt->ID, visibility,"struct");
             connection_print(decl_stmt->ID, decl_stmt->struct_item->ID);
             struct_print(decl_stmt->struct_item);
             break;
 
         case trait_:
-            declaration_print2(decl_stmt->ID, visibility," trait");
+            declaration_print2(decl_stmt->ID, visibility,"trait");
             connection_print(decl_stmt->ID, decl_stmt->trait_item->ID);
             trait_print(decl_stmt->trait_item);
             break;
 
         case impl_:
-            declaration_print2(decl_stmt->ID, visibility," impl");
+            declaration_print2(decl_stmt->ID, visibility,"impl");
             connection_print(decl_stmt->ID, decl_stmt->impl_item->ID);
             impl_print(decl_stmt->impl_item);
             break;
