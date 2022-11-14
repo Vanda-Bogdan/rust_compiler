@@ -4,7 +4,13 @@
 
 /*--------------------------------------------------Type--------------------------------------------------------------*/
 enum type {
-    emptyType, int_, char_, string_, float_, bool_, id_
+    emptyType, int_, char_, string_, float_, bool_, id_, array_
+};
+
+struct type_node{
+    enum type type;
+    struct type_node* typeArr;
+    struct expr_node* expr;
 };
 
 /*----------------------------------------------------Visibility------------------------------------------------------*/

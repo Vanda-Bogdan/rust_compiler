@@ -225,6 +225,8 @@ ExprWithoutBlock: CHAR_LITERAL      					{ $$ = ExprFromCharLiteral($1); }
                 | SELF                          { $$ = CallAccessExpr(self_expr, "self", 0, 0); }
                 ;
 
+
+
 //------------------ExprWithBlock-------------------
 ExprWithBlock: LOOP BlockExpr						{ $$ = CycleExpr(loop_expr, 0, $2, 0); }
              | WHILE ExprWithBlock BlockExpr				{ $$ = CycleExpr(loop_while, $2, $3, 0); }
@@ -385,11 +387,13 @@ ConstStmt: CONST ID ':' Type ';'					{ $$ = ConstStmt($2, $4, 0); }
 
 //---------Type---------
 Type: INT								{ $$ = int_; }
-    | STRING								{ $$ = string_; }
+    | STRING							{ $$ = string_; }
     | CHAR								{ $$ = char_; }
     | FLOAT								{ $$ = float_; }
     | BOOL								{ $$ = bool_; }
     | ID								{ $$ = id_; }
+    | '[' Type ';' ExprWithBlock ']'    { $$ = array_}
+    | '[' Type ';' ExprWithoutBlock ']' { $$ = array_}
     ;
 
 //---------Visibility---------
