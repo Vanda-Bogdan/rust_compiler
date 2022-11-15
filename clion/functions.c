@@ -536,7 +536,13 @@ struct type_node* TypeFromLiteral(enum type type){
 struct type_node* TypeFromArray(struct type_node* type, struct expr_node* expr){
     struct type_node* new_node = (struct type_node*) malloc(sizeof (struct type_node));
     new_node->ID = global_id++;
-    new_node->typeArr = type;
+    if(type->typeArr!=NULL){
+        new_node->typeArr = type;
+        new_node->type = array_;
+    }
+    else{
+        new_node->type = type->type;
+    }
     new_node->exprArr = expr;
     return new_node;
 }

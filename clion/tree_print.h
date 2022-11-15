@@ -123,7 +123,7 @@ char* type(enum type type){
 
 void type_print(struct type_node *type_node){
     declaration_print2(type_node->ID, "type:",type(type_node->type));
-    if(type_node->typeArr!=NULL){
+    if(type_node->type==array_){
         connection_print(type_node->ID, type_node->typeArr->ID);
         type_print(type_node->typeArr);
     }
