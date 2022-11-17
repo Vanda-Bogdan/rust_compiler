@@ -122,7 +122,12 @@ char* type(enum type type){
 }
 
 void type_print(struct type_node *type_node){
-    declaration_print2(type_node->ID, "type:",type(type_node->type));
+    if(type_node->exprArr==NULL){
+        declaration_print2(type_node->ID, "type:",type(type_node->type));
+    } else{
+        declaration_print2(type_node->ID, "[type; Expr]:",type(type_node->type));
+    }
+
     if(type_node->type==array_){
         connection_print(type_node->ID, type_node->typeArr->ID);
         type_print(type_node->typeArr);
@@ -141,8 +146,11 @@ void function_print(struct function_node *func){
         function_params_print(func->params);
     }
 
-    connection_print(func->ID, func->body->ID);
-    expr_print(func->body);
+    if(func->body!=NULL){
+        connection_print(func->ID, func->body->ID);
+        expr_print(func->body);
+    }
+
 }
 
 void function_params_print(struct function_params_node *params){
@@ -389,7 +397,7 @@ void expr_print(struct expr_node *expr){
             break;
 
         case call_expr:
-            declaration_print2(expr->ID, "call method:",expr->Name);
+            declaration_print2(expr->ID, "method call:",expr->Name);
             if(expr->expr_list!=NULL){
                 connection_print(expr->ID, expr->expr_list->ID);
                 expr_list_print(expr->expr_list);
@@ -397,9 +405,21 @@ void expr_print(struct expr_node *expr){
             break;
 
         case method_expr:
-            declaration_print2(expr->ID, "method:",expr->Name);
+            declaration_print2(expr->ID, "method call to Expr:",expr->Name);
             connection_print(expr->ID, expr->expr_left->ID);
             expr_print(expr->expr_left);
+            if(expr->expr_list!=NULL){
+                connection_print(expr->ID, expr->expr_list->ID);
+                expr_list_print(expr->expr_list);
+            }
+            break;
+
+        case static_method:
+            name_buffer[0] = 0;
+            strcat(name_buffer, "static method call to ");
+            strcat(name_buffer, expr->ParentID);
+            strcat(name_buffer, ":");
+            declaration_print2(expr->ID, name_buffer,expr->Name);
             if(expr->expr_list!=NULL){
                 connection_print(expr->ID, expr->expr_list->ID);
                 expr_list_print(expr->expr_list);

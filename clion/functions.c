@@ -74,6 +74,18 @@ struct expr_node* CallAccessExpr(enum expr_type type, char* name, struct expr_no
     return new_node;
 }
 
+struct expr_node* StaticMethodExpr(enum expr_type type, char* name, char* parent_id, struct expr_list_node* expr_list){
+    struct expr_node* new_node = (struct expr_node*) malloc(sizeof (struct expr_node));
+    new_node->ID = global_id++;
+    new_node->type = type;
+    new_node->Name = name;
+    new_node->ParentID = parent_id;
+    new_node->expr_list = expr_list;
+    new_node->next = NULL;
+    return new_node;
+}
+
+
 //-------------------------------------ExprList
 struct expr_list_node* ExprList(struct expr_node* expr) {
     struct expr_list_node* new_node = (struct expr_list_node*) malloc(sizeof (struct expr_list_node));

@@ -31,7 +31,7 @@ enum expr_type{
     return_expr, array_expr, array_expr_auto_fill, index_expr,
     range_expr, range_in_expr, range_left, range_right, range_in_right,
     id, self_expr, call_expr, method_expr, field_access_expr, if_expr, loop_expr, loop_while, loop_for, block_expr,
-    int_lit, float_lit, char_lit, string_lit, bool_lit, struct_expr, struct_field_expr
+    int_lit, float_lit, char_lit, string_lit, bool_lit, struct_expr, struct_field_expr, static_method
 };
 
 struct expr_node {
@@ -40,6 +40,7 @@ struct expr_node {
     float Float;
     bool Bool;
     char* String;
+    char* ParentID;
     char Char;
     char * Name;
     enum expr_type type;
