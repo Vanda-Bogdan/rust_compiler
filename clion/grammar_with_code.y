@@ -236,14 +236,14 @@ StructExprField: ID ':' ExprWithBlock           { $$ = ExprFromStructField($1, $
 
 //------------------ExprWithBlock-------------------
 ExprWithBlock: LOOP BlockExpr						{ $$ = CycleExpr(loop_expr, 0, $2, 0); }
-             | WHILE ExprWithBlock BlockExpr				{ $$ = CycleExpr(loop_while, $2, $3, 0); }
-             | WHILE ExprWithoutBlock BlockExpr				{ $$ = CycleExpr(loop_while, $2, $3, 0); }
+             | WHILE '(' ExprWithBlock ')' BlockExpr				{ $$ = CycleExpr(loop_while, $3, $5, 0); }
+             | WHILE '(' ExprWithoutBlock ')' BlockExpr				{ $$ = CycleExpr(loop_while, $3, $5, 0); }
              | FOR ID IN ExprWithBlock BlockExpr			{ $$ = CycleExpr(loop_for, $4, $5, $2); }
              | FOR ID IN ExprWithoutBlock BlockExpr			{ $$ = CycleExpr(loop_for, $4, $5, $2); }
-             | IF ExprWithBlock BlockExpr				{ $$ = IfExpr($2, $3, 0); }
-             | IF ExprWithoutBlock BlockExpr				{ $$ = IfExpr($2, $3, 0); }
-             | IF ExprWithBlock BlockExpr ELSE BlockExpr		{ $$ = IfExpr($2, $3, $5); }
-             | IF ExprWithoutBlock BlockExpr ELSE BlockExpr		{ $$ = IfExpr($2, $3, $5); }
+             | IF '(' ExprWithBlock ')' BlockExpr				{ $$ = IfExpr($3, $5, 0); }
+             | IF '(' ExprWithoutBlock ')' BlockExpr				{ $$ = IfExpr($3, $5, 0); }
+             | IF '(' ExprWithBlock ')' BlockExpr ELSE BlockExpr		{ $$ = IfExpr($3, $5, $7); }
+             | IF '(' ExprWithoutBlock ')' BlockExpr ELSE BlockExpr		{ $$ = IfExpr($3, $5, $7); }
              ;
 
 BlockExpr: '{' StmtList '}'						{ $$ = BlockExpr($2); }
