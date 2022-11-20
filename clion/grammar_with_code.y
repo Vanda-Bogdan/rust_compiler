@@ -58,7 +58,8 @@ struct program_node * prg;
 %type <enum_items>EnumItems
 %type <enum_items>EnumItems_final
 %type <function_param>FuncParam
-%type <function_>Function
+%type <function_>FunctionWithBlock
+%type <function_>FunctionWithoutBlock
 %type <function_params>FuncParamList
 %type <function_params>FuncParamList_final
 %type <const_stmt>ConstStmt
@@ -77,6 +78,12 @@ struct program_node * prg;
 %type <vis>Visibility
 %type <type_>Type
 %type <expr>StructExprField
+%type <stmt_>StmtDecl
+%type <stmt_list>StmtListSupreme
+%type <associated_item>AssociatedItemImpl
+%type <associated_items>AssociatedItemsImpl
+%type <associated_items>AssociatedItemsImpl_final
+
 
 %token FOR LOOP IN IF ELSE WHILE LET MUT FN CONTINUE ENUM CONST STRUCT IMPL TRAIT PUB CRATE SELF SUPER SELF_PARAM MUT_SELF_PARAM
 %token ID
@@ -103,7 +110,7 @@ struct program_node * prg;
 %nonassoc ')'
 
 %%
-Program: StmtList							{ $$ = prg = ProgramCreate($1); }
+Program: StmtListSupreme							{ $$ = prg = ProgramCreate($1); }
        ;
 
 //--------------------Expressions---------------------
@@ -122,49 +129,49 @@ ExprList: ExprWithBlock							{ $$ = ExprList($1); }
 
 //------------------ExprWithoutBlock-------------------
 ExprWithoutBlock: CHAR_LITERAL      					{ $$ = ExprFromCharLiteral($1); }
-                | STRING_LITERAL	   				{ $$ = ExprFromStringLiteral($1); }
-                | INT_LITERAL						{ $$ = ExprFromIntLiteral($1); }
-                | FLOAT_LITERAL						{ $$ = ExprFromFloatLiteral($1); }
-                | TRUE							{ $$ = ExprFromBoolLiteral($1); }
-                | FALSE							{ $$ = ExprFromBoolLiteral($1); }
-                | ExprWithoutBlock '+' ExprWithoutBlock			{ $$ = OperatorExpr(plus, $1, $3); }
-                | ExprWithBlock '+' ExprWithoutBlock			{ $$ = OperatorExpr(plus, $1, $3); }
-                | ExprWithoutBlock '+' ExprWithBlock			{ $$ = OperatorExpr(plus, $1, $3); }
-                | ExprWithBlock '+' ExprWithBlock			{ $$ = OperatorExpr(plus, $1, $3); }
-                | ExprWithoutBlock '-' ExprWithoutBlock			{ $$ = OperatorExpr(minus, $1, $3); }
-                | ExprWithBlock '-' ExprWithoutBlock			{ $$ = OperatorExpr(minus, $1, $3); }
-                | ExprWithoutBlock '-' ExprWithBlock			{ $$ = OperatorExpr(minus, $1, $3); }
-                | ExprWithBlock '-' ExprWithBlock			{ $$ = OperatorExpr(minus, $1, $3); }
-                | ExprWithoutBlock '*' ExprWithoutBlock			{ $$ = OperatorExpr(mul, $1, $3); }
-                | ExprWithBlock '*' ExprWithoutBlock			{ $$ = OperatorExpr(mul, $1, $3); }
-                | ExprWithoutBlock '*' ExprWithBlock			{ $$ = OperatorExpr(mul, $1, $3); }
-                | ExprWithBlock '*' ExprWithBlock			{ $$ = OperatorExpr(mul, $1, $3); }
-                | ExprWithoutBlock '/' ExprWithoutBlock			{ $$ = OperatorExpr(div_expr, $1, $3); }
-                | ExprWithBlock '/' ExprWithoutBlock			{ $$ = OperatorExpr(div_expr, $1, $3); }
-                | ExprWithoutBlock '/' ExprWithBlock			{ $$ = OperatorExpr(div_expr, $1, $3); }
-                | ExprWithBlock '/' ExprWithBlock			{ $$ = OperatorExpr(div_expr, $1, $3); }
-                | ExprWithoutBlock EQUAL ExprWithoutBlock		{ $$ = OperatorExpr(equal, $1, $3); }
-                | ExprWithoutBlock EQUAL ExprWithBlock			{ $$ = OperatorExpr(equal, $1, $3); }
-                | ExprWithBlock EQUAL ExprWithoutBlock			{ $$ = OperatorExpr(equal, $1, $3); }
-                | ExprWithBlock EQUAL ExprWithBlock			{ $$ = OperatorExpr(equal, $1, $3); }
-                | ExprWithoutBlock NOT_EQUAL ExprWithoutBlock		{ $$ = OperatorExpr(not_equal, $1, $3); }
-                | ExprWithoutBlock NOT_EQUAL ExprWithBlock		{ $$ = OperatorExpr(not_equal, $1, $3); }
-                | ExprWithBlock NOT_EQUAL ExprWithoutBlock		{ $$ = OperatorExpr(not_equal, $1, $3); }
-                | ExprWithBlock NOT_EQUAL ExprWithBlock			{ $$ = OperatorExpr(not_equal, $1, $3); }
-                | ExprWithoutBlock '>' ExprWithoutBlock			{ $$ = OperatorExpr(greater, $1, $3); }
-                | ExprWithoutBlock '>' ExprWithBlock			{ $$ = OperatorExpr(greater, $1, $3); }
-                | ExprWithBlock '>' ExprWithoutBlock			{ $$ = OperatorExpr(greater, $1, $3); }
-                | ExprWithBlock '>' ExprWithBlock			{ $$ = OperatorExpr(greater, $1, $3); }
-                | ExprWithoutBlock '<' ExprWithoutBlock			{ $$ = OperatorExpr(less, $1, $3); }
-                | ExprWithoutBlock '<' ExprWithBlock			{ $$ = OperatorExpr(less, $1, $3); }
-                | ExprWithBlock '<' ExprWithoutBlock			{ $$ = OperatorExpr(less, $1, $3); }
-                | ExprWithBlock '<' ExprWithBlock			{ $$ = OperatorExpr(less, $1, $3); }
-                | ExprWithoutBlock GREATER_EQUAL ExprWithoutBlock	{ $$ = OperatorExpr(greater_equal, $1, $3); }
-                | ExprWithoutBlock GREATER_EQUAL ExprWithBlock		{ $$ = OperatorExpr(greater_equal, $1, $3); }
-                | ExprWithBlock GREATER_EQUAL ExprWithoutBlock		{ $$ = OperatorExpr(greater_equal, $1, $3); }
-                | ExprWithBlock GREATER_EQUAL ExprWithBlock		{ $$ = OperatorExpr(greater_equal, $1, $3); }
-                | ExprWithoutBlock LESS_EQUAL ExprWithoutBlock		{ $$ = OperatorExpr(less_equal, $1, $3); }
-                | ExprWithoutBlock LESS_EQUAL ExprWithBlock		{ $$ = OperatorExpr(less_equal, $1, $3); }
+                                                     | STRING_LITERAL	   				{ $$ = ExprFromStringLiteral($1); }
+                                                     | INT_LITERAL						{ $$ = ExprFromIntLiteral($1); }
+                                                     | FLOAT_LITERAL						{ $$ = ExprFromFloatLiteral($1); }
+                                                     | TRUE							{ $$ = ExprFromBoolLiteral($1); }
+                                                     | FALSE							{ $$ = ExprFromBoolLiteral($1); }
+                                                     | ExprWithoutBlock '+' ExprWithoutBlock			{ $$ = OperatorExpr(plus, $1, $3); }
+                                                     | ExprWithBlock '+' ExprWithoutBlock			{ $$ = OperatorExpr(plus, $1, $3); }
+                                                     | ExprWithoutBlock '+' ExprWithBlock			{ $$ = OperatorExpr(plus, $1, $3); }
+                                                     | ExprWithBlock '+' ExprWithBlock			{ $$ = OperatorExpr(plus, $1, $3); }
+                                                     | ExprWithoutBlock '-' ExprWithoutBlock			{ $$ = OperatorExpr(minus, $1, $3); }
+                                                     | ExprWithBlock '-' ExprWithoutBlock			{ $$ = OperatorExpr(minus, $1, $3); }
+                                                     | ExprWithoutBlock '-' ExprWithBlock			{ $$ = OperatorExpr(minus, $1, $3); }
+                                                     | ExprWithBlock '-' ExprWithBlock			{ $$ = OperatorExpr(minus, $1, $3); }
+                                                     | ExprWithoutBlock '*' ExprWithoutBlock			{ $$ = OperatorExpr(mul, $1, $3); }
+                                                     | ExprWithBlock '*' ExprWithoutBlock			{ $$ = OperatorExpr(mul, $1, $3); }
+                                                     | ExprWithoutBlock '*' ExprWithBlock			{ $$ = OperatorExpr(mul, $1, $3); }
+                                                     | ExprWithBlock '*' ExprWithBlock			{ $$ = OperatorExpr(mul, $1, $3); }
+                                                     | ExprWithoutBlock '/' ExprWithoutBlock			{ $$ = OperatorExpr(div_expr, $1, $3); }
+                                                     | ExprWithBlock '/' ExprWithoutBlock			{ $$ = OperatorExpr(div_expr, $1, $3); }
+                                                     | ExprWithoutBlock '/' ExprWithBlock			{ $$ = OperatorExpr(div_expr, $1, $3); }
+                                                     | ExprWithBlock '/' ExprWithBlock			{ $$ = OperatorExpr(div_expr, $1, $3); }
+                                                     | ExprWithoutBlock EQUAL ExprWithoutBlock		{ $$ = OperatorExpr(equal, $1, $3); }
+                                                     | ExprWithoutBlock EQUAL ExprWithBlock			{ $$ = OperatorExpr(equal, $1, $3); }
+                                                     | ExprWithBlock EQUAL ExprWithoutBlock			{ $$ = OperatorExpr(equal, $1, $3); }
+                                                     | ExprWithBlock EQUAL ExprWithBlock			{ $$ = OperatorExpr(equal, $1, $3); }
+                                                     | ExprWithoutBlock NOT_EQUAL ExprWithoutBlock		{ $$ = OperatorExpr(not_equal, $1, $3); }
+                                                     | ExprWithoutBlock NOT_EQUAL ExprWithBlock		{ $$ = OperatorExpr(not_equal, $1, $3); }
+                                                     | ExprWithBlock NOT_EQUAL ExprWithoutBlock		{ $$ = OperatorExpr(not_equal, $1, $3); }
+                                                     | ExprWithBlock NOT_EQUAL ExprWithBlock			{ $$ = OperatorExpr(not_equal, $1, $3); }
+                                                     | ExprWithoutBlock '>' ExprWithoutBlock			{ $$ = OperatorExpr(greater, $1, $3); }
+                                                     | ExprWithoutBlock '>' ExprWithBlock			{ $$ = OperatorExpr(greater, $1, $3); }
+                                                     | ExprWithBlock '>' ExprWithoutBlock			{ $$ = OperatorExpr(greater, $1, $3); }
+                                                     | ExprWithBlock '>' ExprWithBlock			{ $$ = OperatorExpr(greater, $1, $3); }
+                                                     | ExprWithoutBlock '<' ExprWithoutBlock			{ $$ = OperatorExpr(less, $1, $3); }
+                                                     | ExprWithoutBlock '<' ExprWithBlock			{ $$ = OperatorExpr(less, $1, $3); }
+                                                     | ExprWithBlock '<' ExprWithoutBlock			{ $$ = OperatorExpr(less, $1, $3); }
+                                                     | ExprWithBlock '<' ExprWithBlock			{ $$ = OperatorExpr(less, $1, $3); }
+                                                     | ExprWithoutBlock GREATER_EQUAL ExprWithoutBlock	{ $$ = OperatorExpr(greater_equal, $1, $3); }
+                                                     | ExprWithoutBlock GREATER_EQUAL ExprWithBlock		{ $$ = OperatorExpr(greater_equal, $1, $3); }
+                                                     | ExprWithBlock GREATER_EQUAL ExprWithoutBlock		{ $$ = OperatorExpr(greater_equal, $1, $3); }
+                                                     | ExprWithBlock GREATER_EQUAL ExprWithBlock		{ $$ = OperatorExpr(greater_equal, $1, $3); }
+                                                     | ExprWithoutBlock LESS_EQUAL ExprWithoutBlock		{ $$ = OperatorExpr(less_equal, $1, $3); }
+                                                     | ExprWithoutBlock LESS_EQUAL ExprWithBlock		{ $$ = OperatorExpr(less_equal, $1, $3); }
                 | ExprWithBlock LESS_EQUAL ExprWithoutBlock		{ $$ = OperatorExpr(less_equal, $1, $3); }
                 | ExprWithBlock LESS_EQUAL ExprWithBlock		{ $$ = OperatorExpr(less_equal, $1, $3); }
                 | ExprWithBlock '?'					{ $$ = OperatorExpr(qt, $1, 0); }
@@ -253,7 +260,11 @@ BlockExpr: '{' StmtList '}'						{ $$ = BlockExpr($2); }
 
 //--------------------Statement---------------------
 
-StmtList: Stmt								{ $$ = StmtListNode($1); }
+StmtListSupreme: StmtDecl                   { $$ = StmtListNode($1); }
+               | StmtListSupreme StmtDecl   { $$ = StmtListAdd($1, $2); }
+               ;
+
+StmtList: Stmt								    { $$ = StmtListNode($1); }
         | StmtList Stmt							{ $$ = StmtListAdd($1, $2); }
         ;
 
@@ -261,8 +272,10 @@ Stmt: ';'								{ $$ = StmtNode(semicolon, 0, 0, 0); }
     | ExprWithoutBlock ';'						{ $$ = StmtNode(expr, $1, 0, 0); }
     | ExprWithBlock ';'              					{ $$ = StmtNode(expr, $1, 0, 0); }
     | LetStmt								{ $$ = StmtNode(let, 0, 0, $1); }
-    | DeclarationStmt							{ $$ = StmtNode(declaration, 0, $1, 0); }
     ;
+
+StmtDecl: DeclarationStmt					{ $$ = StmtNode(declaration, 0, $1, 0); }
+        ;
 
 
 LetStmt: LET ID ':' Type '=' ExprWithBlock ';'				{ $$ = LetStmt($2, $4, notMut, $6); }
@@ -282,8 +295,10 @@ LetStmt: LET ID ':' Type '=' ExprWithBlock ';'				{ $$ = LetStmt($2, $4, notMut,
 //---------DeclarationStatement---------
 DeclarationStmt: Enum							{ $$ = DeclarationEnum(self, $1); }
                | Visibility Enum					{ $$ = DeclarationEnum($1, $2); }
-               | Function						{ $$ = DeclarationFunction(self, $1); }
-               | Visibility Function					{ $$ = DeclarationFunction($1, $2); }
+               | FunctionWithBlock						{ $$ = DeclarationFunction(self, $1); }
+               | Visibility FunctionWithBlock					{ $$ = DeclarationFunction($1, $2); }
+               | FunctionWithoutBlock						{ $$ = DeclarationFunction(self, $1); }
+               | Visibility FunctionWithoutBlock					{ $$ = DeclarationFunction($1, $2); }
                | ConstStmt						{ $$ = DeclarationConst(self, $1); }
                | Visibility ConstStmt					{ $$ = DeclarationConst($1, $2); }
                | Struct							{ $$ = DeclarationStruct(self, $1); }
@@ -318,11 +333,13 @@ EnumItem: Visibility ID							{ $$ = EnumItemNode($2, $1, 0, 0); }
         ;
 
 //----Function----
-Function: FN ID '(' FuncParamList_final ')' RIGHT_ARROW Type BlockExpr	{ $$ = FunctionNode($2, $7, $4, $8); }
-        | FN ID '(' FuncParamList_final ')' RIGHT_ARROW Type ';'	{ $$ = FunctionNode($2, $7, $4, 0); }
-        | FN ID '(' FuncParamList_final ')' BlockExpr			{ $$ = FunctionNode($2, 0, $4, $6); }
-        | FN ID '(' FuncParamList_final ')' ';'				{ $$ = FunctionNode($2, 0, $4, 0); }
-        ;
+FunctionWithBlock: FN ID '(' FuncParamList_final ')' RIGHT_ARROW Type BlockExpr	{ $$ = FunctionNode($2, $7, $4, $8); }
+                 | FN ID '(' FuncParamList_final ')' BlockExpr			        { $$ = FunctionNode($2, 0, $4, $6); }
+                 ;
+
+FunctionWithoutBlock: FN ID '(' FuncParamList_final ')' RIGHT_ARROW Type ';'	{ $$ = FunctionNode($2, $7, $4, 0); }
+                    | FN ID '(' FuncParamList_final ')' ';'				        { $$ = FunctionNode($2, 0, $4, 0); }
+                    ;
 
 FuncParamList_final: /*empty*/						        { $$ = FunctionParamsFinal(associated, 0); }
                    | SELF_PARAM                             { $$ = FunctionParamsFinal(method_self, 0); }
@@ -365,9 +382,24 @@ StructField: Visibility ID ':' Type					{ $$ = StructItemNode($2, $4, $1); }
            ;
 
 //---------Implementation---------
-Impl: IMPL Type '{' AssociatedItems_final '}'				{ $$ = ImplNode(inherent, $2, 0, $4); }
-    | IMPL ID FOR Type '{' AssociatedItems_final '}'			{ $$ = ImplNode(trait, $4, $2, $6); }
+Impl: IMPL Type '{' AssociatedItemsImpl_final '}'				{ $$ = ImplNode(inherent, $2, 0, $4); }
+    | IMPL ID FOR Type '{' AssociatedItemsImpl_final '}'			{ $$ = ImplNode(trait, $4, $2, $6); }
     ;
+
+AssociatedItemsImpl_final: /*empty*/					{ $$ = AssociatedListFinal(0); }
+                     | AssociatedItemsImpl					{ $$ = AssociatedListFinal($1); }
+                     ;
+
+AssociatedItemsImpl: AssociatedItemImpl						{ $$ = AssociatedList($1); }
+               | AssociatedItemsImpl AssociatedItemImpl				{ $$ = AssociatedListAdd($1, $2); }
+               ;
+
+AssociatedItemImpl: Visibility FunctionWithBlock					{ $$ = AssociatedItemNode($1, $2, 0); }
+                  | FunctionWithBlock						{ $$ = AssociatedItemNode(0, $1, 0); }
+                  | Visibility ConstStmt					{ $$ = AssociatedItemNode($1, 0, $2); }
+                  | ConstStmt						{ $$ = AssociatedItemNode(0, 0, $1); }
+                   ;
+
 
 //-------------Trait-------------
 Trait: TRAIT ID '{' AssociatedItems_final '}'				{ $$ = TraitNode($2, $4); }
@@ -381,8 +413,10 @@ AssociatedItems: AssociatedItem						{ $$ = AssociatedList($1); }
                | AssociatedItems AssociatedItem				{ $$ = AssociatedListAdd($1, $2); }
                ;
 
-AssociatedItem: Visibility Function					{ $$ = AssociatedItemNode($1, $2, 0); }
-              | Function						{ $$ = AssociatedItemNode(0, $1, 0); }
+AssociatedItem: Visibility FunctionWithBlock					{ $$ = AssociatedItemNode($1, $2, 0); }
+              | FunctionWithBlock						{ $$ = AssociatedItemNode(0, $1, 0); }
+              | Visibility FunctionWithoutBlock					{ $$ = AssociatedItemNode($1, $2, 0); }
+              | FunctionWithoutBlock						{ $$ = AssociatedItemNode(0, $1, 0); }
               | Visibility ConstStmt					{ $$ = AssociatedItemNode($1, 0, $2); }
               | ConstStmt						{ $$ = AssociatedItemNode(0, 0, $1); }
               ;
