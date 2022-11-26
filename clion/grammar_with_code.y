@@ -116,7 +116,7 @@ Program: StmtListSupreme							{ $$ = prg = ProgramCreate($1); }
 //--------------------Expressions---------------------
 
 
-ExprList_final: /*empty*/						{ $$ = ExprListFinal(0); }
+ExprList_final: /*empty*/						{ $$ = ExprListFinal(NULL); }
               | ExprList ','						{ $$ = ExprListFinal($1); }
               | ExprList						{ $$ = ExprListFinal($1); }
               ;
@@ -174,28 +174,28 @@ ExprWithoutBlock: CHAR_LITERAL      					{ $$ = ExprFromCharLiteral($1); }
                                                      | ExprWithoutBlock LESS_EQUAL ExprWithBlock		{ $$ = OperatorExpr(less_equal, $1, $3); }
                 | ExprWithBlock LESS_EQUAL ExprWithoutBlock		{ $$ = OperatorExpr(less_equal, $1, $3); }
                 | ExprWithBlock LESS_EQUAL ExprWithBlock		{ $$ = OperatorExpr(less_equal, $1, $3); }
-                | ExprWithBlock '?'					{ $$ = OperatorExpr(qt, $1, 0); }
-                | ExprWithoutBlock '?'					{ $$ = OperatorExpr(qt, $1, 0); }
-                | '-' ExprWithBlock %prec UMINUS			{ $$ = OperatorExpr(uminus, $2, 0); }
-                | '-' ExprWithoutBlock %prec UMINUS			{ $$ = OperatorExpr(uminus, $2, 0); }
-                | '!' ExprWithBlock					{ $$ = OperatorExpr(neg, $2, 0); }
-                | '!' ExprWithoutBlock					{ $$ = OperatorExpr(neg, $2, 0); }
-                | ExprWithBlock OR ExprWithBlock			{ $$ = OperatorExpr(or, $1, $3); }
-                | ExprWithoutBlock OR ExprWithBlock			{ $$ = OperatorExpr(or, $1, $3); }
-                | ExprWithBlock OR ExprWithoutBlock			{ $$ = OperatorExpr(or, $1, $3); }
-                | ExprWithoutBlock OR ExprWithoutBlock			{ $$ = OperatorExpr(or, $1, $3); }
-                | ExprWithBlock AND ExprWithBlock			{ $$ = OperatorExpr(and, $1, $3); }
-                | ExprWithoutBlock AND ExprWithBlock			{ $$ = OperatorExpr(and, $1, $3); }
-                | ExprWithBlock AND ExprWithoutBlock			{ $$ = OperatorExpr(and, $1, $3); }
-                | ExprWithoutBlock AND ExprWithoutBlock			{ $$ = OperatorExpr(and, $1, $3); }
+                | ExprWithBlock '?'					{ $$ = OperatorExpr(qt, $1, NULL); }
+                | ExprWithoutBlock '?'					{ $$ = OperatorExpr(qt, $1, NULL); }
+                | '-' ExprWithBlock %prec UMINUS			{ $$ = OperatorExpr(uminus, $2, NULL); }
+                | '-' ExprWithoutBlock %prec UMINUS			{ $$ = OperatorExpr(uminus, $2, NULL); }
+                | '!' ExprWithBlock					{ $$ = OperatorExpr(neg, $2, NULL); }
+                | '!' ExprWithoutBlock					{ $$ = OperatorExpr(neg, $2, NULL); }
+                | ExprWithBlock OR ExprWithBlock			{ $$ = OperatorExpr(or_, $1, $3); }
+                | ExprWithoutBlock OR ExprWithBlock			{ $$ = OperatorExpr(or_, $1, $3); }
+                | ExprWithBlock OR ExprWithoutBlock			{ $$ = OperatorExpr(or_, $1, $3); }
+                | ExprWithoutBlock OR ExprWithoutBlock			{ $$ = OperatorExpr(or_, $1, $3); }
+                | ExprWithBlock AND ExprWithBlock			{ $$ = OperatorExpr(and_, $1, $3); }
+                | ExprWithoutBlock AND ExprWithBlock			{ $$ = OperatorExpr(and_, $1, $3); }
+                | ExprWithBlock AND ExprWithoutBlock			{ $$ = OperatorExpr(and_, $1, $3); }
+                | ExprWithoutBlock AND ExprWithoutBlock			{ $$ = OperatorExpr(and_, $1, $3); }
                 | ExprWithBlock '=' ExprWithBlock			{ $$ = OperatorExpr(asgn, $1, $3); }
                 | ExprWithoutBlock '=' ExprWithBlock			{ $$ = OperatorExpr(asgn, $1, $3); }
                 | ExprWithBlock '=' ExprWithoutBlock			{ $$ = OperatorExpr(asgn, $1, $3); }
                 | ExprWithoutBlock '=' ExprWithoutBlock			{ $$ = OperatorExpr(asgn, $1, $3); }
-                | BREAK ExprWithBlock					{ $$ = OperatorExpr(break_expr, $2, 0); }
-                | BREAK ExprWithoutBlock				{ $$ = OperatorExpr(break_expr, $2, 0); }
-                | BREAK							{ $$ = OperatorExpr(break_expr, 0, 0); }
-                | CONTINUE						{ $$ = OperatorExpr(continue_expr, 0, 0); }
+                | BREAK ExprWithBlock					{ $$ = OperatorExpr(break_expr, $2, NULL); }
+                | BREAK ExprWithoutBlock				{ $$ = OperatorExpr(break_expr, $2, NULL); }
+                | BREAK							{ $$ = OperatorExpr(break_expr, NULL, NULL); }
+                | CONTINUE						{ $$ = OperatorExpr(continue_expr, NULL, NULL); }
                 | '(' ExprWithBlock ')'					{ $$ = $2; }
                 | '(' ExprWithoutBlock ')'				{ $$ = $2; }
                 | '[' ExprList_final ']'				{ $$ = ArrExprFromList($2); }
@@ -207,32 +207,32 @@ ExprWithoutBlock: CHAR_LITERAL      					{ $$ = ExprFromCharLiteral($1); }
                 | ExprWithoutBlock '[' ExprWithBlock ']'		{ $$ = OperatorExpr(index_expr, $1, $3); }
                 | ExprWithBlock '[' ExprWithoutBlock ']'		{ $$ = OperatorExpr(index_expr, $1, $3); }
                 | ExprWithoutBlock '[' ExprWithoutBlock ']'		{ $$ = OperatorExpr(index_expr, $1, $3); }
-                | ID '(' ExprList_final ')'            			{ $$ = CallAccessExpr(call_expr, $1, 0, $3); }
+                | ID '(' ExprList_final ')'            			{ $$ = CallAccessExpr(call_expr, $1, NULL, $3); }
                 | ExprWithBlock '.' ID '(' ExprList_final ')'   	{ $$ = CallAccessExpr(method_expr, $3, $1, $5); }
                 | ExprWithoutBlock '.' ID '(' ExprList_final ')'	{ $$ = CallAccessExpr(method_expr, $3, $1, $5); }
                 | ID ':' ':' ID '(' ExprList_final ')'              { $$ = StaticMethodExpr(static_method, $4, $1, $6); }
-                | ExprWithBlock '.' ID                          	{ $$ = CallAccessExpr(field_access_expr, $3, $1, 0); }
-                | ExprWithoutBlock '.' ID				{ $$ = CallAccessExpr(field_access_expr, $3, $1, 0); }
+                | ExprWithBlock '.' ID                          	{ $$ = CallAccessExpr(field_access_expr, $3, $1, NULL); }
+                | ExprWithoutBlock '.' ID				{ $$ = CallAccessExpr(field_access_expr, $3, $1, NULL); }
                 | ExprWithBlock RANGE ExprWithBlock			{ $$ = RangeExpr(range_expr, $1, $3); }
                 | ExprWithoutBlock RANGE ExprWithBlock			{ $$ = RangeExpr(range_expr, $1, $3); }
                 | ExprWithBlock RANGE ExprWithoutBlock			{ $$ = RangeExpr(range_expr, $1, $3); }
                 | ExprWithoutBlock RANGE ExprWithoutBlock		{ $$ = RangeExpr(range_expr, $1, $3); }
-                | ExprWithBlock RANGE					{ $$ = RangeExpr(range_left, $1, 0); }
-                | ExprWithoutBlock RANGE				{ $$ = RangeExpr(range_left, $1, 0); }
-                | RANGE ExprWithBlock					{ $$ = RangeExpr(range_right, $2, 0); }
-                | RANGE ExprWithoutBlock				{ $$ = RangeExpr(range_right, $2, 0); }
-                | RANGE							{ $$ = RangeExpr(range_right, 0, 0); }
+                | ExprWithBlock RANGE					{ $$ = RangeExpr(range_left, $1, NULL); }
+                | ExprWithoutBlock RANGE				{ $$ = RangeExpr(range_left, $1, NULL); }
+                | RANGE ExprWithBlock					{ $$ = RangeExpr(range_right, $2, NULL); }
+                | RANGE ExprWithoutBlock				{ $$ = RangeExpr(range_right, $2, NULL); }
+                | RANGE							{ $$ = RangeExpr(range_right, NULL, NULL); }
                 | ExprWithBlock RANGE_IN ExprWithBlock			{ $$ = RangeExpr(range_in_expr, $1, $3); }
                 | ExprWithoutBlock RANGE_IN ExprWithBlock		{ $$ = RangeExpr(range_in_expr, $1, $3); }
                 | ExprWithBlock RANGE_IN ExprWithoutBlock		{ $$ = RangeExpr(range_in_expr, $1, $3); }
                 | ExprWithoutBlock RANGE_IN ExprWithoutBlock		{ $$ = RangeExpr(range_in_expr, $1, $3); }
-                | RANGE_IN ExprWithBlock				{ $$ = RangeExpr(range_in_right, $2, 0); }
-                | RANGE_IN ExprWithoutBlock				{ $$ = RangeExpr(range_in_right, $2, 0); }
-                | RETURN ExprWithBlock					{ $$ = OperatorExpr(return_expr, $2, 0); }
-                | RETURN ExprWithoutBlock				{ $$ = OperatorExpr(return_expr, $2, 0); }
-                | RETURN						{ $$ = OperatorExpr(return_expr, 0, 0); }
-                | ID							{ $$ = CallAccessExpr(id, $1, 0, 0); }
-                | SELF                          { $$ = CallAccessExpr(self_expr, "self", 0, 0); }
+                | RANGE_IN ExprWithBlock				{ $$ = RangeExpr(range_in_right, $2, NULL); }
+                | RANGE_IN ExprWithoutBlock				{ $$ = RangeExpr(range_in_right, $2, NULL); }
+                | RETURN ExprWithBlock					{ $$ = OperatorExpr(return_expr, $2, NULL); }
+                | RETURN ExprWithoutBlock				{ $$ = OperatorExpr(return_expr, $2, NULL); }
+                | RETURN						{ $$ = OperatorExpr(return_expr, NULL, NULL); }
+                | ID							{ $$ = CallAccessExpr(id, $1, NULL, NULL); }
+                | SELF                          { $$ = CallAccessExpr(self_expr, (char *)"self", NULL, NULL); }
                 | ID '{' ExprList_final '}'         { $$ = StructExpr($1, $3); }
                 | StructExprField                            { $$ = $1 ;}
                 ;
@@ -243,19 +243,19 @@ StructExprField: ID ':' ExprWithBlock           { $$ = ExprFromStructField($1, $
                ;
 
 //------------------ExprWithBlock-------------------
-ExprWithBlock: LOOP BlockExpr						{ $$ = CycleExpr(loop_expr, 0, $2, 0); }
-             | WHILE '(' ExprWithBlock ')' BlockExpr				{ $$ = CycleExpr(loop_while, $3, $5, 0); }
-             | WHILE '(' ExprWithoutBlock ')' BlockExpr				{ $$ = CycleExpr(loop_while, $3, $5, 0); }
+ExprWithBlock: LOOP BlockExpr						{ $$ = CycleExpr(loop_expr, NULL, $2, NULL); }
+             | WHILE '(' ExprWithBlock ')' BlockExpr				{ $$ = CycleExpr(loop_while, $3, $5, NULL); }
+             | WHILE '(' ExprWithoutBlock ')' BlockExpr				{ $$ = CycleExpr(loop_while, $3, $5, NULL); }
              | FOR '(' ID IN ExprWithBlock ')' BlockExpr			{ $$ = CycleExpr(loop_for, $5, $7, $3); }
              | FOR '(' ID IN ExprWithoutBlock ')' BlockExpr			{ $$ = CycleExpr(loop_for, $5, $7, $3); }
-             | IF '(' ExprWithBlock ')' BlockExpr				{ $$ = IfExpr($3, $5, 0); }
-             | IF '(' ExprWithoutBlock ')' BlockExpr				{ $$ = IfExpr($3, $5, 0); }
+             | IF '(' ExprWithBlock ')' BlockExpr				{ $$ = IfExpr($3, $5, NULL); }
+             | IF '(' ExprWithoutBlock ')' BlockExpr				{ $$ = IfExpr($3, $5, NULL); }
              | IF '(' ExprWithBlock ')' BlockExpr ELSE BlockExpr		{ $$ = IfExpr($3, $5, $7); }
              | IF '(' ExprWithoutBlock ')' BlockExpr ELSE BlockExpr		{ $$ = IfExpr($3, $5, $7); }
              ;
 
 BlockExpr: '{' StmtList '}'						{ $$ = BlockExpr($2); }
-         | '{' '}'							{ $$ = BlockExpr(0); }
+         | '{' '}'							{ $$ = BlockExpr(NULL); }
          ;
 
 //--------------------Statement---------------------
@@ -268,28 +268,28 @@ StmtList: Stmt								    { $$ = StmtListNode($1); }
         | StmtList Stmt							{ $$ = StmtListAdd($1, $2); }
         ;
 
-Stmt: ';'								{ $$ = StmtNode(semicolon, 0, 0, 0); }
-    | ExprWithoutBlock ';'						{ $$ = StmtNode(expr, $1, 0, 0); }
-    | ExprWithBlock ';'              					{ $$ = StmtNode(expr, $1, 0, 0); }
-    | LetStmt								{ $$ = StmtNode(let, 0, 0, $1); }
+Stmt: ';'								{ $$ = StmtNode(semicolon, NULL, NULL, NULL); }
+    | ExprWithoutBlock ';'						{ $$ = StmtNode(expr, $1, NULL, NULL); }
+    | ExprWithBlock ';'              					{ $$ = StmtNode(expr, $1, NULL, NULL); }
+    | LetStmt								{ $$ = StmtNode(let, NULL, NULL, $1); }
     ;
 
-StmtDecl: DeclarationStmt					{ $$ = StmtNode(declaration, 0, $1, 0); }
+StmtDecl: DeclarationStmt					{ $$ = StmtNode(declaration, NULL, $1, NULL); }
         ;
 
 
 LetStmt: LET ID ':' Type '=' ExprWithBlock ';'				{ $$ = LetStmt($2, $4, notMut, $6); }
        | LET ID ':' Type '=' ExprWithoutBlock ';'			{ $$ = LetStmt($2, $4, notMut, $6); }
-       | LET ID '=' ExprWithBlock ';'					{ $$ = LetStmt($2, 0, notMut, $4); }
-       | LET ID '=' ExprWithoutBlock ';'				{ $$ = LetStmt($2, 0, notMut, $4); }
+       | LET ID '=' ExprWithBlock ';'					{ $$ = LetStmt($2, NULL, notMut, $4); }
+       | LET ID '=' ExprWithoutBlock ';'				{ $$ = LetStmt($2, NULL, notMut, $4); }
        | LET MUT ID ':' Type '=' ExprWithBlock ';'			{ $$ = LetStmt($3, $5, mut, $7); }
        | LET MUT ID ':' Type '=' ExprWithoutBlock ';'			{ $$ = LetStmt($3, $5, mut, $7); }
-       | LET MUT ID '=' ExprWithBlock ';'				{ $$ = LetStmt($3, 0, mut, $5); }
-       | LET MUT ID '=' ExprWithoutBlock ';'				{ $$ = LetStmt($3, 0, mut, $5); }
-       | LET MUT ID ':' Type ';'					{ $$ = LetStmt($3, $5, mut, 0); }
-       | LET MUT ID ';'							{ $$ = LetStmt($3, 0, mut, 0); }
-       | LET ID ':' Type ';'						{ $$ = LetStmt($2, $4, notMut, 0); }
-       | LET ID ';'							{ $$ = LetStmt($2, 0, notMut, 0); }
+       | LET MUT ID '=' ExprWithBlock ';'				{ $$ = LetStmt($3, NULL, mut, $5); }
+       | LET MUT ID '=' ExprWithoutBlock ';'				{ $$ = LetStmt($3, NULL, mut, $5); }
+       | LET MUT ID ':' Type ';'					{ $$ = LetStmt($3, $5, mut, NULL); }
+       | LET MUT ID ';'							{ $$ = LetStmt($3, NULL, mut, NULL); }
+       | LET ID ':' Type ';'						{ $$ = LetStmt($2, $4, notMut, NULL); }
+       | LET ID ';'							{ $$ = LetStmt($2, NULL, notMut, NULL); }
        ;
 
 //---------DeclarationStatement---------
@@ -313,7 +313,7 @@ DeclarationStmt: Enum							{ $$ = DeclarationEnum(self, $1); }
 Enum: ENUM ID '{' EnumItems_final '}'					{ $$ = EnumNode($2, $4); }
     ;
 
-EnumItems_final: /*empty*/						{ $$ = 0; }
+EnumItems_final: /*empty*/						{ $$ = NULL; }
                | EnumItems						{ $$ = EnumListFinal($1); }
                | EnumItems ','					{ $$ = EnumListFinal($1); } //по красоте сделать
                ;
@@ -322,30 +322,30 @@ EnumItems: EnumItem							{ $$ = EnumListNode($1); }
          | EnumItems ',' EnumItem					{ $$ = EnumListAdd($1, $3); }
          ;
 
-EnumItem: Visibility ID							{ $$ = EnumItemNode($2, $1, 0, 0); }
-        | ID								{ $$ = EnumItemNode($1, 0, 0, 0); }
-        | Visibility ID '=' ExprWithBlock				{ $$ = EnumItemNode($2, $1, 0, $4); }
-        | Visibility ID '=' ExprWithoutBlock				{ $$ = EnumItemNode($2, $1, 0, $4); }
-        | ID '=' ExprWithBlock						{ $$ = EnumItemNode($1, 0, 0, $3); }
-        | ID '=' ExprWithoutBlock					{ $$ = EnumItemNode($1, 0, 0, $3); }
-        | Visibility ID '{' StructFields_final '}'			{ $$ = EnumItemNode($2, $1, $4, 0); }
-        | ID '{' StructFields_final '}'					{ $$ = EnumItemNode($1, 0, $3, 0); }
+EnumItem: Visibility ID							{ $$ = EnumItemNode($2, $1, NULL, NULL); }
+        | ID								{ $$ = EnumItemNode($1, emptyVisibility, NULL, NULL); }
+        | Visibility ID '=' ExprWithBlock				{ $$ = EnumItemNode($2, $1, NULL, $4); }
+        | Visibility ID '=' ExprWithoutBlock				{ $$ = EnumItemNode($2, $1, NULL, $4); }
+        | ID '=' ExprWithBlock						{ $$ = EnumItemNode($1, emptyVisibility, NULL, $3); }
+        | ID '=' ExprWithoutBlock					{ $$ = EnumItemNode($1, emptyVisibility, NULL, $3); }
+        | Visibility ID '{' StructFields_final '}'			{ $$ = EnumItemNode($2, $1, $4, NULL); }
+        | ID '{' StructFields_final '}'					{ $$ = EnumItemNode($1, emptyVisibility, $3, NULL); }
         ;
 
 //----Function----
 FunctionWithBlock: FN ID '(' FuncParamList_final ')' RIGHT_ARROW Type BlockExpr	{ $$ = FunctionNode($2, $7, $4, $8); }
-                 | FN ID '(' FuncParamList_final ')' BlockExpr			        { $$ = FunctionNode($2, 0, $4, $6); }
+                 | FN ID '(' FuncParamList_final ')' BlockExpr			        { $$ = FunctionNode($2, NULL, $4, $6); }
                  ;
 
-FunctionWithoutBlock: FN ID '(' FuncParamList_final ')' RIGHT_ARROW Type ';'	{ $$ = FunctionNode($2, $7, $4, 0); }
-                    | FN ID '(' FuncParamList_final ')' ';'				        { $$ = FunctionNode($2, 0, $4, 0); }
+FunctionWithoutBlock: FN ID '(' FuncParamList_final ')' RIGHT_ARROW Type ';'	{ $$ = FunctionNode($2, $7, $4, NULL); }
+                    | FN ID '(' FuncParamList_final ')' ';'				        { $$ = FunctionNode($2, NULL, $4, NULL); }
                     ;
 
-FuncParamList_final: /*empty*/						        { $$ = FunctionParamsFinal(associated, 0); }
-                   | SELF_PARAM                             { $$ = FunctionParamsFinal(method_self, 0); }
-                   | SELF_PARAM ','                         { $$ = FunctionParamsFinal(method_self, 0); }
-                   | MUT_SELF_PARAM                         { $$ = FunctionParamsFinal(method_mut_self, 0); }
-                   | MUT_SELF_PARAM ','                     { $$ = FunctionParamsFinal(method_mut_self, 0); }
+FuncParamList_final: /*empty*/						        { $$ = FunctionParamsFinal(associated, NULL); }
+                   | SELF_PARAM                             { $$ = FunctionParamsFinal(method_self, NULL); }
+                   | SELF_PARAM ','                         { $$ = FunctionParamsFinal(method_self, NULL); }
+                   | MUT_SELF_PARAM                         { $$ = FunctionParamsFinal(method_mut_self, NULL); }
+                   | MUT_SELF_PARAM ','                     { $$ = FunctionParamsFinal(method_mut_self, NULL); }
                    | FuncParamList					        { $$ = FunctionParamsFinal(associated, $1); }
                    | FuncParamList ','				        { $$ = FunctionParamsFinal(associated, $1); }
                    | SELF_PARAM ',' FuncParamList 		    { $$ = FunctionParamsFinal(method_self, $3); }
@@ -365,10 +365,10 @@ FuncParam: ID ':' Type							{ $$ = FunctionParamNode($1, $3, notMut); }
 //-----Struct-----
 
 Struct: STRUCT ID '{' StructFields_final '}'				{ $$ = StructNode($2, $4); }
-      | STRUCT ID ';'							{ $$ = StructNode($2, 0); }
+      | STRUCT ID ';'							{ $$ = StructNode($2, NULL); }
       ;
 
-StructFields_final: /*empty*/						{ $$ = StructListFinal(0); }
+StructFields_final: /*empty*/						{ $$ = StructListFinal(NULL); }
                   | StructFields					{ $$ = StructListFinal($1); }
                   | StructFields ','					{ $$ = StructListFinal($1); }
                   ;
@@ -382,11 +382,11 @@ StructField: Visibility ID ':' Type					{ $$ = StructItemNode($2, $4, $1); }
            ;
 
 //---------Implementation---------
-Impl: IMPL Type '{' AssociatedItemsImpl_final '}'				{ $$ = ImplNode(inherent, $2, 0, $4); }
+Impl: IMPL Type '{' AssociatedItemsImpl_final '}'				{ $$ = ImplNode(inherent, $2, NULL, $4); }
     | IMPL ID FOR Type '{' AssociatedItemsImpl_final '}'			{ $$ = ImplNode(trait, $4, $2, $6); }
     ;
 
-AssociatedItemsImpl_final: /*empty*/					{ $$ = AssociatedListFinal(0); }
+AssociatedItemsImpl_final: /*empty*/					{ $$ = AssociatedListFinal(NULL); }
                      | AssociatedItemsImpl					{ $$ = AssociatedListFinal($1); }
                      ;
 
@@ -394,10 +394,10 @@ AssociatedItemsImpl: AssociatedItemImpl						{ $$ = AssociatedList($1); }
                | AssociatedItemsImpl AssociatedItemImpl				{ $$ = AssociatedListAdd($1, $2); }
                ;
 
-AssociatedItemImpl: Visibility FunctionWithBlock					{ $$ = AssociatedItemNode($1, $2, 0); }
-                  | FunctionWithBlock						{ $$ = AssociatedItemNode(0, $1, 0); }
-                  | Visibility ConstStmt					{ $$ = AssociatedItemNode($1, 0, $2); }
-                  | ConstStmt						{ $$ = AssociatedItemNode(0, 0, $1); }
+AssociatedItemImpl: Visibility FunctionWithBlock					{ $$ = AssociatedItemNode($1, $2, NULL); }
+                  | FunctionWithBlock						{ $$ = AssociatedItemNode(emptyVisibility, $1, NULL); }
+                  | Visibility ConstStmt					{ $$ = AssociatedItemNode($1, NULL, $2); }
+                  | ConstStmt						{ $$ = AssociatedItemNode(emptyVisibility, NULL, $1); }
                    ;
 
 
@@ -405,7 +405,7 @@ AssociatedItemImpl: Visibility FunctionWithBlock					{ $$ = AssociatedItemNode($
 Trait: TRAIT ID '{' AssociatedItems_final '}'				{ $$ = TraitNode($2, $4); }
 ;
 
-AssociatedItems_final: /*empty*/					{ $$ = AssociatedListFinal(0); }
+AssociatedItems_final: /*empty*/					{ $$ = AssociatedListFinal(NULL); }
                      | AssociatedItems					{ $$ = AssociatedListFinal($1); }
                      ;
 
@@ -413,16 +413,16 @@ AssociatedItems: AssociatedItem						{ $$ = AssociatedList($1); }
                | AssociatedItems AssociatedItem				{ $$ = AssociatedListAdd($1, $2); }
                ;
 
-AssociatedItem: Visibility FunctionWithBlock					{ $$ = AssociatedItemNode($1, $2, 0); }
-              | FunctionWithBlock						{ $$ = AssociatedItemNode(0, $1, 0); }
-              | Visibility FunctionWithoutBlock					{ $$ = AssociatedItemNode($1, $2, 0); }
-              | FunctionWithoutBlock						{ $$ = AssociatedItemNode(0, $1, 0); }
-              | Visibility ConstStmt					{ $$ = AssociatedItemNode($1, 0, $2); }
-              | ConstStmt						{ $$ = AssociatedItemNode(0, 0, $1); }
+AssociatedItem: Visibility FunctionWithBlock					{ $$ = AssociatedItemNode($1, $2, NULL); }
+              | FunctionWithBlock						{ $$ = AssociatedItemNode(emptyVisibility, $1, NULL); }
+              | Visibility FunctionWithoutBlock					{ $$ = AssociatedItemNode($1, $2, NULL); }
+              | FunctionWithoutBlock						{ $$ = AssociatedItemNode(emptyVisibility, $1, NULL); }
+              | Visibility ConstStmt					{ $$ = AssociatedItemNode($1, NULL, $2); }
+              | ConstStmt						{ $$ = AssociatedItemNode(emptyVisibility, NULL, $1); }
               ;
 
 //---------ConstStatement---------
-ConstStmt: CONST ID ':' Type ';'					{ $$ = ConstStmt($2, $4, 0); }
+ConstStmt: CONST ID ':' Type ';'					{ $$ = ConstStmt($2, $4, NULL); }
          | CONST ID ':' Type '=' ExprWithBlock ';'			{ $$ = ConstStmt($2, $4, $6); }
          | CONST ID ':' Type '=' ExprWithoutBlock ';'			{ $$ = ConstStmt($2, $4, $6); }
          ;
