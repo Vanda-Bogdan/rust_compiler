@@ -1,6 +1,7 @@
 #include "lex.yy.c"
 #include "grammar_with_code.tab.c"
 #include <stdio.h>
+#include "tables.h"
 
 int main()
 {
@@ -8,6 +9,8 @@ int main()
     //yylex();
     yyparse();
     program_print(prg);
+
+    table = createTable();
 
     return 0;
 }
