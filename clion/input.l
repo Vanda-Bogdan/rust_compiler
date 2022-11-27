@@ -21,9 +21,9 @@ DIGIT [0-9]
 
 %{
 int remove_char(char *s, int pos);
-void remove_underline();
-void remove_f64();
-void remove_i32();
+void remove_underline(char* buffer);
+void remove_f64(char* buffer);
+void remove_i32(char* buffer);
 int int_buffer;
 char buf_char[2];
 char buffer[1000];
