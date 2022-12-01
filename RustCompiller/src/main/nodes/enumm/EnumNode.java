@@ -1,7 +1,7 @@
 package main.nodes.enumm;
 
 public class EnumNode {
-    int id;
-    String name;
-    EnumListNode enumList;
+    public int id;
+    public String name;
+    public EnumListNode enumList;
 }

@@ -7,6 +7,6 @@ public class FunctionNode {
     public int id;
     public String name;
     public TypeNode returnType;
-    public FunctionParamNode paramList;
+    public FunctionParamListNode paramList;
     public ExpressionNode body;
 }
