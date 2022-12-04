@@ -122,14 +122,14 @@ public class Tree {
 
     private void expressionPrint(ExpressionNode expr) throws IOException {
         switch (expr.type) {
-            case ADD -> {
+            case PLUS -> {
                 declarationPrint(expr.id, "+");
                 connectionPrint(expr.id, expr.exprLeft.id);
                 expressionPrint(expr.exprLeft);
                 connectionPrint(expr.id, expr.exprRight.id);
                 expressionPrint(expr.exprRight);
             }
-            case SUB -> {
+            case MINUS -> {
                 declarationPrint(expr.id, "-");
                 connectionPrint(expr.id, expr.exprLeft.id);
                 expressionPrint(expr.exprLeft);
@@ -384,7 +384,7 @@ public class Tree {
                     expressionListPrint(expr.exprList);
                 }
             }
-            case STRUCT_FILED -> {
+            case STRUCT_FIELD -> {
                 declarationPrint2(expr.id, "identifier: ", expr.name);
                 connectionPrint(expr.id, expr.exprLeft.id);
                 expressionPrint(expr.exprLeft);
