@@ -1,8 +1,8 @@
 package main.nodes.expression;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class ExpressionListNode {
     public int id;
-    public List<ExpressionNode> list;
+    public ArrayList<ExpressionNode> list = new ArrayList<>();
 }

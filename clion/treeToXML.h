@@ -57,25 +57,25 @@ void stmt_list_xml(struct stmt_list_node *stmt_list){
 void stmt_xml(struct stmt_node *stmt){
     switch (stmt->type) {
         case semicolon:
-            fprintf(xml, "<semicolon/>");
+            fprintf(xml, "<stmt type=\"SEMICOLON\"/>");
             break;
 
         case expr:
-            fprintf(xml, "<expr_stmt>");
+            fprintf(xml, "<stmt type=\"EXPRESSION\">");
             expr_xml(stmt->expr);
-            fprintf(xml, "</expr_stmt>");
+            fprintf(xml, "</stmt>");
             break;
 
         case declaration:
-            fprintf(xml, "<declaration_stmt>");
+            fprintf(xml, "<stmt type=\"DECLARATION\">");
             decl_stmt_xml(stmt->decl_stmt);
-            fprintf(xml, "</declaration_stmt>");
+            fprintf(xml, "</stmt>");
             break;
 
         case let:
-            fprintf(xml, "<let_stmt>");
+            fprintf(xml, "<stmt type=\"LET\">");
             let_stmt_xml(stmt->let_stmt);
-            fprintf(xml, "</let_stmt>");
+            fprintf(xml, "</stmt>");
             break;
     }
 }
@@ -97,7 +97,7 @@ void expr_xml(struct expr_node *expr){
             break;
 
         case div_expr:
-            fprintf(xml, "<expr type=\"DIV_EXPR\">");
+            fprintf(xml, "<expr type=\"DIV\">");
             expr_xml(expr->expr_left);
             expr_xml(expr->expr_right);
             fprintf(xml, "</expr>");
@@ -174,21 +174,21 @@ void expr_xml(struct expr_node *expr){
             break;
 
         case range_expr:
-            fprintf(xml, "<expr type=\"RANGE_EXPR\">");
+            fprintf(xml, "<expr type=\"RANGE\">");
             expr_xml(expr->expr_left);
             expr_xml(expr->expr_right);
             fprintf(xml, "</expr>");
             break;
 
         case range_in_expr:
-            fprintf(xml, "<expr type=\"RANGE_IN_EXPR\">");
+            fprintf(xml, "<expr type=\"RANGE_IN\">");
             expr_xml(expr->expr_left);
             expr_xml(expr->expr_right);
             fprintf(xml, "</expr>");
             break;
 
         case index_expr:
-            fprintf(xml, "<expr type=\"INDEX_EXPR\">");
+            fprintf(xml, "<expr type=\"INDEX\">");
             expr_xml(expr->expr_left);
             expr_xml(expr->expr_right);
             fprintf(xml, "</expr>");
@@ -219,7 +219,7 @@ void expr_xml(struct expr_node *expr){
             break;
 
         case uminus:
-            fprintf(xml, "<expr type=\"UMINUS\">");
+            fprintf(xml, "<expr type=\"U_MINUS\">");
             expr_xml(expr->expr_left);
             fprintf(xml, "</expr>");
             break;
@@ -231,7 +231,7 @@ void expr_xml(struct expr_node *expr){
             break;
 
         case break_expr:
-            fprintf(xml, "<expr type=\"BREAK_EXPR\">");
+            fprintf(xml, "<expr type=\"BREAK\">");
             if(expr->expr_left!=NULL){
                 expr_xml(expr->expr_left);
             }
@@ -239,7 +239,7 @@ void expr_xml(struct expr_node *expr){
             break;
 
         case return_expr:
-            fprintf(xml, "<expr type=\"RETURN_EXPR\">");
+            fprintf(xml, "<expr type=\"RETURN\">");
             if(expr->expr_left!=NULL){
                 expr_xml(expr->expr_left);
             }
@@ -247,17 +247,17 @@ void expr_xml(struct expr_node *expr){
             break;
 
         case continue_expr:
-            fprintf(xml, "<expr type=\"CONTINUE_EXPR\"/>");
+            fprintf(xml, "<expr type=\"CONTINUE\"/>");
             break;
 
         case array_expr:
-            fprintf(xml, "<expr type=\"ARRAY_EXPR\">");
+            fprintf(xml, "<expr type=\"ARRAY\">");
             expr_list_xml(expr->expr_list);
             fprintf(xml, "</expr>");
             break;
 
         case array_expr_auto_fill:
-            fprintf(xml, "<expr type=\"ARRAY_AUTO_FILL_EXPR\">");
+            fprintf(xml, "<expr type=\"ARRAY_AUTO_FILL\">");
             expr_xml(expr->expr_left);
             expr_xml(expr->expr_right);
             fprintf(xml, "</expr>");
@@ -268,11 +268,11 @@ void expr_xml(struct expr_node *expr){
             break;
 
         case self_expr:
-            fprintf(xml, "<expr type=\"SELF_EXPR\"/>");
+            fprintf(xml, "<expr type=\"SELF\"/>");
             break;
 
         case call_expr:
-            fprintf(xml, "<expr type=\"CALL_EXPR\" ident=\"%s\">", expr->Name);
+            fprintf(xml, "<expr type=\"CALL\" ident=\"%s\">", expr->Name);
             if(expr->expr_list!=NULL){
                 expr_list_xml(expr->expr_list);
             }
@@ -280,7 +280,7 @@ void expr_xml(struct expr_node *expr){
             break;
 
         case method_expr:
-            fprintf(xml, "<expr type=\"METHOD_EXPR\" ident=\"%s\">", expr->Name);
+            fprintf(xml, "<expr type=\"METHOD\" ident=\"%s\">", expr->Name);
             expr_xml(expr->expr_left);
             if(expr->expr_list!=NULL){
                 expr_list_xml(expr->expr_list);
@@ -297,13 +297,13 @@ void expr_xml(struct expr_node *expr){
             break;
 
         case field_access_expr:
-            fprintf(xml, "<expr type=\"FIELD_ACCESS_EXPR\" ident=\"%s\">", expr->Name);
+            fprintf(xml, "<expr type=\"FIELD_ACCESS\" ident=\"%s\">", expr->Name);
             expr_xml(expr->expr_left);
             fprintf(xml, "</expr>");
             break;
 
         case if_expr:
-            fprintf(xml, "<expr type=\"IF_EXPR\">");
+            fprintf(xml, "<expr type=\"IF\">");
 
             expr_xml(expr->expr_left);
             expr_xml(expr->body);
@@ -315,20 +315,20 @@ void expr_xml(struct expr_node *expr){
             break;
 
         case loop_expr:
-            fprintf(xml, "<expr type=\"LOOP_EXPR\">");
+            fprintf(xml, "<expr type=\"LOOP\">");
             expr_xml(expr->body);
             fprintf(xml, "</expr>");
             break;
 
         case loop_for:
-            fprintf(xml, "<expr type=\"LOOP_FOR_EXPR\" ident=\"%s\">", expr->Name);
+            fprintf(xml, "<expr type=\"LOOP_FOR\" ident=\"%s\">", expr->Name);
             expr_xml(expr->expr_left);
             expr_xml(expr->body);
             fprintf(xml, "</expr>");
             break;
 
         case loop_while:
-            fprintf(xml, "<expr type=\"LOOP_WHILE_EXPR\">");
+            fprintf(xml, "<expr type=\"LOOP_WHILE\">");
             expr_xml(expr->expr_left);
             if(expr->body!=NULL){
                 expr_xml(expr->body);
@@ -337,7 +337,7 @@ void expr_xml(struct expr_node *expr){
             break;
 
         case block_expr:
-            fprintf(xml, "<expr type=\"BLOCK_EXPR\">");
+            fprintf(xml, "<expr type=\"BLOCK\">");
             if (expr->stmt_list!=NULL){
                 stmt_list_xml(expr->stmt_list);
             }
@@ -370,7 +370,7 @@ void expr_xml(struct expr_node *expr){
             break;
 
         case struct_expr:
-            fprintf(xml, "<expr type=\"STRUCT_EXPR\" ident=\"%s\">", expr->Name);
+            fprintf(xml, "<expr type=\"STRUCT\" ident=\"%s\">", expr->Name);
             if(expr->expr_list!=NULL){
                 expr_list_xml(expr->expr_list);
             }
@@ -378,7 +378,7 @@ void expr_xml(struct expr_node *expr){
             break;
 
         case struct_field_expr:
-            fprintf(xml, "<expr type=\"STRUCT_FIELD_EXPR\" ident=\"%s\">", expr->Name);
+            fprintf(xml, "<expr type=\"STRUCT_FIELD\" ident=\"%s\">", expr->Name);
             expr_xml(expr->expr_left);
             fprintf(xml, "</expr>");
             break;
@@ -391,31 +391,31 @@ void decl_stmt_xml(struct decl_stmt_node *decl_stmt){
     visibility[0] = 0;
     switch (decl_stmt->visibility) {
         case pub:
-            strcat(visibility, "pub");
+            strcat(visibility, "PUB");
             break;
         case crate:
-            strcat(visibility, "crate");
+            strcat(visibility, "CRATE");
             break;
         case self:
-            strcat(visibility, "self");
+            strcat(visibility, "SELF");
             break;
         case super:
-            strcat(visibility, "super");
+            strcat(visibility, "SUPER");
             break;
         case emptyVisibility:
-            strcat(visibility, "default");
+            strcat(visibility, "EMPTY_VISIBILITY");
             break;
     }
 
     switch (decl_stmt->type) {
         case enum_:
-            fprintf(xml, "<decl_stmt type=\"ENUM_STMT\" visib=\"%s\">", visibility);
+            fprintf(xml, "<decl_stmt type=\"ENUM\" visib=\"%s\">", visibility);
             enum_xml(decl_stmt->enum_item);
             fprintf(xml, "</decl_stmt>");
             break;
 
         case function_:
-            fprintf(xml, "<decl_stmt type=\"FUNCTION_STMT\" visib=\"%s\">", visibility);
+            fprintf(xml, "<decl_stmt type=\"FUNCTION\" visib=\"%s\">", visibility);
             function_xml(decl_stmt->function_item);
             fprintf(xml, "</decl_stmt>");
             break;
@@ -427,19 +427,19 @@ void decl_stmt_xml(struct decl_stmt_node *decl_stmt){
             break;
 
         case struct_:
-            fprintf(xml, "<decl_stmt type=\"STRUCT_STMT\" visib=\"%s\">", visibility);
+            fprintf(xml, "<decl_stmt type=\"STRUCT\" visib=\"%s\">", visibility);
             struct_xml(decl_stmt->struct_item);
             fprintf(xml, "</decl_stmt>");
             break;
 
         case trait_:
-            fprintf(xml, "<decl_stmt type=\"TRAIT_STMT\" visib=\"%s\">", visibility);
+            fprintf(xml, "<decl_stmt type=\"TRAIT\" visib=\"%s\">", visibility);
             trait_xml(decl_stmt->trait_item);
             fprintf(xml, "</decl_stmt>");
             break;
 
         case impl_:
-            fprintf(xml, "<decl_stmt type=\"IMPL_STMT\" visib=\"%s\">", visibility);
+            fprintf(xml, "<decl_stmt type=\"IMPL\" visib=\"%s\">", visibility);
             impl_xml(decl_stmt->impl_item);
             fprintf(xml, "</decl_stmt>");
             break;
@@ -543,7 +543,7 @@ void function_params_xml(struct function_params_node *params){
     }
     struct function_param_node *current = params->first;
 
-    fprintf(xml, "<func_params func_type=\"%s\">", func_type);
+    fprintf(xml, "<func_params type=\"%s\">", func_type);
     while(current!=NULL){
         function_param_xml(current);
         current = current->next;
@@ -678,10 +678,10 @@ void impl_xml(struct impl_node *impl_node){
     impl_type[0] = 0;
     switch (impl_node->implType) {
         case inherent:
-            strcat(impl_type, "inherent");
+            strcat(impl_type, "INHERENT");
             break;
         case trait:
-            strcat(impl_type, "trait");
+            strcat(impl_type, "TRAIT");
             break;
     }
 
@@ -700,7 +700,13 @@ void impl_xml(struct impl_node *impl_node){
 }
 
 void type_xml(struct type_node *type_node){
-    fprintf(xml, "<type_node type=\"%s\">", type(type_node->type));
+
+    if(type_node->name!=NULL){
+        fprintf(xml, "<type_node type=\"%s\" ident=\"%s\">", type(type_node->type), type_node->name);
+    }
+    else{
+        fprintf(xml, "<type_node type=\"%s\">", type(type_node->type));
+    }
 
     if(type_node->type==array_){
         type_xml(type_node->typeArr);
