@@ -433,7 +433,7 @@ Type: INT								{ $$ = TypeFromLiteral(int_); }
     | CHAR								{ $$ = TypeFromLiteral(char_); }
     | FLOAT								{ $$ = TypeFromLiteral(float_); }
     | BOOL								{ $$ = TypeFromLiteral(bool_); }
-    | ID								{ $$ = TypeFromLiteral(id_); }
+    | ID								{ $$ = TypeFromID($1); }
     | '[' Type ';' ExprWithBlock ']'    { $$ = TypeFromArray($2, $4);}
     | '[' Type ';' ExprWithoutBlock ']' { $$ = TypeFromArray($2, $4);}
     ;

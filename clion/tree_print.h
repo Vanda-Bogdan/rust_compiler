@@ -122,10 +122,23 @@ char* type(enum type type){
 }
 
 void type_print(struct type_node *type_node){
+
+    char name[20];
+    name[0] = 0;
+    if(type_node->name!=NULL){
+        strcat(name, type_node->name);
+    }
+
+    char bbuffer[25];
+    bbuffer[0] = 0;
+    strcat(bbuffer, type(type_node->type));
+    strcat(bbuffer, " ");
+    strcat(bbuffer, name);
+
     if(type_node->exprArr==NULL){
-        declaration_print2(type_node->ID, "type:",type(type_node->type));
+        declaration_print2(type_node->ID, "type:", bbuffer);
     } else{
-        declaration_print2(type_node->ID, "[type; Expr]:",type(type_node->type));
+        declaration_print2(type_node->ID, "[type; Expr]:", bbuffer);
     }
 
     if(type_node->type==array_){
