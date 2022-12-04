@@ -1,8 +1,8 @@
 package main.nodes.trait;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class AssociatedItemListNode {
     public int id;
-    public List<AssociatedItemNode> list;
+    public ArrayList<AssociatedItemNode> list;
 }

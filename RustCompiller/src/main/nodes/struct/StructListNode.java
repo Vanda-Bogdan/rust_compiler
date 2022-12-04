@@ -1,8 +1,8 @@
 package main.nodes.struct;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class StructListNode {
     public int id;
-    public List<StructItemNode> list;
+    public ArrayList<StructItemNode> list;
 }

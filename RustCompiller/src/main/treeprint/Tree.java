@@ -76,10 +76,10 @@ public class Tree {
 
     private void typePrint(TypeNode typeNode) throws IOException {
         if (typeNode.exprArr == null) {
-            declarationPrint2(typeNode.id, "type:", type(typeNode.varType));
+            declarationPrint2(typeNode.id, "type:", type(typeNode.varType) + " " + typeNode.name);
         }
         else {
-            declarationPrint2(typeNode.id, "[type; Expr]", type(typeNode.varType));
+            declarationPrint2(typeNode.id, "[type; Expr]", type(typeNode.varType) + " " + typeNode.name);
         }
         if (typeNode.varType == ARRAY) {
             connectionPrint(typeNode.id, typeNode.typeArr.id);
@@ -122,14 +122,14 @@ public class Tree {
 
     private void expressionPrint(ExpressionNode expr) throws IOException {
         switch (expr.type) {
-            case ADD -> {
+            case PLUS -> {
                 declarationPrint(expr.id, "+");
                 connectionPrint(expr.id, expr.exprLeft.id);
                 expressionPrint(expr.exprLeft);
                 connectionPrint(expr.id, expr.exprRight.id);
                 expressionPrint(expr.exprRight);
             }
-            case SUB -> {
+            case MINUS -> {
                 declarationPrint(expr.id, "-");
                 connectionPrint(expr.id, expr.exprLeft.id);
                 expressionPrint(expr.exprLeft);
@@ -384,7 +384,7 @@ public class Tree {
                     expressionListPrint(expr.exprList);
                 }
             }
-            case STRUCT_FILED -> {
+            case STRUCT_FIELD -> {
                 declarationPrint2(expr.id, "identifier: ", expr.name);
                 connectionPrint(expr.id, expr.exprLeft.id);
                 expressionPrint(expr.exprLeft);
