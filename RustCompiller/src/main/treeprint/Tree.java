@@ -76,10 +76,10 @@ public class Tree {
 
     private void typePrint(TypeNode typeNode) throws IOException {
         if (typeNode.exprArr == null) {
-            declarationPrint2(typeNode.id, "type:", type(typeNode.varType));
+            declarationPrint2(typeNode.id, "type:", type(typeNode.varType) + " " + typeNode.name);
         }
         else {
-            declarationPrint2(typeNode.id, "[type; Expr]", type(typeNode.varType));
+            declarationPrint2(typeNode.id, "[type; Expr]", type(typeNode.varType) + " " + typeNode.name);
         }
         if (typeNode.varType == ARRAY) {
             connectionPrint(typeNode.id, typeNode.typeArr.id);

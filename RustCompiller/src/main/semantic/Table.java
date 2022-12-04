@@ -11,10 +11,15 @@ public class Table {
         this.name = name;
     }
 
+    public int add(TableItem item) {
+        items.add(item);
+        return items.size();
+    }
+
     public int searchByUtf8(String utf8) {
         for (TableItem element : items) {
-            if (element.id().code == Constant.UTF8.code && element.utf8() == utf8) {
-                return element.id().code;
+            if (element.type().code == Constant.UTF8.code && element.utf8() == utf8) {
+                return element.type().code;
             }
         }
         return -1;
