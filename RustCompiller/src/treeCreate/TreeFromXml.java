@@ -31,30 +31,34 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.StringReader;
 
 public class TreeFromXml {
     public static final String path = "treeXML.xml";
 
     public static Tree buildTree(){
         try {
-            // Создается построитель документа
+
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            // Создается дерево DOM документа из файла
             Document document = documentBuilder.parse(path);
 
-            //program
+            //System.out.println(document.getDocumentURI());
+
             Node program = document.getDocumentElement();
+            Node child = program.getFirstChild();
+            Node child2 = child.getFirstChild();
+
+            //System.out.println(program.hasChildNodes());
 
             Tree tree = new Tree(programBuild(program));
-
-            //stmt_list
-            Node stmt_list = program.getFirstChild();
+            return tree;
 
         } catch (ParserConfigurationException ex) {
             ex.printStackTrace(System.out);
@@ -70,6 +74,7 @@ public class TreeFromXml {
     public static ProgramNode programBuild(Node programXML){
 
         ProgramNode programNode = new ProgramNode();
+        programNode.id = Integer.parseInt(((Element)programXML).getAttribute("ID"));
         programNode.stmtList = statementListBuild(programXML.getFirstChild());
         return programNode;
     }
@@ -77,7 +82,7 @@ public class TreeFromXml {
     public static StatementListNode statementListBuild(Node stmtListXML){
 
         StatementListNode statementListNode = new StatementListNode();
-
+        statementListNode.id = Integer.parseInt(((Element)stmtListXML).getAttribute("ID"));
         NodeList stmts = stmtListXML.getChildNodes();
         for (int i = 0; i < stmts.getLength(); i++) {
             statementListNode.list.add(statementBuild(stmts.item(i)));
@@ -89,6 +94,7 @@ public class TreeFromXml {
     public static StatementNode statementBuild(Node stmt){
         StatementNode statementNode = new StatementNode();
         statementNode.type = StatementType.valueOf(((Element)stmt).getAttribute("type"));
+        statementNode.id = Integer.parseInt(((Element)stmt).getAttribute("ID"));
 
         switch (statementNode.type) {
             case DECLARATION -> statementNode.declarationStmt = declStmtBuild(stmt.getFirstChild());
@@ -101,6 +107,7 @@ public class TreeFromXml {
 
     public static DeclarationStatementNode declStmtBuild(Node declStmt){
         DeclarationStatementNode declarationStatementNode = new DeclarationStatementNode();
+        declarationStatementNode.id = Integer.parseInt(((Element)declStmt).getAttribute("ID"));
         declarationStatementNode.type = DeclarationStatementType.valueOf(((Element)declStmt).getAttribute("type"));
         declarationStatementNode.visibility = Visibility.valueOf(((Element)declStmt).getAttribute("visib"));
 
@@ -118,6 +125,7 @@ public class TreeFromXml {
     public static EnumNode enumBuild(Node enum_){
         EnumNode enumNode = new EnumNode();
         enumNode.name = ((Element)enum_).getAttribute("ident");
+        enumNode.id = Integer.parseInt(((Element)enum_).getAttribute("ID"));
         if(enum_.hasChildNodes()){
             enumNode.enumList = enumListBuild(enum_.getFirstChild());
         }
@@ -126,6 +134,7 @@ public class TreeFromXml {
 
     public static EnumListNode enumListBuild(Node enumList){
         EnumListNode enumListNode = new EnumListNode();
+        enumListNode.id = Integer.parseInt(((Element)enumList).getAttribute("ID"));
 
         Node current = enumList.getFirstChild();
         while(current!=null){
@@ -138,7 +147,7 @@ public class TreeFromXml {
 
     public static EnumItemNode enumItemBuild(Node enumItem){
         EnumItemNode enumItemNode = new EnumItemNode();
-
+        enumItemNode.id = Integer.parseInt(((Element)enumItem).getAttribute("ID"));
         enumItemNode.visibility = Visibility.valueOf(((Element)enumItem).getAttribute("visib"));
         enumItemNode.name = ((Element)enumItem).getAttribute("ident");
 
@@ -154,15 +163,24 @@ public class TreeFromXml {
 
     public static FunctionNode functionBuild(Node function_){
         FunctionNode functionNode = new FunctionNode();
+        functionNode.id = Integer.parseInt(((Element)function_).getAttribute("ID"));
         functionNode.name = ((Element)function_).getAttribute("ident");
-        functionNode.paramList = functionParamsBuild(((Element)function_).getElementsByTagName("func_params").item(0));
+        functionNode.returnType = typeBuild(((Element)function_).getElementsByTagName("type_node").item(0));
+
+        if(((Element)function_).getElementsByTagName("func_params").getLength()>0){
+            functionNode.paramList = functionParamsBuild(((Element)function_).getElementsByTagName("func_params").item(0));
+        }
+        if(((Element)function_).getElementsByTagName("expr").getLength()>0){
+            functionNode.body = exprBuild(((Element)function_).getElementsByTagName("expr").item(0));
+        }
 
         return functionNode;
     }
 
     public static FunctionParamListNode functionParamsBuild(Node params){
         FunctionParamListNode functionParamListNode = new FunctionParamListNode();
-
+        functionParamListNode.id = Integer.parseInt(((Element)params).getAttribute("ID"));
+        functionParamListNode.type = FunctionType.valueOf(((Element)params).getAttribute("type"));
         Node current = params.getFirstChild();
         while(current!=null){
             functionParamListNode.list.add(functionParamBuild(current));
@@ -174,7 +192,7 @@ public class TreeFromXml {
 
     public static FunctionParamNode functionParamBuild(Node param){
         FunctionParamNode paramNode = new FunctionParamNode();
-
+        paramNode.id = Integer.parseInt(((Element)param).getAttribute("ID"));
         paramNode.mut = Mutable.valueOf(((Element)param).getAttribute("mutability"));
         paramNode.name = ((Element)param).getAttribute("ident");
         paramNode.type = typeBuild(param.getFirstChild());
@@ -184,7 +202,7 @@ public class TreeFromXml {
 
     public static ConstStatementNode constStmtBuild(Node constStmt_){
         ConstStatementNode constStatementNode = new ConstStatementNode();
-
+        constStatementNode.id = Integer.parseInt(((Element)constStmt_).getAttribute("ID"));
         constStatementNode.name = ((Element)constStmt_).getAttribute("ident");
         constStatementNode.type = typeBuild(((Element)constStmt_).getElementsByTagName("type_node").item(0));
 
@@ -197,6 +215,7 @@ public class TreeFromXml {
 
     public static StructNode structBuild(Node struct_){
         StructNode structNode = new StructNode();
+        structNode.id = Integer.parseInt(((Element)struct_).getAttribute("ID"));
         structNode.name = ((Element)struct_).getAttribute("ident");
 
         if(struct_.hasChildNodes()){
@@ -208,7 +227,7 @@ public class TreeFromXml {
 
     public static StructListNode structListBuild(Node structList){
         StructListNode structListNode = new StructListNode();
-
+        structListNode.id = Integer.parseInt(((Element)structList).getAttribute("ID"));
         Node current = structList.getFirstChild();
         while(current!=null){
             structListNode.list.add(structItemBuild(current));
@@ -220,7 +239,7 @@ public class TreeFromXml {
 
     public static StructItemNode structItemBuild(Node structItem){
         StructItemNode structItemNode = new StructItemNode();
-
+        structItemNode.id = Integer.parseInt(((Element)structItem).getAttribute("ID"));
         structItemNode.visibility = Visibility.valueOf(((Element)structItem).getAttribute("visib"));
         structItemNode.name = ((Element)structItem).getAttribute("ident");
         structItemNode.type = typeBuild(structItem.getFirstChild());
@@ -231,7 +250,7 @@ public class TreeFromXml {
 
     public static TypeNode typeBuild(Node type){
         TypeNode typeNode = new TypeNode();
-
+        typeNode.id = Integer.parseInt(((Element)type).getAttribute("ID"));
         String name = ((Element)type).getAttribute("ident");
         typeNode.varType = VarType.valueOf(((Element)type).getAttribute("type"));
 
@@ -247,7 +266,7 @@ public class TreeFromXml {
 
     public static AssociatedItemListNode associatedListBuild(Node assList){
         AssociatedItemListNode assListNode = new AssociatedItemListNode();
-
+        assListNode.id = Integer.parseInt(((Element)assList).getAttribute("ID"));
         Node current = assList.getFirstChild();
         while(current!=null){
             assListNode.list.add(associatedItemBuild(current));
@@ -259,7 +278,7 @@ public class TreeFromXml {
 
     public static AssociatedItemNode associatedItemBuild(Node assItem){
         AssociatedItemNode associatedItemNode = new AssociatedItemNode();
-
+        associatedItemNode.id = Integer.parseInt(((Element)assItem).getAttribute("ID"));
         associatedItemNode.visibility = Visibility.valueOf(((Element)assItem).getAttribute("visib"));
         String type = ((Element)assItem).getAttribute("type");
         switch (type) {
@@ -272,7 +291,7 @@ public class TreeFromXml {
 
     public static TraitNode traitBuild(Node trait_){
         TraitNode traitNode = new TraitNode();
-
+        traitNode.id = Integer.parseInt(((Element)trait_).getAttribute("ID"));
         traitNode.name = ((Element)trait_).getAttribute("ident");
         if(trait_.hasChildNodes()){
             traitNode.associatedItemList = associatedListBuild(trait_.getFirstChild());
@@ -283,13 +302,13 @@ public class TreeFromXml {
 
     public static ImplNode implBuild(Node impl_){
         ImplNode implNode = new ImplNode();
-
+        implNode.id = Integer.parseInt(((Element)impl_).getAttribute("ID"));
         implNode.implType = ImplType.valueOf(((Element)impl_).getAttribute("type"));
         String name = ((Element)impl_).getAttribute("ident");
         if(name!=null){
             implNode.name = name;
         }
-        implNode.typeNode = typeBuild(((Element)impl_).getElementsByTagName("type").item(0));
+        implNode.typeNode = typeBuild(((Element)impl_).getElementsByTagName("type_node").item(0));
 
         if(((Element)impl_).getElementsByTagName("associated_items").getLength()>0){
             implNode.associatedItemList = associatedListBuild(((Element)impl_).getElementsByTagName("associated_items").item(0));
@@ -300,11 +319,11 @@ public class TreeFromXml {
 
     public static LetStatementNode letStmtBuild(Node letStmt){
         LetStatementNode letStatementNode = new LetStatementNode();
-
+        letStatementNode.id = Integer.parseInt(((Element)letStmt).getAttribute("ID"));
         letStatementNode.name = ((Element)letStmt).getAttribute("ident");
         letStatementNode.mut = Mutable.valueOf(((Element)letStmt).getAttribute("mutability"));
 
-        letStatementNode.type = typeBuild(((Element)letStmt).getElementsByTagName("type").item(0));
+        letStatementNode.type = typeBuild(((Element)letStmt).getElementsByTagName("type_node").item(0));
         if(((Element)letStmt).getElementsByTagName("expr").getLength()>0){
             letStatementNode.expr = exprBuild(((Element)letStmt).getElementsByTagName("expr").item(0));
         }
@@ -314,6 +333,7 @@ public class TreeFromXml {
 
     public static ExpressionNode exprBuild(Node expr){
         ExpressionNode exprNode = new ExpressionNode();
+        exprNode.id = Integer.parseInt(((Element)expr).getAttribute("ID"));
         exprNode.type = ExpressionType.valueOf(((Element)expr).getAttribute("type"));
 
         switch (exprNode.type){
@@ -379,13 +399,17 @@ public class TreeFromXml {
                 break;
             case FIELD_ACCESS:
                 exprNode.name = ((Element)expr).getAttribute("ident");
-                exprNode.exprList = exprListBuild(expr.getFirstChild());
+                exprNode.exprLeft = exprBuild(expr.getFirstChild());
                 break;
             case IF:
-                exprNode.exprLeft = exprBuild(((Element)expr).getElementsByTagName("expr").item(0));
-                exprNode.body = exprBuild(((Element)expr).getElementsByTagName("expr").item(1));
-                if(((Element)expr).getElementsByTagName("expr").getLength()>2){
-                    exprNode.elseBody = exprBuild(((Element)expr).getElementsByTagName("expr").item(2));
+                Node condition = expr.getFirstChild();
+                Node body = condition.getNextSibling();
+                Node else_body = body.getNextSibling();
+
+                exprNode.exprLeft = exprBuild(condition);
+                exprNode.body = exprBuild(expr.getFirstChild().getNextSibling());
+                if(else_body!=null){
+                    exprNode.elseBody = exprBuild(else_body);
                 }
                 break;
             case LOOP:
@@ -403,7 +427,7 @@ public class TreeFromXml {
                 break;
             case BLOCK:
                 if(((Element)expr).getElementsByTagName("stmt_list").getLength()>0){
-                    exprNode.stmtList = statementListBuild(((Element)expr).getElementsByTagName("expr").item(0));
+                    exprNode.stmtList = statementListBuild(((Element)expr).getElementsByTagName("stmt_list").item(0));
                 }
                 break;
             case INT_LIT:
@@ -439,7 +463,7 @@ public class TreeFromXml {
 
     public static ExpressionListNode exprListBuild(Node exprList){
         ExpressionListNode expressionListNode = new ExpressionListNode();
-
+        expressionListNode.id = Integer.parseInt(((Element)exprList).getAttribute("ID"));
         Node current = exprList.getFirstChild();
         while(current!=null){
             expressionListNode.list.add(exprBuild(current));

@@ -4,5 +4,5 @@ import java.util.ArrayList;
 
 public class StructListNode {
     public int id;
-    public ArrayList<StructItemNode> list;
+    public ArrayList<StructItemNode> list = new ArrayList<>();
 }

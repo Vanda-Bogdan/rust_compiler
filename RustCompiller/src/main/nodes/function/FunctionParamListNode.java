@@ -5,5 +5,5 @@ import java.util.ArrayList;
 public class FunctionParamListNode {
     public int id;
     public FunctionType type;
-    public ArrayList<FunctionParamNode> list;
+    public ArrayList<FunctionParamNode> list = new ArrayList<>();
 }
