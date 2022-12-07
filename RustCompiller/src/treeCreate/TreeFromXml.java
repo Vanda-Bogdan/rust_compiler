@@ -1,18 +1,31 @@
 package treeCreate;
 
-import main.nodes.Mutable;
-import main.nodes.ProgramNode;
-import main.nodes.Visibility;
+import main.nodes.*;
+import main.nodes.conststmt.ConstStatementNode;
 import main.nodes.declstmt.DeclarationStatementNode;
+import main.nodes.declstmt.DeclarationStatementType;
+import main.nodes.enumm.EnumItemNode;
+import main.nodes.enumm.EnumListNode;
+import main.nodes.enumm.EnumNode;
 import main.nodes.expression.ExpressionListNode;
 import main.nodes.expression.ExpressionNode;
 import main.nodes.expression.ExpressionType;
+import main.nodes.function.FunctionNode;
+import main.nodes.function.FunctionParamListNode;
+import main.nodes.function.FunctionParamNode;
 import main.nodes.function.FunctionType;
+import main.nodes.impl.ImplNode;
 import main.nodes.impl.ImplType;
 import main.nodes.letstmt.LetStatementNode;
 import main.nodes.stmt.StatementListNode;
 import main.nodes.stmt.StatementNode;
 import main.nodes.stmt.StatementType;
+import main.nodes.struct.StructItemNode;
+import main.nodes.struct.StructListNode;
+import main.nodes.struct.StructNode;
+import main.nodes.trait.AssociatedItemListNode;
+import main.nodes.trait.AssociatedItemNode;
+import main.nodes.trait.TraitNode;
 import main.treeprint.Tree;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -42,15 +55,6 @@ public class TreeFromXml {
 
             //stmt_list
             Node stmt_list = program.getFirstChild();
-
-            //stmt_list children
-
-
-
-
-            //System.out.println(stmt_list.getLength());
-
-
 
         } catch (ParserConfigurationException ex) {
             ex.printStackTrace(System.out);
@@ -97,12 +101,213 @@ public class TreeFromXml {
 
     public static DeclarationStatementNode declStmtBuild(Node declStmt){
         DeclarationStatementNode declarationStatementNode = new DeclarationStatementNode();
-        //System.out.println(declStmt.getTextContent());
+        declarationStatementNode.type = DeclarationStatementType.valueOf(((Element)declStmt).getAttribute("type"));
+        declarationStatementNode.visibility = Visibility.valueOf(((Element)declStmt).getAttribute("visib"));
+
+        switch (declarationStatementNode.type){
+            case ENUM -> declarationStatementNode.enumItem = enumBuild(declStmt.getFirstChild());
+            case FUNCTION -> declarationStatementNode.functionItem = functionBuild(declStmt.getFirstChild());
+            case CONST_STMT -> declarationStatementNode.constStmtItem = constStmtBuild(declStmt.getFirstChild());
+            case STRUCT -> declarationStatementNode.structItem = structBuild(declStmt.getFirstChild());
+            case TRAIT -> declarationStatementNode.traitItem = traitBuild(declStmt.getFirstChild());
+            case IMPL -> declarationStatementNode.implItem = implBuild(declStmt.getFirstChild());
+        }
         return declarationStatementNode;
+    }
+
+    public static EnumNode enumBuild(Node enum_){
+        EnumNode enumNode = new EnumNode();
+        enumNode.name = ((Element)enum_).getAttribute("ident");
+        if(enum_.hasChildNodes()){
+            enumNode.enumList = enumListBuild(enum_.getFirstChild());
+        }
+        return enumNode;
+    }
+
+    public static EnumListNode enumListBuild(Node enumList){
+        EnumListNode enumListNode = new EnumListNode();
+
+        Node current = enumList.getFirstChild();
+        while(current!=null){
+            enumListNode.list.add(enumItemBuild(current));
+            current = current.getNextSibling();
+        }
+
+        return enumListNode;
+    }
+
+    public static EnumItemNode enumItemBuild(Node enumItem){
+        EnumItemNode enumItemNode = new EnumItemNode();
+
+        enumItemNode.visibility = Visibility.valueOf(((Element)enumItem).getAttribute("visib"));
+        enumItemNode.name = ((Element)enumItem).getAttribute("ident");
+
+        if(((Element)enumItem).getElementsByTagName("struct_items").getLength()>0){
+            enumItemNode.structList = structListBuild(((Element)enumItem).getElementsByTagName("struct_items").item(0));
+        }
+        if(((Element)enumItem).getElementsByTagName("expr").getLength()>0){
+            enumItemNode.expr = exprBuild(((Element)enumItem).getElementsByTagName("expr").item(0));
+        }
+
+        return enumItemNode;
+    }
+
+    public static FunctionNode functionBuild(Node function_){
+        FunctionNode functionNode = new FunctionNode();
+        functionNode.name = ((Element)function_).getAttribute("ident");
+        functionNode.paramList = functionParamsBuild(((Element)function_).getElementsByTagName("func_params").item(0));
+
+        return functionNode;
+    }
+
+    public static FunctionParamListNode functionParamsBuild(Node params){
+        FunctionParamListNode functionParamListNode = new FunctionParamListNode();
+
+        Node current = params.getFirstChild();
+        while(current!=null){
+            functionParamListNode.list.add(functionParamBuild(current));
+            current = current.getNextSibling();
+        }
+
+        return functionParamListNode;
+    }
+
+    public static FunctionParamNode functionParamBuild(Node param){
+        FunctionParamNode paramNode = new FunctionParamNode();
+
+        paramNode.mut = Mutable.valueOf(((Element)param).getAttribute("mutability"));
+        paramNode.name = ((Element)param).getAttribute("ident");
+        paramNode.type = typeBuild(param.getFirstChild());
+
+        return paramNode;
+    }
+
+    public static ConstStatementNode constStmtBuild(Node constStmt_){
+        ConstStatementNode constStatementNode = new ConstStatementNode();
+
+        constStatementNode.name = ((Element)constStmt_).getAttribute("ident");
+        constStatementNode.type = typeBuild(((Element)constStmt_).getElementsByTagName("type_node").item(0));
+
+        if(((Element)constStmt_).getElementsByTagName("expr").getLength()>0){
+            constStatementNode.expr = exprBuild(((Element)constStmt_).getElementsByTagName("expr").item(0));
+        }
+
+        return constStatementNode;
+    }
+
+    public static StructNode structBuild(Node struct_){
+        StructNode structNode = new StructNode();
+        structNode.name = ((Element)struct_).getAttribute("ident");
+
+        if(struct_.hasChildNodes()){
+            structNode.structList = structListBuild(struct_.getFirstChild());
+        }
+
+        return structNode;
+    }
+
+    public static StructListNode structListBuild(Node structList){
+        StructListNode structListNode = new StructListNode();
+
+        Node current = structList.getFirstChild();
+        while(current!=null){
+            structListNode.list.add(structItemBuild(current));
+            current = current.getNextSibling();
+        }
+
+        return structListNode;
+    }
+
+    public static StructItemNode structItemBuild(Node structItem){
+        StructItemNode structItemNode = new StructItemNode();
+
+        structItemNode.visibility = Visibility.valueOf(((Element)structItem).getAttribute("visib"));
+        structItemNode.name = ((Element)structItem).getAttribute("ident");
+        structItemNode.type = typeBuild(structItem.getFirstChild());
+
+
+        return structItemNode;
+    }
+
+    public static TypeNode typeBuild(Node type){
+        TypeNode typeNode = new TypeNode();
+
+        String name = ((Element)type).getAttribute("ident");
+        typeNode.varType = VarType.valueOf(((Element)type).getAttribute("type"));
+
+        if(name!=null){
+            typeNode.name = name;
+        }
+        if(typeNode.varType==VarType.ARRAY){
+            typeNode.typeArr = typeBuild(type.getFirstChild());
+        }
+
+        return typeNode;
+    }
+
+    public static AssociatedItemListNode associatedListBuild(Node assList){
+        AssociatedItemListNode assListNode = new AssociatedItemListNode();
+
+        Node current = assList.getFirstChild();
+        while(current!=null){
+            assListNode.list.add(associatedItemBuild(current));
+            current = current.getNextSibling();
+        }
+
+        return assListNode;
+    }
+
+    public static AssociatedItemNode associatedItemBuild(Node assItem){
+        AssociatedItemNode associatedItemNode = new AssociatedItemNode();
+
+        associatedItemNode.visibility = Visibility.valueOf(((Element)assItem).getAttribute("visib"));
+        String type = ((Element)assItem).getAttribute("type");
+        switch (type) {
+            case "FUNCTION" -> associatedItemNode.fun = functionBuild(assItem.getFirstChild());
+            case "CONST_ITEM" -> associatedItemNode.constStmt = constStmtBuild(assItem.getFirstChild());
+        }
+
+        return associatedItemNode;
+    }
+
+    public static TraitNode traitBuild(Node trait_){
+        TraitNode traitNode = new TraitNode();
+
+        traitNode.name = ((Element)trait_).getAttribute("ident");
+        if(trait_.hasChildNodes()){
+            traitNode.associatedItemList = associatedListBuild(trait_.getFirstChild());
+        }
+
+        return traitNode;
+    }
+
+    public static ImplNode implBuild(Node impl_){
+        ImplNode implNode = new ImplNode();
+
+        implNode.implType = ImplType.valueOf(((Element)impl_).getAttribute("type"));
+        String name = ((Element)impl_).getAttribute("ident");
+        if(name!=null){
+            implNode.name = name;
+        }
+        implNode.typeNode = typeBuild(((Element)impl_).getElementsByTagName("type").item(0));
+
+        if(((Element)impl_).getElementsByTagName("associated_items").getLength()>0){
+            implNode.associatedItemList = associatedListBuild(((Element)impl_).getElementsByTagName("associated_items").item(0));
+        }
+
+        return implNode;
     }
 
     public static LetStatementNode letStmtBuild(Node letStmt){
         LetStatementNode letStatementNode = new LetStatementNode();
+
+        letStatementNode.name = ((Element)letStmt).getAttribute("ident");
+        letStatementNode.mut = Mutable.valueOf(((Element)letStmt).getAttribute("mutability"));
+
+        letStatementNode.type = typeBuild(((Element)letStmt).getElementsByTagName("type").item(0));
+        if(((Element)letStmt).getElementsByTagName("expr").getLength()>0){
+            letStatementNode.expr = exprBuild(((Element)letStmt).getElementsByTagName("expr").item(0));
+        }
 
         return letStatementNode;
     }
@@ -138,6 +343,7 @@ public class TreeFromXml {
             case QT:
             case U_MINUS:
             case NEG:
+            case STRUCT_FIELD:
                 exprNode.exprLeft = exprBuild(expr.getFirstChild());
                 break;
             case BREAK:
@@ -176,11 +382,58 @@ public class TreeFromXml {
                 exprNode.exprList = exprListBuild(expr.getFirstChild());
                 break;
             case IF:
-
+                exprNode.exprLeft = exprBuild(((Element)expr).getElementsByTagName("expr").item(0));
+                exprNode.body = exprBuild(((Element)expr).getElementsByTagName("expr").item(1));
+                if(((Element)expr).getElementsByTagName("expr").getLength()>2){
+                    exprNode.elseBody = exprBuild(((Element)expr).getElementsByTagName("expr").item(2));
+                }
+                break;
+            case LOOP:
+                exprNode.body = exprBuild(((Element)expr).getElementsByTagName("expr").item(0));
+                break;
+            case LOOP_FOR:
+                exprNode.exprLeft = exprBuild(((Element)expr).getElementsByTagName("expr").item(0));
+                exprNode.body = exprBuild(((Element)expr).getElementsByTagName("expr").item(1));
+                break;
+            case LOOP_WHILE:
+                exprNode.exprLeft = exprBuild(((Element)expr).getElementsByTagName("expr").item(0));
+                if(((Element)expr).getElementsByTagName("expr").getLength()>1){
+                    exprNode.body = exprBuild(((Element)expr).getElementsByTagName("expr").item(1));
+                }
+                break;
+            case BLOCK:
+                if(((Element)expr).getElementsByTagName("stmt_list").getLength()>0){
+                    exprNode.stmtList = statementListBuild(((Element)expr).getElementsByTagName("expr").item(0));
+                }
+                break;
+            case INT_LIT:
+                exprNode.anInt = Integer.parseInt(((Element)expr).getAttribute("value"));
+                break;
+            case FLOAT_LIT:
+                exprNode.aFloat = Float.parseFloat(((Element)expr).getAttribute("value"));
+                break;
+            case BOOL_LIT:
+                String bool = ((Element)expr).getAttribute("value");
+                if(bool == "true"){
+                    exprNode.aBoolean = true;
+                }
+                else {
+                    exprNode.aBoolean = false;
+                }
+                break;
+            case CHAR_LIT:
+                exprNode.aChar = ((Element)expr).getAttribute("value").charAt(0); //todo проверить
+                break;
+            case STRING_LIT:
+                exprNode.string = ((Element)expr).getAttribute("value");
+                break;
+            case STRUCT:
+                exprNode.name = ((Element)expr).getAttribute("ident");
+                if(((Element)expr).getElementsByTagName("expr_list").getLength()>0){
+                    exprNode.exprList = exprListBuild(((Element)expr).getElementsByTagName("expr_list").item(0));
+                }
                 break;
         }
-
-
         return exprNode;
     }
 

@@ -446,8 +446,26 @@ void decl_stmt_xml(struct decl_stmt_node *decl_stmt){
     }
 }
 
-void let_stmt_xml(struct let_stmt_node *let_stmt){
+void let_stmt_xml(struct let_stmt_node *let_stmt){char type[20];
+    char mutability[20];
+    mutability[0] = 0;
+    switch (let_stmt->mutable) {
+        case notMut:
+            strcat(mutability, "NOT_MUT");
+            break;
+        case mut:
+            strcat(mutability, "MUT");
+            break;
+    }
 
+    fprintf(xml, "<let_stmt ident=\"%s\" mutability=\"%s\">", let_stmt->name, mutability);
+    type_xml(let_stmt->type);
+
+    if(let_stmt->expr!=NULL){
+        expr_xml(let_stmt->expr);
+    }
+
+    fprintf(xml, "</let_stmt>");
 }
 
 void expr_list_xml(struct expr_list_node *expr_list){
@@ -489,19 +507,19 @@ void enum_item_xml(struct enum_item_node *enum_item){
     visibility[0] = 0;
     switch (enum_item->visibility) {
         case pub:
-            strcat(visibility, "pub");
+            strcat(visibility, "PUB");
             break;
         case crate:
-            strcat(visibility, "crate");
+            strcat(visibility, "CRATE");
             break;
         case self:
-            strcat(visibility, "self");
+            strcat(visibility, "SELF");
             break;
         case super:
-            strcat(visibility, "super");
+            strcat(visibility, "SUPER");
             break;
         case emptyVisibility:
-            strcat(visibility, "default");
+            strcat(visibility, "EMPTY_VISIBILITY");
             break;
     }
 
@@ -600,19 +618,19 @@ void struct_item_xml(struct struct_item_node *struct_item){
     visibility[0] = 0;
     switch (struct_item->visibility) {
         case pub:
-            strcat(visibility, "pub");
+            strcat(visibility, "PUB");
             break;
         case crate:
-            strcat(visibility, "crate");
+            strcat(visibility, "CRATE");
             break;
         case self:
-            strcat(visibility, "self");
+            strcat(visibility, "SELF");
             break;
         case super:
-            strcat(visibility, "super");
+            strcat(visibility, "SUPER");
             break;
         case emptyVisibility:
-            strcat(visibility, "default");
+            strcat(visibility, "EMPTY_VISIBILITY");
             break;
     }
 
@@ -646,19 +664,19 @@ void associated_item_xml(struct associated_item_node *item){
     visibility[0] = 0;
     switch (item->visibility) {
         case pub:
-            strcat(visibility, "pub");
+            strcat(visibility, "PUB");
             break;
         case crate:
-            strcat(visibility, "crate");
+            strcat(visibility, "CRATE");
             break;
         case self:
-            strcat(visibility, "self");
+            strcat(visibility, "SELF");
             break;
         case super:
-            strcat(visibility, "super");
+            strcat(visibility, "SUPER");
             break;
         case emptyVisibility:
-            strcat(visibility, "default");
+            strcat(visibility, "EMPTY_VISIBILITY");
             break;
     }
 
