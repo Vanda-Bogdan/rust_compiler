@@ -364,6 +364,8 @@ public class TreeFromXml {
             case U_MINUS:
             case NEG:
             case STRUCT_FIELD:
+            case FIELD_ACCESS:
+                exprNode.name = ((Element)expr).getAttribute("ident");
                 exprNode.exprLeft = exprBuild(expr.getFirstChild());
                 break;
             case BREAK:
@@ -376,9 +378,11 @@ public class TreeFromXml {
                 exprNode.exprList = exprListBuild(expr.getFirstChild());
                 break;
             case ID:
+            case SELF:
                 exprNode.name = ((Element)expr).getAttribute("ident");
                 break;
             case CALL:
+                exprNode.name = ((Element)expr).getAttribute("ident");
                 if(expr.hasChildNodes()){
                     exprNode.exprList = exprListBuild(expr.getFirstChild());
                 }
@@ -397,10 +401,6 @@ public class TreeFromXml {
                     exprNode.exprList = exprListBuild(((Element)expr).getElementsByTagName("expr_list").item(0));
                 }
                 break;
-            case FIELD_ACCESS:
-                exprNode.name = ((Element)expr).getAttribute("ident");
-                exprNode.exprLeft = exprBuild(expr.getFirstChild());
-                break;
             case IF:
                 Node condition = expr.getFirstChild();
                 Node body = condition.getNextSibling();
@@ -416,18 +416,20 @@ public class TreeFromXml {
                 exprNode.body = exprBuild(((Element)expr).getElementsByTagName("expr").item(0));
                 break;
             case LOOP_FOR:
-                exprNode.exprLeft = exprBuild(((Element)expr).getElementsByTagName("expr").item(0));
-                exprNode.body = exprBuild(((Element)expr).getElementsByTagName("expr").item(1));
+                exprNode.name = ((Element)expr).getAttribute("ident");
+                exprNode.exprLeft = exprBuild(expr.getFirstChild());
+                exprNode.body = exprBuild(expr.getFirstChild().getNextSibling());
                 break;
             case LOOP_WHILE:
-                exprNode.exprLeft = exprBuild(((Element)expr).getElementsByTagName("expr").item(0));
-                if(((Element)expr).getElementsByTagName("expr").getLength()>1){
-                    exprNode.body = exprBuild(((Element)expr).getElementsByTagName("expr").item(1));
+                Node left = expr.getFirstChild();
+                exprNode.exprLeft = exprBuild(left);
+                if(left.getNextSibling()!=null){
+                    exprNode.body = exprBuild(left.getNextSibling());
                 }
                 break;
             case BLOCK:
-                if(((Element)expr).getElementsByTagName("stmt_list").getLength()>0){
-                    exprNode.stmtList = statementListBuild(((Element)expr).getElementsByTagName("stmt_list").item(0));
+                if(expr.hasChildNodes()){
+                    exprNode.stmtList = statementListBuild(expr.getFirstChild());
                 }
                 break;
             case INT_LIT:
@@ -449,7 +451,7 @@ public class TreeFromXml {
                 exprNode.aChar = ((Element)expr).getAttribute("value").charAt(0); //todo проверить
                 break;
             case STRING_LIT:
-                exprNode.string = ((Element)expr).getAttribute("value");
+                exprNode.string = expr.getTextContent();
                 break;
             case STRUCT:
                 exprNode.name = ((Element)expr).getAttribute("ident");
