@@ -25,15 +25,15 @@ public class ClassTable {
 
 
     public boolean constantContains(Constant constant, int num1){
-        return constantTable.exists(constant, num1);
+        return constantTable.contains(constant, num1);
     }
 
     public boolean constantContains(Constant constant, int num1, int num2){
-        return constantTable.exists(constant, num1, num2);
+        return constantTable.contains(constant, num1, num2);
     }
 
     public boolean constantContains(Constant constant, String utf8){
-        return constantTable.exists(constant, utf8);
+        return constantTable.contains(constant, utf8);
     }
 
     //Field Table

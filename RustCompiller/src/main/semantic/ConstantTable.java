@@ -8,40 +8,34 @@ public class ConstantTable {
 
     public int add(Constant constant, int num1) {
         items.add(new ConstantTableItem(constant, num1));
-        return items.size();
+        return items.size() - 1;
     }
 
     public int add(Constant constant, int num1, int num2) {
         items.add(new ConstantTableItem(constant, num1, num2));
-        return items.size();
+        return items.size() - 1;
     }
 
     public int add(Constant constant, String utf8) {
         items.add(new ConstantTableItem(constant, utf8));
-        return items.size();
+        return items.size() - 1;
     }
 
-
-    public boolean exists(Constant constant, String utf8){
+    public boolean contains(Constant constant, String utf8){
         return items.contains(new ConstantTableItem(constant, utf8));
     }
 
-    public boolean exists(Constant constant, int num1){
+    public boolean contains(Constant constant, int num1){
         return items.contains(new ConstantTableItem(constant, num1));
     }
 
-    public boolean exists(Constant constant, int num1, int num2){
+    public boolean contains(Constant constant, int num1, int num2){
         return items.contains(new ConstantTableItem(constant, num1, num2));
     }
 
-    /*public int searchByUtf8(String utf8) {
-        for (ConstantTableItem element : items) {
-            if (element.type().code == Constant.UTF8.code && element.utf8() == utf8) {
-                return element.type().code;
-            }
-        }
-        return -1;
-    }*/
+    public int getConstNumber(Constant constant, String utf8) {
+        return items.indexOf(new ConstantTableItem(constant, utf8));
+    }
 
     private record ConstantTableItem(Constant type, String utf8, int firstVal, int secondVal) {
 

@@ -22,7 +22,7 @@ public class Tables {
         return tables.get(name);
     }
 
-    public ClassTable createTable(String name){
+    public ClassTable createTable(String name) {
         ClassTable table = new ClassTable(name);
         tables.put(name, table);
         currentTable = table;
@@ -40,16 +40,16 @@ public class Tables {
         stmtList.list.forEach(Tables::stmtParse);
     }
 
-    private void stmtParse(StatementNode stmt) {
-        switch (stmt.type){
+    private static void stmtParse(StatementNode stmt) {
+        switch (stmt.type) {
             //case EXPRESSION -> exprParse(stmt.expr);
             case LET -> letStmtParse(stmt.letStmt);
             case DECLARATION -> declStmtParse(stmt.declarationStmt);
         }
     }
 
-    private void declStmtParse(DeclarationStatementNode declStmt){
-        switch (declStmt.type){
+    private static void declStmtParse(DeclarationStatementNode declStmt){
+        switch (declStmt.type) {
             case STRUCT -> {
 
             }
@@ -60,7 +60,7 @@ public class Tables {
         }
     }
 
-    private void letStmtParse(LetStatementNode letStmt) {
+    private static void letStmtParse(LetStatementNode letStmt) {
 
     }
 
