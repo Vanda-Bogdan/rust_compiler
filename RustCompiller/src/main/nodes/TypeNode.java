@@ -20,4 +20,28 @@ public class TypeNode {
             return "[" + typeArr.getName() + "; " + exprArr.anInt + "]";
         }
     }
+
+    public String getNameForTable(){
+        if(varType == VarType.ID){
+            return name;
+        }
+        else if(varType != VarType.ARRAY){
+            return varType.toString();
+        }
+        else {
+            return "[" + typeArr.getArrayName();
+        }
+    }
+
+    public String getArrayName(){
+        if(varType == VarType.ID){
+            return "L" + name + ";";
+        }
+        else if(varType != VarType.ARRAY){
+            return "L" + varType.toString() + ";";
+        }
+        else {
+            return "[" + typeArr.getArrayName();
+        }
+    }
 }

@@ -14,8 +14,8 @@ public class FieldTable {
         items.add(new FieldTableItem(visibility, constStmt.name, constStmt.type.getName(), true));
     }
 
-    public void add(StructItemNode structItem, Visibility visibility){
-        items.add(new FieldTableItem(visibility, structItem.name, structItem.type.getName(), false));
+    public void add(StructItemNode structItem){
+        items.add(new FieldTableItem(structItem.visibility, structItem.name, structItem.type.getName(), false));
     }
 
     public record FieldTableItem(Visibility visibility, String name, String type, boolean isConst) {

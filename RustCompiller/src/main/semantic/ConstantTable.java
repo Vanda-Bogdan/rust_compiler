@@ -17,6 +17,9 @@ public class ConstantTable {
     }
 
     public int add(Constant constant, String utf8) {
+        if(contains(constant, utf8)){
+            throw new IllegalArgumentException("Константа " + utf8 + " уже существует");
+        }
         items.add(new ConstantTableItem(constant, utf8));
         return items.size() - 1;
     }

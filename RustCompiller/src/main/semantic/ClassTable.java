@@ -1,5 +1,9 @@
 package main.semantic;
 
+import main.nodes.Visibility;
+import main.nodes.conststmt.ConstStatementNode;
+import main.nodes.struct.StructItemNode;
+
 public class ClassTable {
 
     String name;
@@ -11,16 +15,16 @@ public class ClassTable {
     private ConstantTable constantTable = new ConstantTable();
 
 
-    public void constantAdd(Constant constant, int num1){
-        constantTable.add(constant, num1);
+    public int constantAdd(Constant constant, int num1){
+        return constantTable.add(constant, num1);
     }
 
-    public void constantAdd(Constant constant, int num1, int num2){
-        constantTable.add(constant, num1, num2);
+    public int constantAdd(Constant constant, int num1, int num2){
+        return constantTable.add(constant, num1, num2);
     }
 
-    public void constantAdd(Constant constant, String utf8){
-        constantTable.add(constant, utf8);
+    public int constantAdd(Constant constant, String utf8){
+        return constantTable.add(constant, utf8);
     }
 
 
@@ -38,6 +42,14 @@ public class ClassTable {
 
     //------------------------------------------Field Table------------------------------------------
     private FieldTable fieldTable;
+
+    public void fieldsAdd(ConstStatementNode constStmt, Visibility visibility){
+        fieldTable.add(constStmt, visibility);
+    }
+
+    public void fieldsAdd(StructItemNode structItem){
+        fieldTable.add(structItem);
+    }
 
     //------------------------------------------MethodTable------------------------------------------
     private MethodTable methodTable;

@@ -9,6 +9,7 @@ import main.nodes.stmt.StatementListNode;
 import main.nodes.stmt.StatementNode;
 import main.nodes.stmt.StatementType;
 import main.nodes.struct.StructListNode;
+import main.nodes.struct.StructNode;
 import main.nodes.trait.TraitNode;
 import main.treeprint.Tree;
 
@@ -28,6 +29,9 @@ public class Tables {
     }
 
     private ClassTable createTable(String name) {
+        if(tables.containsKey(name)){
+            throw new IllegalArgumentException("Класс" + name + " уже существует");
+        }
         ClassTable table = new ClassTable(name);
         tables.put(name, table);
         currentTable = table;
@@ -65,41 +69,47 @@ public class Tables {
     }
 
     private void stmtClasses(StatementNode stmt) {
-        switch (stmt.type) {
-            //case EXPRESSION -> exprParse(stmt.expr);
-            case LET -> letStmtClasses(stmt.letStmt);
-            case DECLARATION -> declStmtClasses(stmt.declarationStmt);
+        if (stmt.type == StatementType.DECLARATION) {
+            declStmtClasses(stmt.declarationStmt);
         }
     }
 
     private void declStmtClasses(DeclarationStatementNode declStmt){
         switch (declStmt.type) {
             case STRUCT -> {
-
+                structClasses(declStmt.structItem);
             }
 
             case IMPL -> {
 
             }
-        }
-    }
 
+            case ENUM -> {
 
-
-
-
-    private void letStmtClasses(LetStatementNode letStmt) {
-
-    }
-
-    /*private boolean searchByName(String name) {
-        for (ClassTable element : tables) {
-            if (element.name == name) {
-                return true;
             }
         }
-        return false;
-    }*/
+    }
+
+    private void structClasses(StructNode structNode){
+
+        createTable(structNode.name);
+
+        currentTable.constantAdd(Constant.UTF8, "Code");
+        int className = currentTable.constantAdd(Constant.UTF8, structNode.name);
+        int classConst = currentTable.constantAdd(Constant.CLASS, className);
+        structNode.structList.list.forEach((structItem)->{
+            //Заполнение таблицы констант
+            int name = currentTable.constantAdd(Constant.UTF8, structItem.name);                  //имя
+            int type = currentTable.constantAdd(Constant.UTF8, structItem.type.getNameForTable());//тип
+            int N_T = currentTable.constantAdd(Constant.NAME_AND_TYPE, name, type);               //Name&Type
+            currentTable.constantAdd(Constant.FIELD_REF, classConst, N_T);                        //FieldRef
+
+            //Заполнение таблицы полей
+            currentTable.fieldsAdd(structItem);
+        });
+    }
+
+
 
     private static String typeParse(TypeNode type) {
         switch (type.varType) {
