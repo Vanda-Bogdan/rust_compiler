@@ -8,4 +8,16 @@ public class TypeNode {
     public String name;
     public TypeNode typeArr;
     public ExpressionNode exprArr;
+
+    public String getName() {
+        if(varType == VarType.ID){
+            return name;
+        }
+        else if(varType != VarType.ARRAY){
+            return varType.toString();
+        }
+        else {
+            return "[" + typeArr.getName() + "; " + exprArr.anInt + "]";
+        }
+    }
 }

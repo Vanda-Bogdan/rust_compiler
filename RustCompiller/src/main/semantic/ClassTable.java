@@ -7,7 +7,7 @@ public class ClassTable {
         this.name = name;
     }
 
-    //Constant Table
+    //------------------------------------------Constant Table-------------------------------------------------------
     private ConstantTable constantTable = new ConstantTable();
 
 
@@ -36,10 +36,11 @@ public class ClassTable {
         return constantTable.contains(constant, utf8);
     }
 
-    //Field Table
+    //------------------------------------------Field Table------------------------------------------
     private FieldTable fieldTable;
 
-    //MethodTable
+    //------------------------------------------MethodTable------------------------------------------
     private MethodTable methodTable;
+
 
 }
