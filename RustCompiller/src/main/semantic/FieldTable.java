@@ -1,6 +1,6 @@
 package main.semantic;
 
-import main.nodes.Visibility;
+
 import main.nodes.conststmt.ConstStatementNode;
 import main.nodes.struct.StructItemNode;
 
@@ -10,14 +10,14 @@ public class FieldTable {
 
     ArrayList<FieldTableItem> items = new ArrayList<>();
 
-    public void add(ConstStatementNode constStmt, Visibility visibility){
-        items.add(new FieldTableItem(visibility, constStmt.name, constStmt.type.getName(), true));
+    public void add(ConstStatementNode constStmt){
+        items.add(new FieldTableItem(constStmt.name, constStmt.type.getName(), true));
     }
 
     public void add(StructItemNode structItem){
-        items.add(new FieldTableItem(structItem.visibility, structItem.name, structItem.type.getName(), false));
+        items.add(new FieldTableItem(structItem.name, structItem.type.getName(), false));
     }
 
-    public record FieldTableItem(Visibility visibility, String name, String type, boolean isConst) {
+    public record FieldTableItem(String name, String type, boolean isConst) {
     }
 }

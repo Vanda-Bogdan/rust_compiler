@@ -213,10 +213,9 @@ struct trait_node* TraitNode(char* name, struct associated_items_node* items) {
 }
 
 //----------------------------------AssociatedItem
-struct associated_item_node* AssociatedItemNode(enum visibility vis, struct function_node* fn, struct const_stmt_node* const_stmt) {
+struct associated_item_node* AssociatedItemNode(struct function_node* fn, struct const_stmt_node* const_stmt) {
     struct associated_item_node* new_node = (struct associated_item_node*) malloc(sizeof (struct associated_item_node));
     new_node->ID = global_id++;
-    new_node->visibility = vis;
     new_node->fn = fn;
     new_node->const_stmt = const_stmt;
     new_node->next = NULL;
@@ -262,12 +261,11 @@ struct struct_node* StructNode(char* name, struct struct_list_node* struct_list)
     return new_node;
 }
 
-struct struct_item_node* StructItemNode(char* name, struct type_node* type, enum visibility visibility) {
+struct struct_item_node* StructItemNode(char* name, struct type_node* type) {
     struct struct_item_node* new_node = (struct struct_item_node*) malloc(sizeof (struct struct_item_node));
     new_node->ID = global_id++;
     new_node->name = name;
     new_node->type = type;
-    new_node->visibility = visibility;
     new_node->next = NULL;
     return new_node;
 }
@@ -362,11 +360,10 @@ struct enum_node* EnumNode(char* name, struct enum_list_node* enum_list) {
     return new_node;
 }
 
-struct enum_item_node* EnumItemNode(char* name, enum visibility visibility, struct struct_list_node* fields, struct expr_node* expr) {
+struct enum_item_node* EnumItemNode(char* name, struct struct_list_node* fields, struct expr_node* expr) {
     struct enum_item_node* new_node = (struct enum_item_node*) malloc(sizeof (struct enum_item_node));
     new_node->ID = global_id++;
     new_node->name = name;
-    new_node->visibility = visibility;
     new_node->struct_list = fields;
     new_node->expr = expr;
     new_node->next = NULL;
@@ -392,81 +389,47 @@ struct enum_list_node* EnumListFinal(struct enum_list_node* list) {
 }
 
 //-----------------------------------------DeclarationStmt
-struct decl_stmt_node* DeclarationEnum(enum visibility visibility, struct enum_node* node) {
+struct decl_stmt_node* DeclarationEnum(struct enum_node* node) {
     struct decl_stmt_node* new_node = (struct decl_stmt_node*) malloc(sizeof (struct decl_stmt_node));
     new_node->ID = global_id++;
     new_node->type = enum_;
-    new_node->visibility = visibility;
     new_node->enum_item = node;
-
-    enum visibility curVis = visibility;
-    if (visibility != pub) {
-        curVis = self;
-    }
-    if(node->items!= NULL){
-        struct enum_item_node* current = node->items->first;
-        while (current != NULL) {
-            if (current->visibility == emptyVisibility) {
-                current->visibility = curVis;
-            }
-            current = current->next;
-        }
-    }
 
     return new_node;
 }
-struct decl_stmt_node* DeclarationFunction(enum visibility visibility, struct function_node* node) {
+struct decl_stmt_node* DeclarationFunction(struct function_node* node) {
     struct decl_stmt_node* new_node = (struct decl_stmt_node*) malloc(sizeof (struct decl_stmt_node));
     new_node->ID = global_id++;
     new_node->type = function_;
-    new_node->visibility = visibility;
     new_node->function_item = node;
     return new_node;
 }
-struct decl_stmt_node* DeclarationConst(enum visibility visibility, struct const_stmt_node* node) {
+struct decl_stmt_node* DeclarationConst(struct const_stmt_node* node) {
     struct decl_stmt_node* new_node = (struct decl_stmt_node*) malloc(sizeof (struct decl_stmt_node));
     new_node->ID = global_id++;
     new_node->type = constStmt_;
-    new_node->visibility = visibility;
     new_node->const_stmt_item = node;
     return new_node;
 }
-struct decl_stmt_node* DeclarationStruct(enum visibility visibility, struct struct_node* node) {
+struct decl_stmt_node* DeclarationStruct(struct struct_node* node) {
     struct decl_stmt_node* new_node = (struct decl_stmt_node*) malloc(sizeof (struct decl_stmt_node));
     new_node->ID = global_id++;
     new_node->type = struct_;
-    new_node->visibility = visibility;
     new_node->struct_item = node;
     return new_node;
 }
-struct decl_stmt_node* DeclarationTrait(enum visibility visibility, struct trait_node* node) {
+struct decl_stmt_node* DeclarationTrait(struct trait_node* node) {
     struct decl_stmt_node* new_node = (struct decl_stmt_node*) malloc(sizeof (struct decl_stmt_node));
     new_node->ID = global_id++;
     new_node->type = trait_;
-    new_node->visibility = visibility;
     new_node->trait_item = node;
-
-    enum visibility curVis = visibility;
-    if (visibility != pub) {
-        curVis = self;
-    }
-    if(node->items!=NULL){
-        struct associated_item_node* current = node->items->first;
-        while (current != NULL) {
-            if (current->visibility == emptyVisibility) {
-                current->visibility = curVis;
-            }
-            current = current->next;
-        }
-    }
 
     return new_node;
 }
-struct decl_stmt_node* DeclarationImpl(enum visibility visibility, struct impl_node* node) {
+struct decl_stmt_node* DeclarationImpl(struct impl_node* node) {
     struct decl_stmt_node* new_node = (struct decl_stmt_node*) malloc(sizeof (struct decl_stmt_node));
     new_node->ID = global_id++;
     new_node->type = impl_;
-    new_node->visibility = visibility;
     new_node->impl_item = node;
     return new_node;
 }

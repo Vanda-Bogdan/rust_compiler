@@ -1,7 +1,6 @@
 package main.semantic;
 
 import main.nodes.Mutable;
-import main.nodes.Visibility;
 import main.nodes.expression.ExpressionNode;
 import main.nodes.function.FunctionNode;
 import main.nodes.function.FunctionParamListNode;
@@ -16,7 +15,7 @@ public class MethodTable {
 
     public ArrayList<MethodTableItem> items = new ArrayList<>();
 
-    public void add(FunctionNode funcNode, Visibility visibility) {
+    public void add(FunctionNode funcNode) {
 
         VariableTable variableTable = new VariableTable();
 
@@ -35,7 +34,7 @@ public class MethodTable {
         }
 
         //добавление метода в таблицу
-        items.add(new MethodTableItem(funcNode.name, funcNode.returnType.getName(), variableTable, funcNode.body!=null, visibility, funcNode.paramList.type));
+        items.add(new MethodTableItem(funcNode.name, funcNode.returnType.getName(), variableTable, funcNode.body!=null, funcNode.paramList.type));
     }
 
     private void bodyVariables(ExpressionNode body, VariableTable variableTable){
@@ -52,6 +51,6 @@ public class MethodTable {
         variableTable.add(let.name, let.mut, let.type.getName());
     }
 
-    private record MethodTableItem(String name, String returnType, VariableTable variableTable, boolean hasBody, Visibility visibility, FunctionType functionType) {//todo мб поменять string на TypeNode
+    private record MethodTableItem(String name, String returnType, VariableTable variableTable, boolean hasBody, FunctionType functionType) {//todo мб поменять string на TypeNode
     }
 }

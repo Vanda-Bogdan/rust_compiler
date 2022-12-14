@@ -1,6 +1,5 @@
 package main.nodes.declstmt;
 
-import main.nodes.Visibility;
 import main.nodes.conststmt.ConstStatementNode;
 import main.nodes.enumm.EnumNode;
 import main.nodes.function.FunctionNode;
@@ -10,7 +9,6 @@ import main.nodes.trait.TraitNode;
 
 public class DeclarationStatementNode {
     public int id;
-    public Visibility visibility;
     public DeclarationStatementType type;
     public StructNode structItem;
     public FunctionNode functionItem;

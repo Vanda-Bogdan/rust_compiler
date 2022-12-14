@@ -15,10 +15,10 @@ public class TraitTable {
         traitNode.associatedItemList.list.forEach(
                 (item) -> {
                     if (item.fun != null) {
-                        methods.add(item.fun, item.visibility);
+                        methods.add(item.fun);
                     }
                     else if (item.constStmt != null) {
-                        fields.add(item.constStmt, item.visibility);
+                        fields.add(item.constStmt);
                     }
                 }
         );

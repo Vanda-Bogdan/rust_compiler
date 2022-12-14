@@ -222,7 +222,7 @@ public class Tree {
                 expressionPrint(expr.exprRight);
             }
             case ASGN -> {
-                declarationPrint(expr.id, "=");
+                declarationPrint(expr.id, "\"=\"");
                 connectionPrint(expr.id, expr.exprLeft.id);
                 expressionPrint(expr.exprLeft);
                 connectionPrint(expr.id, expr.exprRight.id);
@@ -439,42 +439,35 @@ public class Tree {
     }
 
     private void declarationStmtPrint(DeclarationStatementNode declarationStmt) throws IOException {
-        String vis = switch (declarationStmt.visibility) {
-            case PUB -> "PUB";
-            case CRATE -> "CRATE";
-            case SELF -> "SELF";
-            case SUPER -> "SUPER";
-            case EMPTY_VISIBILITY -> "DEFAULT";
-        };
 
         switch (declarationStmt.type) {
             case ENUM -> {
-                declarationPrint2(declarationStmt.id, vis, "enum");
+                declarationPrint(declarationStmt.id,  "enum");
                 connectionPrint(declarationStmt.id, declarationStmt.enumItem.id);
                 enumPrint(declarationStmt.enumItem);
             }
             case FUNCTION -> {
-                declarationPrint2(declarationStmt.id, vis, "function");
+                declarationPrint(declarationStmt.id,  "function");
                 connectionPrint(declarationStmt.id, declarationStmt.functionItem.id);
                 functionPrint(declarationStmt.functionItem);
             }
             case CONST_STMT -> {
-                declarationPrint2(declarationStmt.id, vis, "const_stmt");
+                declarationPrint(declarationStmt.id,  "const_stmt");
                 connectionPrint(declarationStmt.id, declarationStmt.constStmtItem.id);
                 constStmtPrint(declarationStmt.constStmtItem);
             }
             case STRUCT -> {
-                declarationPrint2(declarationStmt.id, vis, "struct");
+                declarationPrint(declarationStmt.id,  "struct");
                 connectionPrint(declarationStmt.id, declarationStmt.structItem.id);
                 structPrint(declarationStmt.structItem);
             }
             case TRAIT -> {
-                declarationPrint2(declarationStmt.id, vis, "trait");
+                declarationPrint(declarationStmt.id,  "trait");
                 connectionPrint(declarationStmt.id, declarationStmt.traitItem.id);
                 traitPrint(declarationStmt.traitItem);
             }
             case IMPL -> {
-                declarationPrint2(declarationStmt.id, vis, "impl");
+                declarationPrint(declarationStmt.id,  "impl");
                 connectionPrint(declarationStmt.id, declarationStmt.implItem.id);
                 implPrint(declarationStmt.implItem);
             }
@@ -515,15 +508,8 @@ public class Tree {
     }
 
     private void enumItemPrint(EnumItemNode enumItem) throws IOException {
-        String vis = switch (enumItem.visibility) {
-            case PUB -> "PUB";
-            case CRATE -> "CRATE";
-            case SELF -> "SELF";
-            case SUPER -> "SUPER";
-            case EMPTY_VISIBILITY -> "DEFAULT";
-        };
 
-        declarationPrint2(enumItem.id, vis, enumItem.name);
+        declarationPrint(enumItem.id, enumItem.name);
         if (enumItem.structList != null) {
             connectionPrint(enumItem.id, enumItem.structList.id);
             structItemListPrint(enumItem.structList);
@@ -561,15 +547,8 @@ public class Tree {
     }
 
     private void structItemPrint(StructItemNode structItem) throws IOException {
-        String vis = switch (structItem.visibility) {
-            case PUB -> "PUB";
-            case CRATE -> "CRATE";
-            case SELF -> "SELF";
-            case SUPER -> "SUPER";
-            case EMPTY_VISIBILITY -> "DEFAULT";
-        };
 
-        declarationPrint2(structItem.id, vis, structItem.name);
+        declarationPrint(structItem.id, structItem.name);
         connectionPrint(structItem.id, structItem.type.id);
         typePrint(structItem.type);
     }
@@ -593,21 +572,14 @@ public class Tree {
     }
 
     private void associatedItemPrint(AssociatedItemNode item) throws IOException {
-        String vis = switch (item.visibility) {
-            case PUB -> "PUB";
-            case CRATE -> "CRATE";
-            case SELF -> "SELF";
-            case SUPER -> "SUPER";
-            case EMPTY_VISIBILITY -> "DEFAULT";
-        };
 
         if (item.fun != null) {
-            declarationPrint2(item.id, vis, "function");
+            declarationPrint(item.id,  "function");
             connectionPrint(item.id, item.fun.id);
             functionPrint(item.fun);
         }
         if (item.constStmt != null) {
-            declarationPrint2(item.id, vis, "const_item");
+            declarationPrint(item.id,  "const_item");
             connectionPrint(item.id, item.constStmt.id);
             constStmtPrint(item.constStmt);
         }

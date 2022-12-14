@@ -590,59 +590,40 @@ void stmt_list_print(struct stmt_list_node *stmt_list){
 }
 
 void decl_stmt_print(struct decl_stmt_node *decl_stmt){
-    char visibility[20];
-    visibility[0] = 0;
-    switch (decl_stmt->visibility) {
-        case pub:
-            strcat(visibility, "pub");
-            break;
-        case crate:
-            strcat(visibility, "crate");
-            break;
-        case self:
-            strcat(visibility, "self");
-            break;
-        case super:
-            strcat(visibility, "super");
-            break;
-        case emptyVisibility:
-            strcat(visibility, "default");
-            break;
-    }
 
     switch (decl_stmt->type) {
         case enum_:
-            declaration_print2(decl_stmt->ID, visibility, "enum");
+            declaration_print(decl_stmt->ID,  "enum");
             connection_print(decl_stmt->ID, decl_stmt->enum_item->ID);
             enum_print(decl_stmt->enum_item);
             break;
 
         case function_:
-            declaration_print2(decl_stmt->ID, visibility, "function");
+            declaration_print(decl_stmt->ID,  "function");
             connection_print(decl_stmt->ID, decl_stmt->function_item->ID);
             function_print(decl_stmt->function_item);
             break;
 
         case constStmt_:
-            declaration_print2(decl_stmt->ID, visibility, "const_stmt");
+            declaration_print(decl_stmt->ID,  "const_stmt");
             connection_print(decl_stmt->ID, decl_stmt->const_stmt_item->ID);
             const_stmt_print(decl_stmt->const_stmt_item);
             break;
 
         case struct_:
-            declaration_print2(decl_stmt->ID, visibility,"struct");
+            declaration_print(decl_stmt->ID, "struct");
             connection_print(decl_stmt->ID, decl_stmt->struct_item->ID);
             struct_print(decl_stmt->struct_item);
             break;
 
         case trait_:
-            declaration_print2(decl_stmt->ID, visibility,"trait");
+            declaration_print(decl_stmt->ID, "trait");
             connection_print(decl_stmt->ID, decl_stmt->trait_item->ID);
             trait_print(decl_stmt->trait_item);
             break;
 
         case impl_:
-            declaration_print2(decl_stmt->ID, visibility,"impl");
+            declaration_print(decl_stmt->ID, "impl");
             connection_print(decl_stmt->ID, decl_stmt->impl_item->ID);
             impl_print(decl_stmt->impl_item);
             break;
@@ -691,26 +672,7 @@ void enum_list_print(struct enum_list_node *enum_list){
 
 void enum_item_print(struct enum_item_node *enum_item){
 
-    char visibility[20];
-    visibility[0] = 0;
-    switch (enum_item->visibility) {
-        case pub:
-            strcat(visibility, "pub");
-            break;
-        case crate:
-            strcat(visibility, "crate");
-            break;
-        case self:
-            strcat(visibility, "self");
-            break;
-        case super:
-            strcat(visibility, "super");
-            break;
-        case emptyVisibility:
-            strcat(visibility, "default");
-            break;
-    }
-    declaration_print2(enum_item->ID, visibility, enum_item->name);
+    declaration_print(enum_item->ID,  enum_item->name);
     if(enum_item->struct_list!=NULL){
         connection_print(enum_item->ID, enum_item->struct_list->ID);
         struct_items_print(enum_item->struct_list);
@@ -751,26 +713,8 @@ void struct_items_print(struct struct_list_node *struct_items){
 }
 
 void struct_item_print(struct struct_item_node *struct_item){
-    char visibility[20];
-    visibility[0] = 0;
-    switch (struct_item->visibility) {
-        case pub:
-            strcat(visibility, "pub");
-            break;
-        case crate:
-            strcat(visibility, "crate");
-            break;
-        case self:
-            strcat(visibility, "self");
-            break;
-        case super:
-            strcat(visibility, "super");
-            break;
-        case emptyVisibility:
-            strcat(visibility, "default");
-            break;
-    }
-    declaration_print2(struct_item->ID, visibility, struct_item->name);
+
+    declaration_print(struct_item->ID,  struct_item->name);
     connection_print(struct_item->ID, struct_item->type->ID);
     type_print(struct_item->type);
 }
@@ -796,33 +740,14 @@ void associated_items_print(struct associated_items_node *items){
 }
 
 void associated_item_print(struct associated_item_node *item){
-    char visibility[20];
-    visibility[0] = 0;
-    switch (item->visibility) {
-        case pub:
-            strcat(visibility, "pub");
-            break;
-        case crate:
-            strcat(visibility, "crate");
-            break;
-        case self:
-            strcat(visibility, "self");
-            break;
-        case super:
-            strcat(visibility, "super");
-            break;
-        case emptyVisibility:
-            strcat(visibility, "default");
-            break;
-    }
 
     if(item->fn!=NULL){
-        declaration_print2(item->ID, visibility, "function");
+        declaration_print(item->ID,  "function");
         connection_print(item->ID, item->fn->ID);
         function_print(item->fn);
     }
     if(item->const_stmt!=NULL){
-        declaration_print2(item->ID, visibility, "const_item");
+        declaration_print(item->ID,  "const_item");
         connection_print(item->ID, item->const_stmt->ID);
         const_stmt_print(item->const_stmt);
     }

@@ -49,13 +49,7 @@ public class TreeFromXml {
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document document = documentBuilder.parse(path);
 
-            //System.out.println(document.getDocumentURI());
-
             Node program = document.getDocumentElement();
-            Node child = program.getFirstChild();
-            Node child2 = child.getFirstChild();
-
-            //System.out.println(program.hasChildNodes());
 
             Tree tree = new Tree(programBuild(program));
             return tree;
@@ -109,7 +103,6 @@ public class TreeFromXml {
         DeclarationStatementNode declarationStatementNode = new DeclarationStatementNode();
         declarationStatementNode.id = Integer.parseInt(((Element)declStmt).getAttribute("ID"));
         declarationStatementNode.type = DeclarationStatementType.valueOf(((Element)declStmt).getAttribute("type"));
-        declarationStatementNode.visibility = Visibility.valueOf(((Element)declStmt).getAttribute("visib"));
 
         switch (declarationStatementNode.type){
             case ENUM -> declarationStatementNode.enumItem = enumBuild(declStmt.getFirstChild());
@@ -148,7 +141,6 @@ public class TreeFromXml {
     public static EnumItemNode enumItemBuild(Node enumItem){
         EnumItemNode enumItemNode = new EnumItemNode();
         enumItemNode.id = Integer.parseInt(((Element)enumItem).getAttribute("ID"));
-        enumItemNode.visibility = Visibility.valueOf(((Element)enumItem).getAttribute("visib"));
         enumItemNode.name = ((Element)enumItem).getAttribute("ident");
 
         if(((Element)enumItem).getElementsByTagName("struct_items").getLength()>0){
@@ -240,7 +232,6 @@ public class TreeFromXml {
     public static StructItemNode structItemBuild(Node structItem){
         StructItemNode structItemNode = new StructItemNode();
         structItemNode.id = Integer.parseInt(((Element)structItem).getAttribute("ID"));
-        structItemNode.visibility = Visibility.valueOf(((Element)structItem).getAttribute("visib"));
         structItemNode.name = ((Element)structItem).getAttribute("ident");
         structItemNode.type = typeBuild(structItem.getFirstChild());
 
@@ -279,7 +270,6 @@ public class TreeFromXml {
     public static AssociatedItemNode associatedItemBuild(Node assItem){
         AssociatedItemNode associatedItemNode = new AssociatedItemNode();
         associatedItemNode.id = Integer.parseInt(((Element)assItem).getAttribute("ID"));
-        associatedItemNode.visibility = Visibility.valueOf(((Element)assItem).getAttribute("visib"));
         String type = ((Element)assItem).getAttribute("type");
         switch (type) {
             case "FUNCTION" -> associatedItemNode.fun = functionBuild(assItem.getFirstChild());

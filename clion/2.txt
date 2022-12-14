@@ -1,90 +1,123 @@
-fn main() {
+/**
+ * Двигатель
+ */
+struct Engine {
+    creator_name : String,
+    volume : f32
+}
 
-    /*-------------------------------------------------------------------------------------*/
-    // let - объявление переменной
-    // mut - идет после let, делает переменную изменяемой
+/**
+ * Корпус
+ */
+struct Body {
+    height : i32,
+    width : i32
+}
 
-    // Целые числа (один тип: i32)
-    let numberOne = 47;
-    let numberThree:i32 = 47;
-    let mut numberFour : i32 = 47;
+/**
+ * Машина
+ */
+struct Car {
+    engine : Engine,
+    body : Body
+}
 
-    // Символы (char)
-    let charOne = '\n';
-    let charTwo:char = '\n';
-    let mut charThree : char = '\n';
-    
-    // Строки (String)
-    let strOne = "Hello world!!!";  // Надо будет сделать автоматически String
-    let mut strTwo : String = String::new();
-    let strThree : String = String::from("Hello world!!!");
-    let strFour : String = "Hello\n\t world!!!".to_string();
+/**
+ * Интерфейс (можно управлять)
+ */
+trait CanDrive {
+    const MyConstant : String = "ABOBA";
+    fn drive(&self, speed : i32);
+}
 
-    // Выражения с использованием локальных переменных
-    // Арифметические операции (+, -, *, /)
-    // (+=, -=, *=, /=) так же поддерживаются
-    let mut a = 0;
-    let mut b = 0;
-    let mut c = 0;
-    c = a + b;
-    c = a - b;
-    c = a * b;
-    c = a / 1;
+/**
+ * Интерфейс (можно завести)
+ */
+trait CanStart {
+    fn start(&self) {
+        println("Start engine!!!");
+    }
+}
+
+ /**
+  * Интерфейс (можно заглушить)
+  */
+trait CanDrownOut {
+    fn drownOut(&self) {
+        println("Drown out engine!!!");
+    }
+}
+
+/**
+ * Класс машины
+ */
+impl Car {
+     fn typeBody(&self) -> String {
+        if (self.body.height > 4 && self.body.width > 3) { "Big car".to_string(); } else { "Small car".to_string(); };
+    }
+}
+impl CanDrive for Car {
+    fn drive(&self, speed : i32) {
+        println("{}", speed);
+    }
+}
+impl CanDrownOut for Car {}
+impl CanStart for Car {}
+impl Car {
+     fn check() {
+        println("BMW");
+    }
+}
+
+enum MyEnum{
+    a,
+    b = 5,
+}
 
 
-    // Операции сравнения (>, <, >=, <=, ==, !=) и присваивания (=)
-    // Операции сравнения работают для всех используемых типов (i32, char, String)
-    // char и String сравниваются по содержимому, а не по ссылке
-    /*-----------------------------------------------------------------------------------------------------------*/
+fn main () {
+    let mut car = Car {
+        engine : Engine{ creator_name : "Yagami".to_string(), volume : 5.5 },
+        body : Body { height : 4, width : 2 }
+    };
 
-    // Одномерный массив (array)
-    let mut numbers : [i32; 3];
-    let mut strings : [String; 3];
-    let mut chars : [char; 3];
+    println("{}", car.typeBody());
+    car.start();
+    car.drive(4);
+    car.drownOut();
+    Car::check();
 
-    // Инициализация
-    numbers = [1, 2, 3];
-    let mut newStrings : [String; 2] = ["Hello".to_string(), "world".to_string()];
-    let mut arr = ['a', 'b', 'c'];
+    let n : i32 = 10;
+    let mut arr : [i32; 10] = [4, 2, 6, 8, 2, 5, 1, 8, 6, 7,];
 
-    // Заполнение массива значениями по умолчанию
-    chars = ['q'; 3];
+    for (i in 0..9) {
+        let mut j = 0;
+        while (j < 9) {
+            if (arr[j] > arr[j + 1]) {
+                let mut tmp = arr[j + 1];
+                arr[j + 1] = arr[j];
+                arr[j] = tmp;
+             };
+             j = j + 1;
+        };
+    };
 
-    // Операция доступа к элементу массива ([])
-    numbers[0] = numbers[1];
-
-    /*------------------------------------------------------------------------------------------------------------*/
-
-    // Целочисленные литералы
-    let decimalLiteral : i32 = 1_0_0_0_9_9_9;   // Десятичная запись (нижние подчекривания в качестве украшения)
-    let octalLiteral : i32 = 0o_1_2_3_4_5_6_7;  // Восьмеричная запись (нижние подчекривания в качестве украшения)
-    let binaryLiteral : i32 = 0b_111_000;   // Двоичная запись (нижние подчекривания в качестве украшения)
-    let hexLiteral : i32 = 0x0____9____a____F;   // Шестнадцатиричная запись (нижние подчекривания в качестве украшения, поддерживает верхний и нижний регистр)
-
-    // Символьные литералы
-    /*
-    * QUOTE_ESCAPE (\' | \")
-    * ASCII_ESCAPE (\x7F | \n | \r | \t | \\ | \0)
-    * UNICODE_ESCAPE (\u{7FFF}) до 6 чисел в фигурных скобках
-    */
-    let mut charLiteral : char = '\'';
-    charLiteral = '\"';
-    charLiteral = '\n';
-    charLiteral = '\r';
-    charLiteral = '\t';
-    charLiteral = '\\';
-    charLiteral = '\0';
-    charLiteral = '\x0F';   // Обязательно 2 числа после \x (\x7F - верхняя граница)
-    charLiteral = '\u{1___0___F____FFF__}';  // Верхняя граница \u{10FFFF}, допустимо использование '_' между символами и в конце
-
-    // Строковые литералы
-    /*
-    * QUOTE_ESCAPE
-    * ASCII_ESCAPE
-    * UNICODE_ESCAPE
-    * STRING_CONTINUE (\) появляется непосредственно перед разрывом строки, заетм все символы разрыва строки и табуляция игнорируются
-    */
-    let mut strLiteral : String = "\'\"\n\r\t\\\0\x7F\
-    \u{1___0___F____FFF__}".to_string();
+    let mut i = 0;
+    let res : String = loop {
+        if (i < 10) {
+            println("{}", arr[i]);
+        }
+        else {
+            break "end".to_string();
+        };
+        i = i + 1;
+    };
 
 }
+
+fn print() -> i32 {
+    2 + 2;
+}
+
+
+

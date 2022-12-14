@@ -268,7 +268,7 @@ void expr_xml(struct expr_node *expr){
             break;
 
         case self_expr:
-            fprintf(xml, "<expr type=\"SELF\" ID=\"%d\"/>", expr->ID);
+            fprintf(xml, "<expr type=\"SELF\" ident=\"self\" ID=\"%d\"/>", expr->ID);
             break;
 
         case call_expr:
@@ -386,60 +386,40 @@ void expr_xml(struct expr_node *expr){
 }
 
 void decl_stmt_xml(struct decl_stmt_node *decl_stmt){
-
-    char visibility[20];
-    visibility[0] = 0;
-    switch (decl_stmt->visibility) {
-        case pub:
-            strcat(visibility, "PUB");
-            break;
-        case crate:
-            strcat(visibility, "CRATE");
-            break;
-        case self:
-            strcat(visibility, "SELF");
-            break;
-        case super:
-            strcat(visibility, "SUPER");
-            break;
-        case emptyVisibility:
-            strcat(visibility, "EMPTY_VISIBILITY");
-            break;
-    }
-
+    
     switch (decl_stmt->type) {
         case enum_:
-            fprintf(xml, "<decl_stmt type=\"ENUM\" visib=\"%s\" ID=\"%d\">", visibility, decl_stmt->ID);
+            fprintf(xml, "<decl_stmt type=\"ENUM\"  ID=\"%d\">", decl_stmt->ID);
             enum_xml(decl_stmt->enum_item);
             fprintf(xml, "</decl_stmt>");
             break;
 
         case function_:
-            fprintf(xml, "<decl_stmt type=\"FUNCTION\" visib=\"%s\" ID=\"%d\">", visibility, decl_stmt->ID);
+            fprintf(xml, "<decl_stmt type=\"FUNCTION\"  ID=\"%d\">",  decl_stmt->ID);
             function_xml(decl_stmt->function_item);
             fprintf(xml, "</decl_stmt>");
             break;
 
         case constStmt_:
-            fprintf(xml, "<decl_stmt type=\"CONST_STMT\" visib=\"%s\" ID=\"%d\">", visibility, decl_stmt->ID);
+            fprintf(xml, "<decl_stmt type=\"CONST_STMT\"  ID=\"%d\">",  decl_stmt->ID);
             const_stmt_xml(decl_stmt->const_stmt_item);
             fprintf(xml, "</decl_stmt>");
             break;
 
         case struct_:
-            fprintf(xml, "<decl_stmt type=\"STRUCT\" visib=\"%s\" ID=\"%d\">", visibility, decl_stmt->ID);
+            fprintf(xml, "<decl_stmt type=\"STRUCT\"  ID=\"%d\">",  decl_stmt->ID);
             struct_xml(decl_stmt->struct_item);
             fprintf(xml, "</decl_stmt>");
             break;
 
         case trait_:
-            fprintf(xml, "<decl_stmt type=\"TRAIT\" visib=\"%s\" ID=\"%d\">", visibility, decl_stmt->ID);
+            fprintf(xml, "<decl_stmt type=\"TRAIT\"  ID=\"%d\">",  decl_stmt->ID);
             trait_xml(decl_stmt->trait_item);
             fprintf(xml, "</decl_stmt>");
             break;
 
         case impl_:
-            fprintf(xml, "<decl_stmt type=\"IMPL\" visib=\"%s\" ID=\"%d\">", visibility, decl_stmt->ID);
+            fprintf(xml, "<decl_stmt type=\"IMPL\"  ID=\"%d\">",  decl_stmt->ID);
             impl_xml(decl_stmt->impl_item);
             fprintf(xml, "</decl_stmt>");
             break;
@@ -503,27 +483,8 @@ void enum_list_xml(struct enum_list_node *enum_list){
 }
 
 void enum_item_xml(struct enum_item_node *enum_item){
-    char visibility[20];
-    visibility[0] = 0;
-    switch (enum_item->visibility) {
-        case pub:
-            strcat(visibility, "PUB");
-            break;
-        case crate:
-            strcat(visibility, "CRATE");
-            break;
-        case self:
-            strcat(visibility, "SELF");
-            break;
-        case super:
-            strcat(visibility, "SUPER");
-            break;
-        case emptyVisibility:
-            strcat(visibility, "EMPTY_VISIBILITY");
-            break;
-    }
-
-    fprintf(xml, "<enum_item visib=\"%s\" ident=\"%s\" ID=\"%d\">", visibility, enum_item->name, enum_item->ID);
+    
+    fprintf(xml, "<enum_item  ident=\"%s\" ID=\"%d\">",  enum_item->name, enum_item->ID);
     if(enum_item->struct_list!=NULL){
         struct_items_xml(enum_item->struct_list);
     }
@@ -614,27 +575,8 @@ void struct_items_xml(struct struct_list_node *struct_items){
 }
 
 void struct_item_xml(struct struct_item_node *struct_item){
-    char visibility[20];
-    visibility[0] = 0;
-    switch (struct_item->visibility) {
-        case pub:
-            strcat(visibility, "PUB");
-            break;
-        case crate:
-            strcat(visibility, "CRATE");
-            break;
-        case self:
-            strcat(visibility, "SELF");
-            break;
-        case super:
-            strcat(visibility, "SUPER");
-            break;
-        case emptyVisibility:
-            strcat(visibility, "EMPTY_VISIBILITY");
-            break;
-    }
-
-    fprintf(xml, "<struct_item visib=\"%s\" ident=\"%s\" ID=\"%d\">", visibility, struct_item->name, struct_item->ID);
+    
+    fprintf(xml, "<struct_item  ident=\"%s\" ID=\"%d\">",  struct_item->name, struct_item->ID);
     type_xml(struct_item->type);
     fprintf(xml, "</struct_item>");
 }
@@ -660,32 +602,13 @@ void associated_items_xml(struct associated_items_node *items){
 }
 
 void associated_item_xml(struct associated_item_node *item){
-    char visibility[20];
-    visibility[0] = 0;
-    switch (item->visibility) {
-        case pub:
-            strcat(visibility, "PUB");
-            break;
-        case crate:
-            strcat(visibility, "CRATE");
-            break;
-        case self:
-            strcat(visibility, "SELF");
-            break;
-        case super:
-            strcat(visibility, "SUPER");
-            break;
-        case emptyVisibility:
-            strcat(visibility, "EMPTY_VISIBILITY");
-            break;
-    }
-
+    
     if(item->fn!=NULL){
-        fprintf(xml, "<associated_item type=\"FUNCTION\" visib=\"%s\" ID=\"%d\">", visibility, item->ID);
+        fprintf(xml, "<associated_item type=\"FUNCTION\"  ID=\"%d\">",  item->ID);
         function_xml(item->fn);
     }
     if(item->const_stmt!=NULL){
-        fprintf(xml, "<associated_item type=\"CONST_ITEM\" visib=\"%s\" ID=\"%d\">", visibility, item->ID);
+        fprintf(xml, "<associated_item type=\"CONST_ITEM\"  ID=\"%d\">",  item->ID);
         const_stmt_xml(item->const_stmt);
     }
     fprintf(xml, "</associated_item>");

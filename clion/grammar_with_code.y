@@ -36,7 +36,6 @@ struct program_node * prg;
 	bool bool_const;
 	float float_const;
 	char char_const;
-	enum visibility vis;
 }
 
 %type <prg>Program
@@ -75,7 +74,6 @@ struct program_node * prg;
 %type <bool_const>FALSE
 %type <float_const>FLOAT_LITERAL
 %type <char_const>CHAR_LITERAL
-%type <vis>Visibility
 %type <type_>Type
 %type <expr>StructExprField
 %type <stmt_>StmtDecl
@@ -293,20 +291,13 @@ LetStmt: LET ID ':' Type '=' ExprWithBlock ';'				{ $$ = LetStmt($2, $4, notMut,
        ;
 
 //---------DeclarationStatement---------
-DeclarationStmt: Enum							{ $$ = DeclarationEnum(self, $1); }
-               | Visibility Enum					{ $$ = DeclarationEnum($1, $2); }
-               | FunctionWithBlock						{ $$ = DeclarationFunction(self, $1); }
-               | Visibility FunctionWithBlock					{ $$ = DeclarationFunction($1, $2); }
-               | FunctionWithoutBlock						{ $$ = DeclarationFunction(self, $1); }
-               | Visibility FunctionWithoutBlock					{ $$ = DeclarationFunction($1, $2); }
-               | ConstStmt						{ $$ = DeclarationConst(self, $1); }
-               | Visibility ConstStmt					{ $$ = DeclarationConst($1, $2); }
-               | Struct							{ $$ = DeclarationStruct(self, $1); }
-               | Visibility Struct					{ $$ = DeclarationStruct($1, $2); }
-               | Trait							{ $$ = DeclarationTrait(self, $1); }
-               | Visibility Trait					{ $$ = DeclarationTrait($1, $2); }
-               | Impl							{ $$ = DeclarationImpl(self, $1); }
-               | Visibility Impl					{ $$ = DeclarationImpl($1, $2); }
+DeclarationStmt: Enum							{ $$ = DeclarationEnum($1); }
+               | FunctionWithBlock				{ $$ = DeclarationFunction($1); }
+               | FunctionWithoutBlock			{ $$ = DeclarationFunction($1); }
+               | ConstStmt						{ $$ = DeclarationConst($1); }
+               | Struct							{ $$ = DeclarationStruct($1); }
+               | Trait							{ $$ = DeclarationTrait($1); }
+               | Impl							{ $$ = DeclarationImpl($1); }
                ;
 
 //----Enum----
@@ -322,14 +313,10 @@ EnumItems: EnumItem							{ $$ = EnumListNode($1); }
          | EnumItems ',' EnumItem					{ $$ = EnumListAdd($1, $3); }
          ;
 
-EnumItem: Visibility ID							{ $$ = EnumItemNode($2, $1, 0, 0); }
-        | ID								{ $$ = EnumItemNode($1, 0, 0, 0); }
-        | Visibility ID '=' ExprWithBlock				{ $$ = EnumItemNode($2, $1, 0, $4); }
-        | Visibility ID '=' ExprWithoutBlock				{ $$ = EnumItemNode($2, $1, 0, $4); }
-        | ID '=' ExprWithBlock						{ $$ = EnumItemNode($1, 0, 0, $3); }
-        | ID '=' ExprWithoutBlock					{ $$ = EnumItemNode($1, 0, 0, $3); }
-        | Visibility ID '{' StructFields_final '}'			{ $$ = EnumItemNode($2, $1, $4, 0); }
-        | ID '{' StructFields_final '}'					{ $$ = EnumItemNode($1, 0, $3, 0); }
+EnumItem: ID							{ $$ = EnumItemNode($1, 0, 0); }
+        | ID '=' ExprWithBlock						{ $$ = EnumItemNode($1, 0, $3); }
+        | ID '=' ExprWithoutBlock					{ $$ = EnumItemNode($1, 0, $3); }
+        | ID '{' StructFields_final '}'				{ $$ = EnumItemNode($1, $3, 0); }
         ;
 
 //----Function----
@@ -377,8 +364,7 @@ StructFields: StructField						{ $$ = StructListNode($1); }
             | StructFields ',' StructField				{ $$ = StructListAdd($1, $3); }
             ;
 
-StructField: Visibility ID ':' Type					{ $$ = StructItemNode($2, $4, $1); }
-           | ID ':' Type						{ $$ = StructItemNode($1, $3, self); }
+StructField: ID ':' Type					{ $$ = StructItemNode($1, $3); }
            ;
 
 //---------Implementation---------
@@ -394,11 +380,9 @@ AssociatedItemsImpl: AssociatedItemImpl						{ $$ = AssociatedList($1); }
                | AssociatedItemsImpl AssociatedItemImpl				{ $$ = AssociatedListAdd($1, $2); }
                ;
 
-AssociatedItemImpl: Visibility FunctionWithBlock					{ $$ = AssociatedItemNode($1, $2, 0); }
-                  | FunctionWithBlock						{ $$ = AssociatedItemNode(0, $1, 0); }
-                  | Visibility ConstStmt					{ $$ = AssociatedItemNode($1, 0, $2); }
-                  | ConstStmt						{ $$ = AssociatedItemNode(0, 0, $1); }
-                   ;
+AssociatedItemImpl: FunctionWithBlock				{ $$ = AssociatedItemNode($1, 0); }
+                  | ConstStmt						{ $$ = AssociatedItemNode(0, $1); }
+                  ;
 
 
 //-------------Trait-------------
@@ -413,12 +397,9 @@ AssociatedItems: AssociatedItem						{ $$ = AssociatedList($1); }
                | AssociatedItems AssociatedItem				{ $$ = AssociatedListAdd($1, $2); }
                ;
 
-AssociatedItem: Visibility FunctionWithBlock					{ $$ = AssociatedItemNode($1, $2, 0); }
-              | FunctionWithBlock						{ $$ = AssociatedItemNode(0, $1, 0); }
-              | Visibility FunctionWithoutBlock					{ $$ = AssociatedItemNode($1, $2, 0); }
-              | FunctionWithoutBlock						{ $$ = AssociatedItemNode(0, $1, 0); }
-              | Visibility ConstStmt					{ $$ = AssociatedItemNode($1, 0, $2); }
-              | ConstStmt						{ $$ = AssociatedItemNode(0, 0, $1); }
+AssociatedItem: FunctionWithBlock						{ $$ = AssociatedItemNode($1, 0); }
+              |  FunctionWithoutBlock						{ $$ = AssociatedItemNode($1, 0); }
+              | ConstStmt						{ $$ = AssociatedItemNode(0, $1); }
               ;
 
 //---------ConstStatement---------
@@ -438,10 +419,5 @@ Type: INT								{ $$ = TypeFromLiteral(int_); }
     | '[' Type ';' ExprWithoutBlock ']' { $$ = TypeFromArray($2, $4);}
     ;
 
-//---------Visibility---------
-Visibility: PUB								{ $$ = pub; }
-          | PUB '(' CRATE ')'						{ $$ = crate; }
-          | PUB '(' SELF ')'						{ $$ = self; }
-          | PUB '(' SUPER ')'						{ $$ = super; }
-          ;
+
 %%

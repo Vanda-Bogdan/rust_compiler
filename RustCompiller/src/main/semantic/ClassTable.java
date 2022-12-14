@@ -1,6 +1,5 @@
 package main.semantic;
 
-import main.nodes.Visibility;
 import main.nodes.conststmt.ConstStatementNode;
 import main.nodes.struct.StructItemNode;
 
@@ -43,8 +42,8 @@ public class ClassTable {
     //------------------------------------------Field Table------------------------------------------
     private FieldTable fieldTable;
 
-    public void fieldsAdd(ConstStatementNode constStmt, Visibility visibility){
-        fieldTable.add(constStmt, visibility);
+    public void fieldsAdd(ConstStatementNode constStmt){
+        fieldTable.add(constStmt);
     }
 
     public void fieldsAdd(StructItemNode structItem){
