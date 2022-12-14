@@ -1,6 +1,7 @@
 package main.semantic;
 
 import main.nodes.conststmt.ConstStatementNode;
+import main.nodes.function.FunctionNode;
 import main.nodes.struct.StructItemNode;
 
 public class ClassTable {
@@ -13,6 +14,9 @@ public class ClassTable {
     //------------------------------------------Constant Table-------------------------------------------------------
     private ConstantTable constantTable = new ConstantTable();
 
+    public int getConstNumber(Constant constant, String utf8){
+        return constantTable.getConstNumber(constant, utf8);
+    }
 
     public int constantAdd(Constant constant, int num1){
         return constantTable.add(constant, num1);
@@ -53,5 +57,11 @@ public class ClassTable {
     //------------------------------------------MethodTable------------------------------------------
     private MethodTable methodTable;
 
+    public void addToMethodTable(FunctionNode funcNode){
+        methodTable.add(funcNode);
+    }
 
+    public boolean containsMethod(String name){
+        return methodTable.items.containsKey(name);
+    }
 }

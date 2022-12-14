@@ -18,10 +18,12 @@ public class ConstantTable {
 
     public int add(Constant constant, String utf8) {
         if(contains(constant, utf8)){
-            throw new IllegalArgumentException("Константа " + utf8 + " уже существует");
+            return getConstNumber(constant, utf8);
         }
-        items.add(new ConstantTableItem(constant, utf8));
-        return items.size() - 1;
+        else {
+            items.add(new ConstantTableItem(constant, utf8));
+            return items.size() - 1;
+        }
     }
 
     public boolean contains(Constant constant, String utf8){

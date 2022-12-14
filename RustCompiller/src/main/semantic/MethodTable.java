@@ -9,17 +9,17 @@ import main.nodes.letstmt.LetStatementNode;
 import main.nodes.stmt.StatementNode;
 import main.nodes.stmt.StatementType;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MethodTable {
 
-    public ArrayList<MethodTableItem> items = new ArrayList<>();
+    public HashMap<String, MethodTableItem> items = new HashMap<>();
 
     public void add(FunctionNode funcNode) {
 
         VariableTable variableTable = new VariableTable();
 
-        //--------Заполнение таблицы методов
+        //--------Заполнение таблицы локальных переменных
         //self
         if(funcNode.paramList.type != FunctionType.ASSOCIATED){
             variableTable.add("self", Mutable.NOT_MUT);
@@ -33,8 +33,9 @@ public class MethodTable {
             bodyVariables(funcNode.body, variableTable);
         }
 
-        //добавление метода в таблицу
-        items.add(new MethodTableItem(funcNode.name, funcNode.returnType.getName(), variableTable, funcNode.body!=null, funcNode.paramList.type));
+
+        //-----------------Добавление метода в таблицу
+        items.put(funcNode.name, new MethodTableItem(funcNode.returnType.getName(), variableTable, funcNode.body!=null, funcNode.paramList.type));
     }
 
     private void bodyVariables(ExpressionNode body, VariableTable variableTable){
@@ -51,6 +52,6 @@ public class MethodTable {
         variableTable.add(let.name, let.mut, let.type.getName());
     }
 
-    private record MethodTableItem(String name, String returnType, VariableTable variableTable, boolean hasBody, FunctionType functionType) {//todo мб поменять string на TypeNode
+    public record MethodTableItem(String returnType, VariableTable variableTable, boolean hasBody, FunctionType functionType) {//todo мб поменять string на TypeNode
     }
 }

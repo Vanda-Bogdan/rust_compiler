@@ -7,7 +7,11 @@ import java.util.HashMap;
 
 public class TraitTable {
 
-    public HashMap<String, TraitItem> items = new HashMap<>();
+    private HashMap<String, TraitItem> items = new HashMap<>();
+
+    public TraitItem traitByName(String name){
+        return items.get(name);
+    }
 
     public void add(TraitNode traitNode) {
         MethodTable methods = new MethodTable();
