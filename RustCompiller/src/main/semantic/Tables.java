@@ -2,6 +2,8 @@ package main.semantic;
 
 import main.nodes.ProgramNode;
 import main.nodes.TypeNode;
+import main.nodes.VarType;
+import main.nodes.conststmt.ConstStatementNode;
 import main.nodes.declstmt.DeclarationStatementNode;
 import main.nodes.declstmt.DeclarationStatementType;
 import main.nodes.function.FunctionNode;
@@ -12,6 +14,7 @@ import main.nodes.stmt.StatementNode;
 import main.nodes.stmt.StatementType;
 import main.nodes.struct.StructListNode;
 import main.nodes.struct.StructNode;
+import main.nodes.trait.AssociatedItemNode;
 import main.nodes.trait.TraitNode;
 import main.treeprint.Tree;
 
@@ -91,7 +94,7 @@ public class Tables {
             }
 
             case CONST_STMT -> {
-                //todo const
+                constStmtClasses(declStmt.constStmtItem);
             }
         }
     }
@@ -122,12 +125,13 @@ public class Tables {
     private void implClasses(ImplNode impl){
 
         ClassTable struct = tableByName(impl.typeNode.name);
+
         if(struct==null){
             throw new IllegalArgumentException("Не существует структуры" + impl.typeNode.name);
         }
 
         switch (impl.implType){
-            case TRAIT -> {
+            case TRAIT -> { // TODO сделать проверка, что все методы в impl есть от trait
                 TraitTable.TraitItem trait = traitTable.traitByName(impl.name);
                 if(trait==null){
                     throw new IllegalArgumentException("Не существует трейта" + impl.name);
@@ -179,44 +183,42 @@ public class Tables {
                 });
 
             }
-
             case INHERENT -> {
+                for (AssociatedItemNode item : impl.associatedItemList.list) {
+                    if (item.fun != null) {
+                        if (struct.containsMethod(item.fun.name)) {
+                            throw new IllegalArgumentException("Метод " + item.fun.name + " уже имеется в " + struct);
+                        }
+                        //Добавить метод в таблицу констант данной структуры
+                        int name = struct.constantAdd(Constant.UTF8, item.fun.name);
+                        int type = struct.constantAdd(Constant.UTF8, item.fun.returnType.getNameForTable());
+                        int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
+                        int class_ = struct.getConstNumber(Constant.CLASS, struct.name);
+                        struct.constantAdd(Constant.METHOD_REF, class_, N_T);
 
+                        //Добавить метод в таблицу методов данной структуры
+                        struct.addToMethodTable(item.fun);
+                    }
+                }
             }
-        }
+        }   // TODO добавление констант в impl
     }
 
-
-    private static String typeParse(TypeNode type) {
-        switch (type.varType) {
-            case INT -> {
-                return "I";
-            }
-            case CHAR -> {
-                return "C";
-            }
-            case STRING -> {
-                return "S";
-            }
-            case FLOAT -> {
-                return "F";
-            }
-            case BOOL -> {
-                return "B";
-            }
-            case ID -> {
-                return type.name;
-            }
-            case ARRAY -> {
-                TypeNode tArr = type.typeArr;
-                while (tArr.typeArr != null) {
-                    tArr = tArr.typeArr;
-                }
-                return typeParse(tArr);
-            }
-            default -> {
-                return null;
-            }
+    private void constStmtClasses(ConstStatementNode node) {
+        // Проверка, что нет поля с таким же именем
+        ClassTable main = tables.get("Main");
+        if (main.containsField(node.name)) {
+            throw new IllegalArgumentException("Поле с именем " + node.name + " уже существует в классе Main");
         }
+
+        // Добавление поля в класс
+        int name = main.constantAdd(Constant.UTF8, node.name);
+        int type = main.constantAdd(Constant.UTF8, node.type.getNameForTable());
+        int nameAndType = main.constantAdd(Constant.NAME_AND_TYPE, name, type);
+        int class_ = main.getConstNumber(Constant.CLASS, main.name);
+        main.constantAdd(Constant.FIELD_REF, class_, nameAndType);
+
+        // Добавить поле в таблицу полей класса
+        main.fieldsAdd(node);
     }
 }

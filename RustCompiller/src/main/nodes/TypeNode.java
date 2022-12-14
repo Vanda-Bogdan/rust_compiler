@@ -23,10 +23,10 @@ public class TypeNode {
 
     public String getNameForTable(){
         if(varType == VarType.ID){
-            return name;
+            return name;    // TODO сделать i32, f64 ключевыми словами языка
         }
         else if(varType != VarType.ARRAY){
-            return varType.toString();
+            return typeParse(varType);
         }
         else {
             return "[" + typeArr.getArrayName();
@@ -44,4 +44,28 @@ public class TypeNode {
             return "[" + typeArr.getArrayName();
         }
     }
+
+    private static String typeParse(VarType type) {
+        switch (type) {
+            case INT -> {
+                return "I";
+            }
+            case CHAR -> {
+                return "C";
+            }
+            case STRING -> {
+                return "S";
+            }
+            case FLOAT -> {
+                return "F";
+            }
+            case BOOL -> {
+                return "B";
+            }
+            default -> {
+                return null;
+            }
+        }
+    }
+
 }

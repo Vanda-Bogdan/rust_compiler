@@ -64,4 +64,6 @@ public class ClassTable {
     public boolean containsMethod(String name){
         return methodTable.items.containsKey(name);
     }
+
+    public boolean containsField(String name) { return fieldTable.items.containsKey(name); }
 }
