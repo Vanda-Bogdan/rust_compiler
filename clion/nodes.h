@@ -15,10 +15,6 @@ struct type_node{
     struct expr_node* exprArr;
 };
 
-/*----------------------------------------------------Visibility------------------------------------------------------*/
-enum visibility {
-    emptyVisibility, pub, crate, self, super
-};
 
 /*---------------------------------------------------Mutable----------------------------------------------------------*/
 enum mutable {
@@ -96,7 +92,6 @@ enum decl_stmt_type {
 
 struct decl_stmt_node {
     int ID;
-    enum visibility visibility;
     enum decl_stmt_type type;
     struct struct_node* struct_item;
     struct function_node* function_item;
@@ -112,7 +107,6 @@ struct struct_item_node {
     char* name;
     struct struct_item_node* next;
     struct type_node* type;
-    enum visibility visibility;
 };
 
 struct struct_node {
@@ -136,7 +130,6 @@ struct enum_node {
 
 struct enum_item_node {
     int ID;
-    enum visibility visibility;
     char* name;
     struct enum_item_node* next;
     struct expr_node* expr;
@@ -190,7 +183,6 @@ struct associated_item_node {
     int ID;
     struct associated_item_node* next;
     struct function_node* fn;
-    enum visibility visibility;
     struct const_stmt_node* const_stmt;
 };
 
