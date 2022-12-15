@@ -46,13 +46,15 @@ public class ClassTable {
     //------------------------------------------Field Table------------------------------------------
     private FieldTable fieldTable;
 
-    public void fieldsAdd(ConstStatementNode constStmt){
+    public void addToFieldTable(ConstStatementNode constStmt){
         fieldTable.add(constStmt);
     }
 
-    public void fieldsAdd(StructItemNode structItem){
+    public void addToFieldTable(StructItemNode structItem){
         fieldTable.add(structItem);
     }
+
+    public boolean containsField(String name) { return fieldTable.items.containsKey(name); }
 
     //------------------------------------------MethodTable------------------------------------------
     private MethodTable methodTable;
@@ -64,6 +66,4 @@ public class ClassTable {
     public boolean containsMethod(String name){
         return methodTable.items.containsKey(name);
     }
-
-    public boolean containsField(String name) { return fieldTable.items.containsKey(name); }
 }

@@ -1,5 +1,6 @@
 package main.nodes.impl;
 
+import main.nodes.conststmt.ConstStatementNode;
 import main.nodes.function.FunctionNode;
 import main.nodes.trait.AssociatedItemListNode;
 import main.nodes.TypeNode;
@@ -28,6 +29,25 @@ public class ImplNode {
         for (AssociatedItemNode item : associatedItemList.list){
             if(item.fun!=null && Objects.equals(item.fun.name, name)){
                 return item.fun;
+            }
+        }
+        return null;
+    }
+
+    public ConstStatementNode hasInitialization(String name, String type){
+
+        for (AssociatedItemNode item : associatedItemList.list){
+            if(item.constStmt!=null && Objects.equals(item.constStmt.name, name) && Objects.equals(item.constStmt.type.getName(), type) && item.constStmt.expr!=null){
+                return item.constStmt;
+            }
+        }
+        return null;
+    }
+
+    public ConstStatementNode getConstVariable(String name){
+        for (AssociatedItemNode item : associatedItemList.list){
+            if(item.constStmt!=null && Objects.equals(item.constStmt.name, name)){
+                return item.constStmt;
             }
         }
         return null;

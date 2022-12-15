@@ -1,25 +1,19 @@
 package main.semantic;
 
-import main.nodes.ProgramNode;
-import main.nodes.TypeNode;
-import main.nodes.VarType;
 import main.nodes.conststmt.ConstStatementNode;
 import main.nodes.declstmt.DeclarationStatementNode;
 import main.nodes.declstmt.DeclarationStatementType;
 import main.nodes.function.FunctionNode;
 import main.nodes.impl.ImplNode;
-import main.nodes.letstmt.LetStatementNode;
 import main.nodes.stmt.StatementListNode;
 import main.nodes.stmt.StatementNode;
 import main.nodes.stmt.StatementType;
-import main.nodes.struct.StructListNode;
 import main.nodes.struct.StructNode;
 import main.nodes.trait.AssociatedItemNode;
-import main.nodes.trait.TraitNode;
 import main.treeprint.Tree;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Tables {
 
@@ -115,7 +109,7 @@ public class Tables {
                 currentTable.constantAdd(Constant.FIELD_REF, classConst, N_T);                        //FieldRef
 
                 //Заполнение таблицы полей
-                currentTable.fieldsAdd(structItem);
+                currentTable.addToFieldTable(structItem);
             }else {
                 throw new IllegalArgumentException("Поле" + structItem.name + " структуры " + structNode.name + " уже определено");
             }
@@ -127,15 +121,20 @@ public class Tables {
         ClassTable struct = tableByName(impl.typeNode.name);
 
         if(struct==null){
-            throw new IllegalArgumentException("Не существует структуры" + impl.typeNode.name);
+            throw new IllegalArgumentException("Не существует структуры " + impl.typeNode.name);
         }
 
         switch (impl.implType){
-            case TRAIT -> { // TODO сделать проверка, что все методы в impl есть от trait
+            case TRAIT -> {
+                //----------------------Методы--------------------------
                 TraitTable.TraitItem trait = traitTable.traitByName(impl.name);
                 if(trait==null){
-                    throw new IllegalArgumentException("Не существует трейта" + impl.name);
+                    throw new IllegalArgumentException("Не существует trait " + impl.name);
                 }
+
+                AtomicInteger traitPrototypes = new AtomicInteger();
+                int implRealizations = (int) impl.associatedItemList.list.stream().filter(item -> item.fun != null).count();
+
 
                 trait.methods().items.forEach((funcName, value) -> {
                     //заполнение методов в таблицу констант структуры
@@ -149,6 +148,8 @@ public class Tables {
                     if (!value.hasBody()) {
                         FunctionNode func = impl.hasBody(funcName);
                         if (func != null) {
+                            traitPrototypes.getAndIncrement();
+
                             //Добавить метод в таблицу констант данной структуры
                             int name = struct.constantAdd(Constant.UTF8, func.name);
                             int type = struct.constantAdd(Constant.UTF8, func.returnType.getNameForTable());
@@ -159,7 +160,7 @@ public class Tables {
                             //Добавить метод в таблицу методов данной структуры
                             struct.addToMethodTable(func);
                         } else {
-                            throw new IllegalArgumentException("Отсутствует реализация в impl для функции " + funcName);
+                            throw new IllegalArgumentException("Отсутствует реализация в impl " + impl.name + " for " + impl.implType + "для функции " + funcName);
                         }
                     }
                     //если есть реализация, проверить что ее нет в impl и классе
@@ -177,17 +178,46 @@ public class Tables {
                             //Добавить метод в таблицу методов данной структуры
                             struct.addToMethodTable(func);
                         }else {
-                            throw new IllegalArgumentException("Метод " + funcName + " реализованный в трейте переопределяется в impl");
+                            throw new IllegalArgumentException("Метод " + funcName + " реализованный в trait переопределяется в impl");
+                        }
+                    }
+                });
+                if(traitPrototypes.get()!=implRealizations){
+                    throw new IllegalArgumentException("Impl " + impl.name + " for " + impl.implType + " реализует лишние методы");
+                }
+
+
+                //----------------------Константы--------------------------
+                AtomicInteger traitVarPrototypes = new AtomicInteger();
+                int implVarRealizations = (int) impl.associatedItemList.list.stream().filter(item -> item.constStmt != null).count();
+
+
+                trait.fields().items.forEach((fieldName, value) -> {
+                    //Если константа не инициализирована, то найти в impl
+                    if(value.expr()==null){
+                        traitVarPrototypes.getAndIncrement();
+                        ConstStatementNode const_ = impl.hasInitialization(fieldName, value.type());
+                        if(const_!=null){
+                            //Перезаписать константу
+                            FieldTable.FieldTableItem field = trait.fields().items.get(const_.name);
+                            trait.fields().items.put(const_.name, new FieldTable.FieldTableItem(field.type(), field.isConst(), const_.expr));
+
+                        }else {
+                            throw new IllegalArgumentException("Отсутствует реализация в impl " + impl.name + " for " + impl.implType + "для поля " + fieldName);
                         }
                     }
                 });
 
+                if(traitVarPrototypes.get()!=implVarRealizations){
+                    throw new IllegalArgumentException("Impl " + impl.name + " for " + impl.implType + " реализует лишние константы");
+                }
             }
             case INHERENT -> {
                 for (AssociatedItemNode item : impl.associatedItemList.list) {
+                    //Добавление методов
                     if (item.fun != null) {
                         if (struct.containsMethod(item.fun.name)) {
-                            throw new IllegalArgumentException("Метод " + item.fun.name + " уже имеется в " + struct);
+                            throw new IllegalArgumentException("Метод " + item.fun.name + " уже имеется в " + struct.name);
                         }
                         //Добавить метод в таблицу констант данной структуры
                         int name = struct.constantAdd(Constant.UTF8, item.fun.name);
@@ -199,9 +229,24 @@ public class Tables {
                         //Добавить метод в таблицу методов данной структуры
                         struct.addToMethodTable(item.fun);
                     }
+                    //Добавление констант
+                    if(item.constStmt!=null){
+                        if (struct.containsField(item.constStmt.name)) {
+                            throw new IllegalArgumentException("Поле " + item.constStmt.name + " уже имеется в " + struct.name);
+                        }
+                        //Добавить поле в таблицу констант данной структуры
+                        int name = struct.constantAdd(Constant.UTF8, item.constStmt.name);
+                        int type = struct.constantAdd(Constant.UTF8, item.constStmt.type.getNameForTable());
+                        int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
+                        int class_ = struct.getConstNumber(Constant.CLASS, struct.name);
+                        struct.constantAdd(Constant.FIELD_REF, class_, N_T);
+
+                        //Добавить метод в таблицу методов данной структуры
+                        struct.addToFieldTable(item.constStmt);
+                    }
                 }
             }
-        }   // TODO добавление констант в impl
+        }   
     }
 
     private void constStmtClasses(ConstStatementNode node) {
@@ -219,6 +264,6 @@ public class Tables {
         main.constantAdd(Constant.FIELD_REF, class_, nameAndType);
 
         // Добавить поле в таблицу полей класса
-        main.fieldsAdd(node);
+        main.addToFieldTable(node);
     }
 }
