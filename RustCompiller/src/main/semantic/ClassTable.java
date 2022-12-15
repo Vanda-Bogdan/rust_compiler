@@ -1,6 +1,7 @@
 package main.semantic;
 
 import main.nodes.conststmt.ConstStatementNode;
+import main.nodes.enumm.EnumItemNode;
 import main.nodes.function.FunctionNode;
 import main.nodes.struct.StructItemNode;
 
@@ -52,6 +53,10 @@ public class ClassTable {
 
     public void addToFieldTable(StructItemNode structItem){
         fieldTable.add(structItem);
+    }
+
+    public void addToFieldTable(EnumItemNode enumItem, String name){
+        fieldTable.add(enumItem, name);
     }
 
     public boolean containsField(String name) { return fieldTable.items.containsKey(name); }

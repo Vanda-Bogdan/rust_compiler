@@ -3,6 +3,7 @@ package main.semantic;
 import main.nodes.conststmt.ConstStatementNode;
 import main.nodes.declstmt.DeclarationStatementNode;
 import main.nodes.declstmt.DeclarationStatementType;
+import main.nodes.enumm.EnumNode;
 import main.nodes.function.FunctionNode;
 import main.nodes.impl.ImplNode;
 import main.nodes.stmt.StatementListNode;
@@ -84,7 +85,7 @@ public class Tables {
             }
 
             case ENUM -> {
-                //todo enum
+                enumClasses(declStmt.enumItem);
             }
 
             case CONST_STMT -> {
@@ -265,5 +266,27 @@ public class Tables {
 
         // Добавить поле в таблицу полей класса
         main.addToFieldTable(node);
+    }
+
+    private void enumClasses(EnumNode node) {
+        // Создание таблицы класса и занесение имени enum
+        createTable(node.name);
+        int className = currentTable.constantAdd(Constant.UTF8, currentTable.name);
+        currentTable.constantAdd(Constant.CLASS, className);
+
+        // Обход элементов enum
+        node.enumList.list.forEach(
+                (item) -> {
+                    // Добавление поля в класс
+                    int name = currentTable.constantAdd(Constant.UTF8, item.name);
+                    int type = currentTable.constantAdd(Constant.UTF8, node.name);
+                    int nameAndType = currentTable.constantAdd(Constant.NAME_AND_TYPE, name, type);
+                    int class_ = currentTable.getConstNumber(Constant.CLASS, currentTable.name);
+                    currentTable.constantAdd(Constant.FIELD_REF, class_, nameAndType);
+
+                    // Добавить поле в таблицу полей класса
+                    currentTable.addToFieldTable(item, node.name);
+                }
+        );
     }
 }
