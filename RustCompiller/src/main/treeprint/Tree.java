@@ -222,7 +222,7 @@ public class Tree {
                 expressionPrint(expr.exprRight);
             }
             case ASGN -> {
-                declarationPrint(expr.id, "\"=\"");
+                declarationPrint(expr.id, "'='");
                 connectionPrint(expr.id, expr.exprLeft.id);
                 expressionPrint(expr.exprLeft);
                 connectionPrint(expr.id, expr.exprRight.id);
@@ -586,10 +586,7 @@ public class Tree {
     }
 
     private void implPrint(ImplNode impl) throws IOException {
-        String implType = switch (impl.implType) {
-            case INHERENT -> "INHERENT";
-            case TRAIT -> "TRAIT";
-        };
+        String implType = impl.implType.toString();
 
         if (impl.name != null)
             declarationPrint2(impl.id, implType, impl.name);

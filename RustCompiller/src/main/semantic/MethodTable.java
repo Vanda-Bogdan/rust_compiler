@@ -1,6 +1,7 @@
 package main.semantic;
 
 import main.nodes.Mutable;
+import main.nodes.expression.ExpressionListNode;
 import main.nodes.expression.ExpressionNode;
 import main.nodes.expression.ExpressionType;
 import main.nodes.function.FunctionNode;
@@ -11,6 +12,7 @@ import main.nodes.stmt.StatementNode;
 import main.nodes.stmt.StatementType;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class MethodTable {
 
@@ -43,25 +45,51 @@ public class MethodTable {
 
     private void bodyVariables(ExpressionNode body, VariableTable variableTable){
         VariableTable bodyTable = new VariableTable();
-        body.stmtList.list.forEach((n)->stmtVariables(n, bodyTable));
+        body.stmtList.list.forEach((n)->stmtVariables(n, bodyTable, variableTable));
         variableTable.merge(bodyTable);
     }
 
-    private void stmtVariables(StatementNode stmt, VariableTable variableTable){
+    private void stmtVariables(StatementNode stmt, VariableTable variableTable, VariableTable initialTable){
         if(stmt.type == StatementType.LET){
             letVariables(stmt.letStmt, variableTable);
         }
         else if (stmt.type == StatementType.EXPRESSION){
-            exprStmtVariables(stmt.expr, variableTable);
+            exprVariables(stmt.expr, variableTable, initialTable);
         }
     }
 
-    private void exprStmtVariables(ExpressionNode expression, VariableTable variableTable){
-        switch (expression.type){
+    private void exprVariables(ExpressionNode expression, VariableTable variableTable, VariableTable initialTable){
+        if(expression==null){
+            return;
+        }
+        switch (expression.type) {
             case IF -> ifVariables(expression, variableTable);
             case LOOP -> loopVariables(expression, variableTable);
             case LOOP_FOR -> loopForVariables(expression, variableTable);
             case LOOP_WHILE -> loopWhileVariables(expression, variableTable);
+            case ID -> idVariables(expression, variableTable, initialTable);
+            case PLUS, MINUS, DIV, MUL, EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL, OR, AND, ASGN, RANGE, RANGE_IN, INDEX, ARRAY_AUTO_FILL -> {
+                exprVariables(expression.exprLeft, variableTable, initialTable);
+                exprVariables(expression.exprRight, variableTable, initialTable);
+            }
+            case RANGE_LEFT, RANGE_RIGHT, RANGE_IN_RIGHT, QT, U_MINUS, NEG, STRUCT_FIELD, FIELD_ACCESS, BREAK, RETURN ->
+                    exprVariables(expression.exprLeft, variableTable, initialTable);
+            case ARRAY, CALL, METHOD, STATIC_METHOD, STRUCT -> exprListVariables(expression.exprList, variableTable, initialTable);
+        }
+    }
+
+    private void exprListVariables(ExpressionListNode exprList, VariableTable variableTable, VariableTable initialTable){
+        if (exprList == null) {
+            return;
+        }
+        exprList.list.forEach((expr)->{
+            exprVariables(expr, variableTable, initialTable);
+        });
+    }
+
+    private void idVariables(ExpressionNode ident, VariableTable variableTable, VariableTable initialTable){
+        if(!variableTable.contains(ident.name) && !initialTable.contains(ident.name)){
+            throw new IllegalArgumentException("Необъявленная переменная " + ident.name);
         }
     }
 

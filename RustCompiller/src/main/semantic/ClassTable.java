@@ -50,7 +50,7 @@ public class ClassTable {
     }
 
     //------------------------------------------Field Table------------------------------------------
-    private FieldTable fieldTable;
+    private FieldTable fieldTable = new FieldTable();
 
     public void addToFieldTable(ConstStatementNode constStmt){
         fieldTable.add(constStmt);
@@ -67,7 +67,7 @@ public class ClassTable {
     public boolean containsField(String name) { return fieldTable.items.containsKey(name); }
 
     //------------------------------------------MethodTable------------------------------------------
-    private MethodTable methodTable;
+    private MethodTable methodTable = new MethodTable();
 
     public void addToMethodTable(FunctionNode funcNode){
         methodTable.add(funcNode);

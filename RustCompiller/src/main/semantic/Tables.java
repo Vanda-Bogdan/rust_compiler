@@ -139,8 +139,10 @@ public class Tables {
                 }
 
                 AtomicInteger traitPrototypes = new AtomicInteger();
-                int implRealizations = (int) impl.associatedItemList.list.stream().filter(item -> item.fun != null).count();
-
+                int implRealizations = 0;
+                if(impl.associatedItemList==null){
+                    implRealizations = (int) impl.associatedItemList.list.stream().filter(item -> item.fun != null).count();
+                }
 
                 trait.methods().items.forEach((funcName, value) -> {
                     //заполнение методов в таблицу констант структуры
@@ -192,11 +194,12 @@ public class Tables {
                     throw new IllegalArgumentException("Impl " + impl.name + " for " + impl.implType + " реализует лишние методы");
                 }
 
-
                 //----------------------Константы--------------------------
                 AtomicInteger traitVarPrototypes = new AtomicInteger();
-                int implVarRealizations = (int) impl.associatedItemList.list.stream().filter(item -> item.constStmt != null).count();
-
+                int implVarRealizations = 0;
+                if(impl.associatedItemList!=null){
+                    implVarRealizations = (int) impl.associatedItemList.list.stream().filter(item -> item.constStmt != null).count();
+                }
 
                 trait.fields().items.forEach((fieldName, value) -> {
                     //Если константа не инициализирована, то найти в impl

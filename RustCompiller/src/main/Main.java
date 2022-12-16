@@ -10,11 +10,12 @@ public class Main{
 
     public static void main (String args[]) throws IOException {
 
-        //Tree tree = TreeFromXml.buildTree();
-        //Tables tables = new Tables();
-        //tables.createTables(tree);
+        Tree tree = TreeFromXml.buildTree();
+        tree.print();
+        Tables tables = new Tables();
+        tables.createTables(tree);
 
-        //tree.print();
+
 
     }
 

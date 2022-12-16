@@ -295,7 +295,7 @@ public class TreeFromXml {
         implNode.id = Integer.parseInt(((Element)impl_).getAttribute("ID"));
         implNode.implType = ImplType.valueOf(((Element)impl_).getAttribute("type"));
         String name = ((Element)impl_).getAttribute("ident");
-        if(name!=null){
+        if(!name.equals("")){
             implNode.name = name;
         }
         implNode.typeNode = typeBuild(((Element)impl_).getElementsByTagName("type_node").item(0));

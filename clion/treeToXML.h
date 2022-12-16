@@ -627,7 +627,7 @@ void impl_xml(struct impl_node *impl_node){
     }
 
     if(impl_node->name!=NULL){
-        fprintf(xml, "<impl_node type=\"%s\" name=\"%s\" ID=\"%d\">", impl_type, impl_node->name, impl_node->ID);
+        fprintf(xml, "<impl_node type=\"%s\" ident=\"%s\" ID=\"%d\">", impl_type, impl_node->name, impl_node->ID);
     }else{
         fprintf(xml, "<impl_node type=\"%s\" ID=\"%d\">", impl_type, impl_node->ID);
     }
