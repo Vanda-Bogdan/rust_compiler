@@ -31,7 +31,11 @@ public class VariableTable {
         items.set(getVarNumber(name), new VariableTableItem(name, isMut, type));
     }
 
-    private record VariableTableItem(String name, Mutable isMut, String type) {
+    public void merge(VariableTable other){
+        other.items.forEach((item)-> add(item.name(), item.isMut(), item.type()));
+    }
+
+    public record VariableTableItem(String name, Mutable isMut, String type) {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;

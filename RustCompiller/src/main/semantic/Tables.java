@@ -91,6 +91,10 @@ public class Tables {
             case CONST_STMT -> {
                 constStmtClasses(declStmt.constStmtItem);
             }
+
+            case FUNCTION -> {
+                functionClasses(declStmt.functionItem);
+            }
         }
     }
 
@@ -266,6 +270,24 @@ public class Tables {
 
         // Добавить поле в таблицу полей класса
         main.addToFieldTable(node);
+    }
+
+    private void functionClasses(FunctionNode function){
+        // Проверка, что нет функции с таким же именем
+        ClassTable main = tables.get("Main");
+        if (main.containsMethod(function.name)) {
+            throw new IllegalArgumentException("Метод с именем " + function.name + " уже существует в классе Main");
+        }
+
+        //Добавить метод в таблицу констант данной структуры
+        int name = main.constantAdd(Constant.UTF8, function.name);
+        int type = main.constantAdd(Constant.UTF8, function.returnType.getNameForTable());
+        int N_T = main.constantAdd(Constant.NAME_AND_TYPE, name, type);
+        int class_ = main.getConstNumber(Constant.CLASS, main.name);
+        main.constantAdd(Constant.METHOD_REF, class_, N_T);
+
+        //Добавить метод в таблицу методов данной структуры
+        main.addToMethodTable(function);
     }
 
     private void enumClasses(EnumNode node) {

@@ -48,6 +48,9 @@ public class ExpressionNode {
             case ID -> {
                 return Objects.equals(name, that.name);
             }
+            default -> {
+                return false;
+            }
         }
     }
 
