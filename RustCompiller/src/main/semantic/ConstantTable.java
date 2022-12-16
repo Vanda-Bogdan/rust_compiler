@@ -42,7 +42,7 @@ public class ConstantTable {
         return items.indexOf(new ConstantTableItem(constant, utf8));
     }
 
-    private record ConstantTableItem(Constant type, String utf8, int firstVal, int secondVal) {
+    public record ConstantTableItem(Constant type, String utf8, int firstVal, int secondVal) {
 
         ConstantTableItem(Constant type, String utf8){
             this(type, utf8, -1, -1);

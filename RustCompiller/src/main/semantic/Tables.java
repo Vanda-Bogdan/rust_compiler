@@ -13,6 +13,7 @@ import main.nodes.struct.StructNode;
 import main.nodes.trait.AssociatedItemNode;
 import main.treeprint.Tree;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -286,6 +287,18 @@ public class Tables {
 
                     // Добавить поле в таблицу полей класса
                     currentTable.addToFieldTable(item, node.name);
+                }
+        );
+    }
+
+    public void outputTablesToFiles() {
+        tables.values().forEach(
+                (item) -> {
+                    try {
+                        item.outputToFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
         );
     }

@@ -5,6 +5,11 @@ import main.nodes.enumm.EnumItemNode;
 import main.nodes.function.FunctionNode;
 import main.nodes.struct.StructItemNode;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class ClassTable {
 
     String name;
@@ -70,5 +75,22 @@ public class ClassTable {
 
     public boolean containsMethod(String name){
         return methodTable.items.containsKey(name);
+    }
+
+    public void outputToFile() throws IOException {
+        PrintWriter writer = new PrintWriter(new File(name + ".csv"));
+        writer.write("№ константы,Тип константы,Значение константы\n");
+        AtomicInteger i = new AtomicInteger();
+        constantTable.items.forEach(
+                (item) -> {
+                    if (!item.utf8().isEmpty()) {
+                        writer.write(i.getAndIncrement() + "," + item.type() + "," + item.utf8() + "\n");
+                    }
+                    else {
+                        writer.write(i.getAndIncrement() + "," + item.type() + "," + item.firstVal() + " " + item.secondVal() + "\n");
+                    }
+                }
+        );
+        writer.close();
     }
 }
