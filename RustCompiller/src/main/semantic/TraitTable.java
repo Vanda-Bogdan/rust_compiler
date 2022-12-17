@@ -26,10 +26,10 @@ public class TraitTable {
                     }
                 }
         );
-        items.put(traitNode.name, new TraitItem(methods, fields));
+        items.put(traitNode.name, new TraitItem(methods, fields, traitNode));
     }
 
-    public record TraitItem(MethodTable methods, FieldTable fields) {
+    public record TraitItem(MethodTable methods, FieldTable fields, TraitNode trait) {
     }
 
 }

@@ -17,6 +17,9 @@ public class ImplNode {
 
     public FunctionNode hasBody(String name){
 
+        if(associatedItemList==null){
+            return null;
+        }
         for (AssociatedItemNode item : associatedItemList.list){
             if(item.fun!=null && Objects.equals(item.fun.name, name) && item.fun.body!=null){
                 return item.fun;
@@ -26,6 +29,9 @@ public class ImplNode {
     }
 
     public FunctionNode getFunction(String name){
+        if(associatedItemList==null){
+            return null;
+        }
         for (AssociatedItemNode item : associatedItemList.list){
             if(item.fun!=null && Objects.equals(item.fun.name, name)){
                 return item.fun;
@@ -36,6 +42,9 @@ public class ImplNode {
 
     public ConstStatementNode hasInitialization(String name, String type){
 
+        if(associatedItemList==null){
+            return null;
+        }
         for (AssociatedItemNode item : associatedItemList.list){
             if(item.constStmt!=null && Objects.equals(item.constStmt.name, name) && Objects.equals(item.constStmt.type.getName(), type) && item.constStmt.expr!=null){
                 return item.constStmt;
@@ -45,6 +54,9 @@ public class ImplNode {
     }
 
     public ConstStatementNode getConstVariable(String name){
+        if(associatedItemList==null){
+            return null;
+        }
         for (AssociatedItemNode item : associatedItemList.list){
             if(item.constStmt!=null && Objects.equals(item.constStmt.name, name)){
                 return item.constStmt;

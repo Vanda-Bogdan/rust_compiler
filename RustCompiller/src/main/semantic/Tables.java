@@ -140,8 +140,8 @@ public class Tables {
 
                 AtomicInteger traitPrototypes = new AtomicInteger();
                 int implRealizations = 0;
-                if(impl.associatedItemList==null){
-                    implRealizations = (int) impl.associatedItemList.list.stream().filter(item -> item.fun != null).count();
+                if(impl.associatedItemList!=null){
+                    implRealizations = (int) impl.associatedItemList.list.stream().filter(item -> item.fun.body != null).count();
                 }
 
                 trait.methods().items.forEach((funcName, value) -> {
@@ -166,7 +166,7 @@ public class Tables {
                             struct.constantAdd(Constant.METHOD_REF, class_, N_T);
 
                             //Добавить метод в таблицу методов данной структуры
-                            struct.addToMethodTable(func);
+                            struct.addToMethodTable(trait.trait().getFunction(func.name));
                         } else {
                             throw new IllegalArgumentException("Отсутствует реализация в impl " + impl.name + " for " + impl.implType + "для функции " + funcName);
                         }
@@ -175,23 +175,23 @@ public class Tables {
                     else {
                         FunctionNode func = impl.hasBody(funcName);
                         if(func==null){
-                            func = impl.getFunction(funcName);
+                            //func = impl.getFunction(funcName);
                             //Добавить метод в таблицу констант данной структуры
-                            int name = struct.constantAdd(Constant.UTF8, func.name);
-                            int type = struct.constantAdd(Constant.UTF8, func.returnType.getNameForTable());
+                            int name = struct.constantAdd(Constant.UTF8, funcName);
+                            int type = struct.constantAdd(Constant.UTF8, value.returnType());
                             int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
                             int class_ = struct.getConstNumber(Constant.CLASS, struct.name);
                             struct.constantAdd(Constant.METHOD_REF, class_, N_T);
 
                             //Добавить метод в таблицу методов данной структуры
-                            struct.addToMethodTable(func);
+                            struct.addToMethodTable(trait.trait().getFunction(funcName));
                         }else {
                             throw new IllegalArgumentException("Метод " + funcName + " реализованный в trait переопределяется в impl");
                         }
                     }
                 });
                 if(traitPrototypes.get()!=implRealizations){
-                    throw new IllegalArgumentException("Impl " + impl.name + " for " + impl.implType + " реализует лишние методы");
+                    throw new IllegalArgumentException("Impl " + impl.name + " for " + impl.typeNode.getName() + " реализует лишние методы");
                 }
 
                 //----------------------Константы--------------------------

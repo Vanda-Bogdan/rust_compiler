@@ -14,7 +14,8 @@ public class Main{
         tree.print();
         Tables tables = new Tables();
         tables.createTables(tree);
-
+        tables.outputTablesToFiles();
+        int a =  5;
 
 
     }
