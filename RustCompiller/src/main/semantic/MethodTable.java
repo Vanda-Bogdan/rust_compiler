@@ -43,7 +43,7 @@ public class MethodTable {
 
         variableTables.forEach(variableTable::merge);
         //-----------------Добавление метода в таблицу
-        items.put(funcNode.name, new MethodTableItem(funcNode.returnType.getName(), variableTable, funcNode.body!=null, funcNode.paramList.type));
+        items.put(funcNode.name, new MethodTableItem(funcNode.returnType.getNameForTable(), variableTable, funcNode.body!=null, funcNode.paramList.type));
     }
 
     private void bodyVariables(ExpressionNode body, VariableTable variableTable, ArrayList<VariableTable> initialTables){

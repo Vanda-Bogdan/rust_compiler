@@ -7,6 +7,7 @@ import main.nodes.enumm.EnumListNode;
 import main.nodes.enumm.EnumNode;
 import main.nodes.expression.ExpressionListNode;
 import main.nodes.expression.ExpressionNode;
+import main.nodes.expression.ExpressionType;
 import main.nodes.function.FunctionNode;
 import main.nodes.function.FunctionParamListNode;
 import main.nodes.function.FunctionParamNode;
@@ -14,6 +15,7 @@ import main.nodes.impl.ImplNode;
 import main.nodes.letstmt.LetStatementNode;
 import main.nodes.stmt.StatementListNode;
 import main.nodes.stmt.StatementNode;
+import main.nodes.stmt.StatementType;
 import main.nodes.struct.StructItemNode;
 import main.nodes.struct.StructListNode;
 import main.nodes.struct.StructNode;
@@ -35,6 +37,7 @@ public class Tree {
         this.prg = prg;
     }
 
+    //---------------------------------Вывод дерева в дот-------------------------------
     public void print() throws IOException {
         writer = new FileWriter(fileName, false);
 
@@ -602,4 +605,78 @@ public class Tree {
         }
     }
 
+    //------------------------------Преобразование дерева-----------------------------------//
+    public void transform(){
+        this.prg.stmtList.list.forEach(this::stmtTransform);
+    }
+
+    public void exprTransform(ExpressionNode expr){
+        //Преобразование присваивания
+        if(expr.type== ExpressionType.INDEX){
+
+        }
+        else if(expr.type == ExpressionType.FIELD_ACCESS){
+
+        }
+    }
+
+    public void stmtTransform(StatementNode stmt){
+        switch (stmt.type) {
+            case EXPRESSION -> {
+                exprTransform(stmt.expr);
+            }
+            case DECLARATION -> {
+                declarationTransform(stmt.declarationStmt);
+            }
+            case LET -> {
+                exprTransform(stmt.letStmt.expr);
+            }
+        }
+    }
+
+    public void declarationTransform(DeclarationStatementNode decl){
+        switch (decl.type){
+            case FUNCTION -> functionTransform(decl.functionItem);
+            case CONST_STMT -> constStmtTransform(decl.constStmtItem);
+            case TRAIT -> traitTransform(decl.traitItem);
+            case IMPL -> implTransform(decl.implItem);
+        }
+    }
+
+    public void exprListTransform(ExpressionListNode exprList){
+        exprList.list.forEach(this::exprTransform);
+    }
+
+    public void constStmtTransform(ConstStatementNode constStmt){
+        if(constStmt.expr!=null){
+            exprTransform(constStmt.expr);
+        }
+    }
+
+    public void functionTransform(FunctionNode func){
+        if(func.body!=null){
+            exprTransform(func.body);
+        }
+    }
+
+    public void traitTransform(TraitNode trait){
+        if(trait.associatedItemList.list.size()>0){
+            trait.associatedItemList.list.forEach(this::associatedItemTransform);
+        }
+    }
+
+    public void implTransform(ImplNode impl){
+        if(impl.associatedItemList.list.size()>0){
+            impl.associatedItemList.list.forEach(this::associatedItemTransform);
+        }
+    }
+
+    public void associatedItemTransform(AssociatedItemNode item){
+        if(item.fun!=null){
+            functionTransform(item.fun);
+        }
+        if(item.constStmt!=null){
+            constStmtTransform(item.constStmt);
+        }
+    }
 }

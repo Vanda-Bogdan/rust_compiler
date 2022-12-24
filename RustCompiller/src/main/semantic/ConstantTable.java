@@ -1,6 +1,7 @@
 package main.semantic;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ConstantTable {
 
@@ -38,8 +39,26 @@ public class ConstantTable {
         return items.contains(new ConstantTableItem(constant, num1, num2));
     }
 
-    public int getConstNumber(Constant constant, String utf8) {
+    /*public int getConstNumber(Constant constant, String utf8) {
         return items.indexOf(new ConstantTableItem(constant, utf8));
+    }*/
+
+    public int getConstNumber(Constant constant){
+        for (ConstantTableItem item: items) {
+            if(item.type==constant){
+                return items.indexOf(item);
+            }
+        }
+        return -1;
+    }
+
+    public int getConstNumber(Constant constant, String utf8){
+        for (ConstantTableItem item: items) {
+            if(item.type==constant && Objects.equals(item.utf8, utf8)){
+                return items.indexOf(item);
+            }
+        }
+        return -1;
     }
 
     public record ConstantTableItem(Constant type, String utf8, int firstVal, int secondVal) {

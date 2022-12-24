@@ -162,7 +162,7 @@ public class Tables {
                             int name = struct.constantAdd(Constant.UTF8, func.name);
                             int type = struct.constantAdd(Constant.UTF8, func.returnType.getNameForTable());
                             int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
-                            int class_ = struct.getConstNumber(Constant.CLASS, struct.name);
+                            int class_ = struct.getConstNumber(Constant.CLASS);
                             struct.constantAdd(Constant.METHOD_REF, class_, N_T);
 
                             //Добавить метод в таблицу методов данной структуры
@@ -180,7 +180,7 @@ public class Tables {
                             int name = struct.constantAdd(Constant.UTF8, funcName);
                             int type = struct.constantAdd(Constant.UTF8, value.returnType());
                             int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
-                            int class_ = struct.getConstNumber(Constant.CLASS, struct.name);
+                            int class_ = struct.getConstNumber(Constant.CLASS);
                             struct.constantAdd(Constant.METHOD_REF, class_, N_T);
 
                             //Добавить метод в таблицу методов данной структуры
@@ -203,18 +203,43 @@ public class Tables {
 
                 trait.fields().items.forEach((fieldName, value) -> {
                     //Если константа не инициализирована, то найти в impl
+                    ConstStatementNode const_;
                     if(value.expr()==null){
                         traitVarPrototypes.getAndIncrement();
-                        ConstStatementNode const_ = impl.hasInitialization(fieldName, value.type());
+                        const_ = impl.hasInitialization(fieldName, value.type());
                         if(const_!=null){
-                            //Перезаписать константу
-                            FieldTable.FieldTableItem field = trait.fields().items.get(const_.name);
-                            trait.fields().items.put(const_.name, new FieldTable.FieldTableItem(field.type(), field.isConst(), const_.expr));
+                            //Добавить const в таблицу констант данной структуры
+                            int name = struct.constantAdd(Constant.UTF8, fieldName);
+                            int type = struct.constantAdd(Constant.UTF8, value.type());
+                            int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
+                            int class_ = struct.getConstNumber(Constant.CLASS);
+                            struct.constantAdd(Constant.METHOD_REF, class_, N_T);
 
+                            //добавить const в таблицу полей структуры
+                            struct.addToFieldTable(fieldName, value);
                         }else {
                             throw new IllegalArgumentException("Отсутствует реализация в impl " + impl.name + " for " + impl.implType + "для поля " + fieldName);
                         }
                     }
+                    //Если константа инициализирована,
+                    else {
+                        const_ = impl.getConstVariable(fieldName);
+                        if(const_!=null){
+                            //добавить const в таблицу полей структуры
+                            struct.addToFieldTable(const_);
+                        }else {
+                            //добавить const в таблицу полей структуры
+                            struct.addToFieldTable(fieldName, value);
+                        }
+
+                        //Добавить const в таблицу констант данной структуры
+                        int name = struct.constantAdd(Constant.UTF8, fieldName);
+                        int type = struct.constantAdd(Constant.UTF8, value.type());
+                        int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
+                        int class_ = struct.getConstNumber(Constant.CLASS);
+                        struct.constantAdd(Constant.METHOD_REF, class_, N_T);
+                    }
+
                 });
 
                 if(traitVarPrototypes.get()!=implVarRealizations){
@@ -232,7 +257,7 @@ public class Tables {
                         int name = struct.constantAdd(Constant.UTF8, item.fun.name);
                         int type = struct.constantAdd(Constant.UTF8, item.fun.returnType.getNameForTable());
                         int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
-                        int class_ = struct.getConstNumber(Constant.CLASS, struct.name);
+                        int class_ = struct.getConstNumber(Constant.CLASS);
                         struct.constantAdd(Constant.METHOD_REF, class_, N_T);
 
                         //Добавить метод в таблицу методов данной структуры
@@ -247,7 +272,7 @@ public class Tables {
                         int name = struct.constantAdd(Constant.UTF8, item.constStmt.name);
                         int type = struct.constantAdd(Constant.UTF8, item.constStmt.type.getNameForTable());
                         int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
-                        int class_ = struct.getConstNumber(Constant.CLASS, struct.name);
+                        int class_ = struct.getConstNumber(Constant.CLASS);
                         struct.constantAdd(Constant.FIELD_REF, class_, N_T);
 
                         //Добавить метод в таблицу методов данной структуры
@@ -269,7 +294,7 @@ public class Tables {
         int name = main.constantAdd(Constant.UTF8, node.name);
         int type = main.constantAdd(Constant.UTF8, node.type.getNameForTable());
         int nameAndType = main.constantAdd(Constant.NAME_AND_TYPE, name, type);
-        int class_ = main.getConstNumber(Constant.CLASS, main.name);
+        int class_ = main.getConstNumber(Constant.CLASS);
         main.constantAdd(Constant.FIELD_REF, class_, nameAndType);
 
         // Добавить поле в таблицу полей класса
@@ -287,7 +312,7 @@ public class Tables {
         int name = main.constantAdd(Constant.UTF8, function.name);
         int type = main.constantAdd(Constant.UTF8, function.returnType.getNameForTable());
         int N_T = main.constantAdd(Constant.NAME_AND_TYPE, name, type);
-        int class_ = main.getConstNumber(Constant.CLASS, main.name);
+        int class_ = main.getConstNumber(Constant.CLASS);
         main.constantAdd(Constant.METHOD_REF, class_, N_T);
 
         //Добавить метод в таблицу методов данной структуры

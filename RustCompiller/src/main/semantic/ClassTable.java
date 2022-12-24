@@ -20,8 +20,8 @@ public class ClassTable {
     //------------------------------------------Constant Table-------------------------------------------------------
     private ConstantTable constantTable = new ConstantTable();
 
-    public int getConstNumber(Constant constant, String utf8){
-        return constantTable.getConstNumber(constant, utf8);
+    public int getConstNumber(Constant constant){
+        return constantTable.getConstNumber(constant);
     }
 
     public int constantAdd(Constant constant, int num1){
@@ -62,6 +62,10 @@ public class ClassTable {
 
     public void addToFieldTable(EnumItemNode enumItem, String name){
         fieldTable.add(enumItem, name);
+    }
+
+    public void addToFieldTable(String name, FieldTable.FieldTableItem item) {
+        fieldTable.add(name, item);
     }
 
     public boolean containsField(String name) { return fieldTable.items.containsKey(name); }

@@ -24,6 +24,10 @@ public class FieldTable {
         items.put(enumItem.name, new FieldTableItem(name, false, enumItem.expr));
     }
 
+    public void add(String name, FieldTableItem item){
+        items.put(name, item);
+    }
+
     public record FieldTableItem(String type, boolean isConst, ExpressionNode expr) {
     }
 }
