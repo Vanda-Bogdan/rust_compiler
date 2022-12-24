@@ -96,6 +96,9 @@ public class ClassTable {
                     else if(item.firstVal()!=-1){
                         writer.write(i.getAndIncrement() + "," + item.type() + "," + item.firstVal() + "\n");
                     }
+                    else {
+                        throw new IllegalArgumentException("Некорректное построение таблицы констант для класса " + name);
+                    }
                 }
         );
         writer.close();

@@ -41,7 +41,10 @@ public class Tables {
 
     public void createTables(Tree tree) {
 
-        createTable("Main");
+        ClassTable main = createTable("Main");
+        int className = main.constantAdd(Constant.UTF8, "Main");
+        main.constantAdd(Constant.CLASS, className);
+
         stmtListTrait(tree.prg.stmtList);
         stmtListClasses(tree.prg.stmtList);
     }
