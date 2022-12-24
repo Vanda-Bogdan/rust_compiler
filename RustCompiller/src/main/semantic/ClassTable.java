@@ -83,11 +83,10 @@ public class ClassTable {
         AtomicInteger i = new AtomicInteger();
         constantTable.items.forEach(
                 (item) -> {
-                    if (item.utf8() != null) {
+                    if (!item.utf8().isEmpty()) {
                         writer.write(i.getAndIncrement() + "," + item.type() + "," + item.utf8() + "\n");
                     }
                     else if (item.firstVal()!=-1 && item.secondVal()!=-1){
-
                         writer.write(i.getAndIncrement() + "," + item.type() + "," + item.firstVal() + " " + item.secondVal() + "\n");
                     }
                     else if(item.firstVal()!=-1){

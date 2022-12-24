@@ -62,6 +62,9 @@ public class TypeNode {
             case BOOL -> {
                 return "B";
             }
+            case EMPTY_TYPE -> {
+                return "V";
+            }
             default -> {
                 return null;
             }

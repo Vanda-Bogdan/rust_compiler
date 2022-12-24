@@ -298,7 +298,7 @@ public class Tables {
         // Создание таблицы класса и занесение имени enum
         createTable(node.name);
         int className = currentTable.constantAdd(Constant.UTF8, currentTable.name);
-        currentTable.constantAdd(Constant.CLASS, className);
+        int class_ = currentTable.constantAdd(Constant.CLASS, className);
 
         // Обход элементов enum
         node.enumList.list.forEach(
@@ -307,7 +307,6 @@ public class Tables {
                     int name = currentTable.constantAdd(Constant.UTF8, item.name);
                     int type = currentTable.constantAdd(Constant.UTF8, node.name);
                     int nameAndType = currentTable.constantAdd(Constant.NAME_AND_TYPE, name, type);
-                    int class_ = currentTable.getConstNumber(Constant.CLASS, currentTable.name);
                     currentTable.constantAdd(Constant.FIELD_REF, class_, nameAndType);
 
                     // Добавить поле в таблицу полей класса
