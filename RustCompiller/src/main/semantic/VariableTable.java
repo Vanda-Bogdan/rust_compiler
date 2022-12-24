@@ -7,22 +7,14 @@ import java.util.Objects;
 
 public class VariableTable {
 
-    private final String UNDEFINED = "undefined";
-
     public ArrayList<VariableTableItem> items = new ArrayList<>();
 
     public void add(String name, Mutable isMut, String type) {
-        if(contains(name)){
-            return;
-        }
         items.add(new VariableTableItem(name, isMut, type));
     }
 
     public void add(String name, Mutable isMut) {
-        if(contains(name)){
-            return;
-        }
-        items.add(new VariableTableItem(name, isMut, UNDEFINED));
+        items.add(new VariableTableItem(name, isMut, "undefined"));
     }
 
     public boolean contains(String name) {

@@ -77,6 +77,10 @@ public class ClassTable {
         methodTable.add(funcNode);
     }
 
+    public void addToMethodTable(String name, MethodTable.MethodTableItem item){
+        methodTable.add(name, item);
+    }
+
     public boolean containsMethod(String name){
         return methodTable.items.containsKey(name);
     }

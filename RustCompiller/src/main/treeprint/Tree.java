@@ -613,10 +613,10 @@ public class Tree {
     public void exprTransform(ExpressionNode expr){
         //Преобразование присваивания
         if(expr.type== ExpressionType.INDEX){
-
+            //todo преобразование дерева
         }
         else if(expr.type == ExpressionType.FIELD_ACCESS){
-
+            //todo преобразование дерева
         }
     }
 

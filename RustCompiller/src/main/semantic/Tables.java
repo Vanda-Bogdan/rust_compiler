@@ -187,7 +187,7 @@ public class Tables {
                             struct.constantAdd(Constant.METHOD_REF, class_, N_T);
 
                             //Добавить метод в таблицу методов данной структуры
-                            struct.addToMethodTable(trait.trait().getFunction(funcName));
+                            struct.addToMethodTable(funcName, trait.methods().getMethod(funcName));
                         }else {
                             throw new IllegalArgumentException("Метод " + funcName + " реализованный в trait переопределяется в impl");
                         }

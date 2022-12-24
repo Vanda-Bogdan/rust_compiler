@@ -22,9 +22,19 @@ public class MethodTable {
 
     private ArrayList<VariableTable> variableTables = new ArrayList<>();
 
+    public MethodTableItem getMethod(String name){
+        return items.get(name);
+    }
+
+    public void add(String name, MethodTableItem item){
+        items.put(name, item);
+    }
+
     public void add(FunctionNode funcNode) {
 
+        variableTables.clear();
         VariableTable variableTable = new VariableTable();
+        VariableTable variableTableFinal = new VariableTable();
         currentMethod = funcNode.name;
         //--------Заполнение таблицы локальных переменных
         //self
@@ -38,12 +48,12 @@ public class MethodTable {
         //переменные в теле
         variableTables.add(variableTable);
         if(funcNode.body!=null){
-            bodyVariables(funcNode.body, variableTable, new ArrayList<VariableTable>());
+            bodyVariables(funcNode.body, variableTable, new ArrayList<>());
         }
 
-        variableTables.forEach(variableTable::merge);
+        variableTables.forEach(variableTableFinal::merge);
         //-----------------Добавление метода в таблицу
-        items.put(funcNode.name, new MethodTableItem(funcNode.returnType.getNameForTable(), variableTable, funcNode.body!=null, funcNode.paramList.type));
+        items.put(funcNode.name, new MethodTableItem(funcNode.returnType.getNameForTable(), variableTableFinal, funcNode.body!=null, funcNode.paramList.type));
     }
 
     private void bodyVariables(ExpressionNode body, VariableTable variableTable, ArrayList<VariableTable> initialTables){
@@ -51,7 +61,9 @@ public class MethodTable {
         VariableTable bodyTable = new VariableTable();
         body.stmtList.list.forEach((n)->stmtVariables(n, bodyTable, initialTables));
         initialTables.remove(initialTables.size()-1);
-        variableTables.add(bodyTable);
+        if(bodyTable.items.size()>0){
+            variableTables.add(bodyTable);
+        }
     }
 
     private void stmtVariables(StatementNode stmt, VariableTable variableTable, ArrayList<VariableTable> initialTables){
@@ -140,6 +152,6 @@ public class MethodTable {
         variableTable.add(let.name, let.mut, let.type.getName());
     }
 
-    public record MethodTableItem(String returnType, VariableTable variableTable, boolean hasBody, FunctionType functionType) {//todo мб поменять string на TypeNode
+    public record MethodTableItem(String returnType, VariableTable variableTable, boolean hasBody, FunctionType functionType) {
     }
 }
