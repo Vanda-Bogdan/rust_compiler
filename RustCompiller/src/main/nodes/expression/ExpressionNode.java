@@ -1,6 +1,9 @@
 package main.nodes.expression;
 
+import main.nodes.VarType;
 import main.nodes.stmt.StatementListNode;
+import main.semantic.FieldTable;
+import main.semantic.VariableTable;
 
 import java.util.Objects;
 
@@ -20,6 +23,37 @@ public class ExpressionNode {
     public ExpressionNode body;
     public ExpressionNode elseBody;
     public StatementListNode stmtList;
+
+
+    //номер в таблице лок. переменных
+    private int localVarNumber;
+
+    //имя в таблице полей
+    private String fieldName;
+
+
+    //------Ссылка на элемент таблицы (полей или лок. переменных)------
+    // *Если это локальная переменная
+    private VariableTable variableTable;
+
+    public VariableTable.VariableTableItem localTableItem(){
+        return variableTable.get(this.localVarNumber);
+    }
+
+    public void set(VariableTable variableTable){
+        this.variableTable = variableTable;
+    }
+
+    // *Если это поле
+    private FieldTable fieldTable;
+
+    public FieldTable.FieldTableItem fieldTableItem(){
+        return fieldTable.get(fieldName);
+    }
+
+    public void set(FieldTable fieldTable){
+        this.fieldTable = fieldTable;
+    }
 
     @Override
     public boolean equals(Object o) {

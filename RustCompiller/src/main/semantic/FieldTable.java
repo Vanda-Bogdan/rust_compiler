@@ -6,11 +6,24 @@ import main.nodes.enumm.EnumItemNode;
 import main.nodes.expression.ExpressionNode;
 import main.nodes.struct.StructItemNode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class FieldTable {
 
-    HashMap<String, FieldTableItem> items = new HashMap<>();
+    public HashMap<String, FieldTableItem> items = new HashMap<>();
+
+    public FieldTableItem get(String name){
+        return items.get(name);
+    }
+
+    public ArrayList<String> fields(){
+        return new ArrayList<>(items.keySet());
+    }
+
+    public boolean contains(String name){
+        return items.containsKey(name);
+    }
 
     public void add(ConstStatementNode constStmt){
         items.put(constStmt.name, new FieldTableItem(constStmt.type.getName(), true, constStmt.expr));

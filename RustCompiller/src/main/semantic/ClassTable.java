@@ -8,6 +8,7 @@ import main.nodes.struct.StructItemNode;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClassTable {
@@ -52,6 +53,10 @@ public class ClassTable {
     //------------------------------------------Field Table------------------------------------------
     private FieldTable fieldTable = new FieldTable();
 
+    public ArrayList<String> fields(){
+        return fieldTable.fields();
+    }
+
     public void addToFieldTable(ConstStatementNode constStmt){
         fieldTable.add(constStmt);
     }
@@ -68,13 +73,17 @@ public class ClassTable {
         fieldTable.add(name, item);
     }
 
-    public boolean containsField(String name) { return fieldTable.items.containsKey(name); }
+    public boolean containsField(String name) { return fieldTable.contains(name); }
 
     //------------------------------------------MethodTable------------------------------------------
     private MethodTable methodTable = new MethodTable();
 
     public void addToMethodTable(FunctionNode funcNode){
         methodTable.add(funcNode);
+    }
+
+    public void addToMethodTable(FunctionNode funcNode, ArrayList<String> fields){
+        methodTable.add(funcNode, fields);
     }
 
     public void addToMethodTable(String name, MethodTable.MethodTableItem item){

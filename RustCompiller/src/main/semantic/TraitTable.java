@@ -3,6 +3,7 @@ package main.semantic;
 import main.nodes.function.FunctionNode;
 import main.nodes.trait.TraitNode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TraitTable {
@@ -14,7 +15,7 @@ public class TraitTable {
     }
 
     public void add(TraitNode traitNode) {
-        MethodTable methods = new MethodTable();
+        ArrayList<FunctionNode> methods = new ArrayList<>();
         FieldTable fields = new FieldTable();
         traitNode.associatedItemList.list.forEach(
                 (item) -> {
@@ -29,7 +30,7 @@ public class TraitTable {
         items.put(traitNode.name, new TraitItem(methods, fields, traitNode));
     }
 
-    public record TraitItem(MethodTable methods, FieldTable fields, TraitNode trait) {
+    public record TraitItem(ArrayList<FunctionNode> methods, FieldTable fields, TraitNode trait) {
     }
 
 }

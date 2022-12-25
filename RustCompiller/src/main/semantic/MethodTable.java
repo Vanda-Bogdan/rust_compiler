@@ -30,7 +30,32 @@ public class MethodTable {
         items.put(name, item);
     }
 
-    public void add(FunctionNode funcNode) {
+    public void add(FunctionNode funcNode){
+        variableTables.clear();
+        VariableTable variableTable = new VariableTable();
+        VariableTable variableTableFinal = new VariableTable();
+        currentMethod = funcNode.name;
+        //--------Заполнение таблицы локальных переменных
+        //self
+        if(funcNode.paramList.type != FunctionType.ASSOCIATED){
+            variableTable.add("self", Mutable.NOT_MUT);
+        }
+
+        //параметры
+        funcNode.paramList.list.forEach((item)-> variableTable.add(item.name, item.mut, item.type.getName()));
+
+        //переменные в теле
+        variableTables.add(variableTable);
+        if(funcNode.body!=null){
+            bodyVariables(funcNode.body, variableTable, new ArrayList<>());
+        }
+
+        variableTables.forEach(variableTableFinal::merge);
+        //-----------------Добавление метода в таблицу
+        items.put(funcNode.name, new MethodTableItem(funcNode.returnType.getNameForTable(), variableTableFinal, funcNode.body!=null, funcNode.paramList.type));
+    }
+
+    public void add(FunctionNode funcNode, ArrayList<String> fields) {
 
         variableTables.clear();
         VariableTable variableTable = new VariableTable();
@@ -61,7 +86,17 @@ public class MethodTable {
         VariableTable bodyTable = new VariableTable();
         body.stmtList.list.forEach((n)->stmtVariables(n, bodyTable, initialTables));
         initialTables.remove(initialTables.size()-1);
-        if(bodyTable.items.size()>0){
+        if(bodyTable.size()>0){
+            variableTables.add(bodyTable);
+        }
+    }
+
+    private void bodyVariables(ExpressionNode body, VariableTable variableTable, ArrayList<VariableTable> initialTables, ArrayList<String> fields){
+        initialTables.add(variableTable);
+        VariableTable bodyTable = new VariableTable();
+        body.stmtList.list.forEach((n)->stmtVariables(n, bodyTable, initialTables));
+        initialTables.remove(initialTables.size()-1);
+        if(bodyTable.size()>0){
             variableTables.add(bodyTable);
         }
     }
@@ -147,7 +182,7 @@ public class MethodTable {
 
         if(variableTable.contains(let.name)){
             //throw new IllegalArgumentException("Переопределение переменной " + let.name + " для функции " + currentMethod);
-            variableTable.overwrite(let.name, let.mut, let.type.getName());
+            //variableTable.overwrite(let.name, let.mut, let.type.getName());
         }
         variableTable.add(let.name, let.mut, let.type.getName());
     }

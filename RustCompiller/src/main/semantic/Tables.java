@@ -135,66 +135,9 @@ public class Tables {
 
         switch (impl.implType){
             case TRAIT -> {
-                //----------------------Методы--------------------------
                 TraitTable.TraitItem trait = traitTable.traitByName(impl.name);
                 if(trait==null){
                     throw new IllegalArgumentException("Не существует trait " + impl.name);
-                }
-
-                AtomicInteger traitPrototypes = new AtomicInteger();
-                int implRealizations = 0;
-                if(impl.associatedItemList!=null){
-                    implRealizations = (int) impl.associatedItemList.list.stream().filter(item -> item.fun.body != null).count();
-                }
-
-                trait.methods().items.forEach((funcName, value) -> {
-                    //заполнение методов в таблицу констант структуры
-
-                    //Проверить что метода еще нет в структуре
-                    if (struct.containsMethod(funcName)) {
-                        throw new IllegalArgumentException("Метод " + funcName + " уже реализован для структуры " + struct.name);
-                    }
-
-                    //если нет реализации, найти ее в impl
-                    if (!value.hasBody()) {
-                        FunctionNode func = impl.hasBody(funcName);
-                        if (func != null) {
-                            traitPrototypes.getAndIncrement();
-
-                            //Добавить метод в таблицу констант данной структуры
-                            int name = struct.constantAdd(Constant.UTF8, func.name);
-                            int type = struct.constantAdd(Constant.UTF8, func.returnType.getNameForTable());
-                            int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
-                            int class_ = struct.getConstNumber(Constant.CLASS);
-                            struct.constantAdd(Constant.METHOD_REF, class_, N_T);
-
-                            //Добавить метод в таблицу методов данной структуры
-                            struct.addToMethodTable(trait.trait().getFunction(func.name));
-                        } else {
-                            throw new IllegalArgumentException("Отсутствует реализация в impl " + impl.name + " for " + impl.implType + "для функции " + funcName);
-                        }
-                    }
-                    //если есть реализация, проверить что ее нет в impl и классе
-                    else {
-                        FunctionNode func = impl.hasBody(funcName);
-                        if(func==null){
-                            //func = impl.getFunction(funcName);
-                            //Добавить метод в таблицу констант данной структуры
-                            int name = struct.constantAdd(Constant.UTF8, funcName);
-                            int type = struct.constantAdd(Constant.UTF8, value.returnType());
-                            int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
-                            int class_ = struct.getConstNumber(Constant.CLASS);
-                            struct.constantAdd(Constant.METHOD_REF, class_, N_T);
-
-                            //Добавить метод в таблицу методов данной структуры
-                            struct.addToMethodTable(funcName, trait.methods().getMethod(funcName));
-                        }else {
-                            throw new IllegalArgumentException("Метод " + funcName + " реализованный в trait переопределяется в impl");
-                        }
-                    }
-                });
-                if(traitPrototypes.get()!=implRealizations){
-                    throw new IllegalArgumentException("Impl " + impl.name + " for " + impl.typeNode.getName() + " реализует лишние методы");
                 }
 
                 //----------------------Константы--------------------------
@@ -248,24 +191,66 @@ public class Tables {
                 if(traitVarPrototypes.get()!=implVarRealizations){
                     throw new IllegalArgumentException("Impl " + impl.name + " for " + impl.implType + " реализует лишние константы");
                 }
+
+                //----------------------Методы--------------------------
+                AtomicInteger traitPrototypes = new AtomicInteger();
+                int implRealizations = 0;
+                if(impl.associatedItemList!=null){
+                    implRealizations = (int) impl.associatedItemList.list.stream().filter(item -> item.fun.body != null).count();
+                }
+
+                trait.methods().forEach((funcNode) -> {
+                    //заполнение методов в таблицу констант структуры
+
+                    //Проверить что метода еще нет в структуре
+                    if (struct.containsMethod(funcNode.name)) {
+                        throw new IllegalArgumentException("Метод " + funcNode.name + " уже реализован для структуры " + struct.name);
+                    }
+
+                    //если нет реализации, найти ее в impl
+                    if (funcNode.body==null) {
+                        FunctionNode func = impl.hasBody(funcNode.name);
+                        if (func != null) {
+                            traitPrototypes.getAndIncrement();
+
+                            //Добавить метод в таблицу констант данной структуры
+                            int name = struct.constantAdd(Constant.UTF8, func.name);
+                            int type = struct.constantAdd(Constant.UTF8, func.returnType.getNameForTable());
+                            int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
+                            int class_ = struct.getConstNumber(Constant.CLASS);
+                            struct.constantAdd(Constant.METHOD_REF, class_, N_T);
+
+                            //Добавить метод в таблицу методов данной структуры
+                            struct.addToMethodTable(trait.trait().getFunction(func.name), struct.fields());
+                        } else {
+                            throw new IllegalArgumentException("Отсутствует реализация в impl " + impl.name + " for " + impl.implType + "для функции " + func.name);
+                        }
+                    }
+                    //если есть реализация, проверить что ее нет в impl и классе
+                    else {
+                        FunctionNode func = impl.hasBody(funcNode.name);
+                        if(func==null){
+                            //func = impl.getFunction(funcName);
+                            //Добавить метод в таблицу констант данной структуры
+                            int name = struct.constantAdd(Constant.UTF8, funcNode.name);
+                            int type = struct.constantAdd(Constant.UTF8, funcNode.returnType.getNameForTable());
+                            int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
+                            int class_ = struct.getConstNumber(Constant.CLASS);
+                            struct.constantAdd(Constant.METHOD_REF, class_, N_T);
+
+                            //Добавить метод в таблицу методов данной структуры
+                            struct.addToMethodTable(funcNode);
+                        }else {
+                            throw new IllegalArgumentException("Метод " + funcNode.name + " реализованный в trait переопределяется в impl");
+                        }
+                    }
+                });
+                if(traitPrototypes.get()!=implRealizations){
+                    throw new IllegalArgumentException("Impl " + impl.name + " for " + impl.typeNode.getName() + " реализует лишние методы");
+                }
             }
             case INHERENT -> {
                 for (AssociatedItemNode item : impl.associatedItemList.list) {
-                    //Добавление методов
-                    if (item.fun != null) {
-                        if (struct.containsMethod(item.fun.name)) {
-                            throw new IllegalArgumentException("Метод " + item.fun.name + " уже имеется в " + struct.name);
-                        }
-                        //Добавить метод в таблицу констант данной структуры
-                        int name = struct.constantAdd(Constant.UTF8, item.fun.name);
-                        int type = struct.constantAdd(Constant.UTF8, item.fun.returnType.getNameForTable());
-                        int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
-                        int class_ = struct.getConstNumber(Constant.CLASS);
-                        struct.constantAdd(Constant.METHOD_REF, class_, N_T);
-
-                        //Добавить метод в таблицу методов данной структуры
-                        struct.addToMethodTable(item.fun);
-                    }
                     //Добавление констант
                     if(item.constStmt!=null){
                         if (struct.containsField(item.constStmt.name)) {
@@ -280,6 +265,22 @@ public class Tables {
 
                         //Добавить метод в таблицу методов данной структуры
                         struct.addToFieldTable(item.constStmt);
+                    }
+
+                    //Добавление методов
+                    if (item.fun != null) {
+                        if (struct.containsMethod(item.fun.name)) {
+                            throw new IllegalArgumentException("Метод " + item.fun.name + " уже имеется в " + struct.name);
+                        }
+                        //Добавить метод в таблицу констант данной структуры
+                        int name = struct.constantAdd(Constant.UTF8, item.fun.name);
+                        int type = struct.constantAdd(Constant.UTF8, item.fun.returnType.getNameForTable());
+                        int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
+                        int class_ = struct.getConstNumber(Constant.CLASS);
+                        struct.constantAdd(Constant.METHOD_REF, class_, N_T);
+
+                        //Добавить метод в таблицу методов данной структуры
+                        struct.addToMethodTable(item.fun, struct.fields());
                     }
                 }
             }
