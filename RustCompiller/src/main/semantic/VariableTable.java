@@ -9,7 +9,6 @@ import java.util.Objects;
 
 public class VariableTable {
 
-    //public ArrayList<VariableTableItem> items = new ArrayList<>();
     private int ID = 0;
     private HashMap<Integer, VariableTableItem> items = new HashMap<>();
 
@@ -17,27 +16,32 @@ public class VariableTable {
         return items.get(num);
     }
 
+    public int getNum(String name){
+        for (Map.Entry<Integer, VariableTableItem> entry : items.entrySet()){
+            if(Objects.equals(entry.getValue().name, name)){
+                return entry.getKey();
+            }
+        }
+        return -1;
+    }
+
     public int size(){
         return items.size();
     }
 
-    public void add(String name, Mutable isMut, String type) {
+    public int add(String name, Mutable isMut, String type) {
         items.put(ID, new VariableTableItem(name, isMut, type));
-        ID++;
+        return ID++;
     }
 
-    public void add(String name, Mutable isMut) {
+    public int add(String name, Mutable isMut) {
         items.put(ID, new VariableTableItem(name, isMut, "undefined"));
-        ID++;
+        return ID++;
     }
 
     public boolean contains(String name) {
         return items.containsValue(new VariableTableItem(name, Mutable.NOT_MUT, ""));
     }
-
-    /*public int getVarNumber(String name) {
-        return items.indexOf(new VariableTableItem(name, Mutable.NOT_MUT, ""));
-    }*/
 
     /*public void overwrite(String name, Mutable isMut, String type) {
         items.set(getVarNumber(name), new VariableTableItem(name, isMut, type));

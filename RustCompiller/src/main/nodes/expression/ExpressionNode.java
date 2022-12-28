@@ -40,8 +40,9 @@ public class ExpressionNode {
         return variableTable.get(this.localVarNumber);
     }
 
-    public void set(VariableTable variableTable){
+    public void setVar(VariableTable variableTable, int num){
         this.variableTable = variableTable;
+        this.localVarNumber = num;
     }
 
     // *Если это поле
@@ -51,8 +52,9 @@ public class ExpressionNode {
         return fieldTable.get(fieldName);
     }
 
-    public void set(FieldTable fieldTable){
+    public void setVar(FieldTable fieldTable, String name){
         this.fieldTable = fieldTable;
+        this.fieldName = name;
     }
 
     @Override

@@ -53,8 +53,8 @@ public class ClassTable {
     //------------------------------------------Field Table------------------------------------------
     private FieldTable fieldTable = new FieldTable();
 
-    public ArrayList<String> fields(){
-        return fieldTable.fields();
+    public FieldTable fields(){
+        return fieldTable;
     }
 
     public void addToFieldTable(ConstStatementNode constStmt){
@@ -79,10 +79,10 @@ public class ClassTable {
     private MethodTable methodTable = new MethodTable();
 
     public void addToMethodTable(FunctionNode funcNode){
-        methodTable.add(funcNode);
+        methodTable.add(funcNode, null);
     }
 
-    public void addToMethodTable(FunctionNode funcNode, ArrayList<String> fields){
+    public void addToMethodTable(FunctionNode funcNode, FieldTable fields){
         methodTable.add(funcNode, fields);
     }
 

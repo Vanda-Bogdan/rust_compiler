@@ -17,10 +17,6 @@ public class FieldTable {
         return items.get(name);
     }
 
-    public ArrayList<String> fields(){
-        return new ArrayList<>(items.keySet());
-    }
-
     public boolean contains(String name){
         return items.containsKey(name);
     }
