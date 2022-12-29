@@ -612,11 +612,20 @@ public class Tree {
 
     public void exprTransform(ExpressionNode expr){
         //Преобразование присваивания
-        if(expr.type== ExpressionType.INDEX){
-            //todo преобразование дерева
-        }
-        else if(expr.type == ExpressionType.FIELD_ACCESS){
-            //todo преобразование дерева
+        if (expr.type != ExpressionType.ASGN) {
+            switch (expr.exprLeft.type) {
+                case INDEX -> {
+                    expr.type = ExpressionType.INDEX_ASGN;
+                    expr.body = expr.exprLeft.exprRight;
+                    expr.exprLeft = expr.exprLeft.exprLeft;
+                }
+                case FIELD_ACCESS -> {
+                    expr.type = ExpressionType.FIELD_ASGN;
+                    expr.body = expr.exprLeft;
+                    expr.exprLeft = expr.exprLeft.exprLeft;
+                    expr.body.exprLeft = null;
+                }
+            }
         }
     }
 
