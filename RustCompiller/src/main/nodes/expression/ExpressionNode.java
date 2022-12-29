@@ -24,37 +24,20 @@ public class ExpressionNode {
     public ExpressionNode elseBody;
     public StatementListNode stmtList;
 
-
-    //номер в таблице лок. переменных
-    private int localVarNumber;
-
-    //имя в таблице полей
-    private String fieldName;
-
-
     //------Ссылка на элемент таблицы (полей или лок. переменных)------
     // *Если это локальная переменная
-    private VariableTable variableTable;
+    private VariableTable.VariableTableItem variableTableItem;
 
-    public VariableTable.VariableTableItem localTableItem(){
-        return variableTable.get(this.localVarNumber);
-    }
 
-    public void setVar(VariableTable variableTable, int num){
-        this.variableTable = variableTable;
-        this.localVarNumber = num;
+    public void setVar(VariableTable.VariableTableItem item){
+        this.variableTableItem = item;
     }
 
     // *Если это поле
-    private FieldTable fieldTable;
+    private FieldTable.FieldTableItem fieldTableItem;
 
-    public FieldTable.FieldTableItem fieldTableItem(){
-        return fieldTable.get(fieldName);
-    }
-
-    public void setVar(FieldTable fieldTable, String name){
-        this.fieldTable = fieldTable;
-        this.fieldName = name;
+    public void setVar(FieldTable.FieldTableItem item){
+        this.fieldTableItem = item;
     }
 
     @Override

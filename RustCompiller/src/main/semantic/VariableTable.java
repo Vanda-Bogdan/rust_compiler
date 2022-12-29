@@ -2,58 +2,44 @@ package main.semantic;
 
 import main.nodes.Mutable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class VariableTable {
 
     private int ID = 0;
-    private HashMap<Integer, VariableTableItem> items = new HashMap<>();
-
-    public VariableTableItem get(int num){
-        return items.get(num);
-    }
-
-    public int getNum(String name){
-        for (Map.Entry<Integer, VariableTableItem> entry : items.entrySet()){
-            if(Objects.equals(entry.getValue().name, name)){
-                return entry.getKey();
-            }
-        }
-        return -1;
-    }
+    private ArrayList <VariableTableItem> items = new ArrayList<>();
 
     public int size(){
         return items.size();
     }
 
     public int add(String name, Mutable isMut, String type) {
-        items.put(ID, new VariableTableItem(name, isMut, type));
+        items.add(new VariableTableItem(ID, name, isMut, type));
         return ID++;
     }
 
     public int add(String name, Mutable isMut) {
-        items.put(ID, new VariableTableItem(name, isMut, "undefined"));
+        items.add(new VariableTableItem(ID, name, isMut, "undefined"));
         return ID++;
     }
 
-    public boolean contains(String name) {
-        return items.containsValue(new VariableTableItem(name, Mutable.NOT_MUT, ""));
+    public VariableTableItem getLast(String name, Mutable isMut, String type){
+        for (int i = items.size()-1; i>=0; i--){
+            VariableTableItem item = items.get(i);
+            if(Objects.equals(item.name(), name) && item.isMut()==isMut && Objects.equals(item.type, type)){
+                return item;
+            }
+        }
+        return null;
     }
 
-    /*public void overwrite(String name, Mutable isMut, String type) {
-        items.set(getVarNumber(name), new VariableTableItem(name, isMut, type));
-    }*/
-
     public void merge(VariableTable other){
-        for(Map.Entry<Integer, VariableTableItem> entry : items.entrySet()){
-            add(entry.getValue().name(), entry.getValue().isMut(), entry.getValue().type());
+        for (VariableTableItem item: other.items) {
+            add(item.name(), item.isMut(), item.type());
         }
     }
 
-    public record VariableTableItem(String name, Mutable isMut, String type) {
+    public record VariableTableItem(int ID, String name, Mutable isMut, String type) {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
