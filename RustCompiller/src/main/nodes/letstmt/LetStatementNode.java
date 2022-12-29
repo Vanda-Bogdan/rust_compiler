@@ -19,9 +19,9 @@ public class LetStatementNode {
     //номер в таблице лок. переменных
     private int localVarNumber;
 
-    public VariableTable.VariableTableItem localTableItem(){
+    /*public VariableTable.VariableTableItem localTableItem(){
         return variableTable.get(this.localVarNumber);
-    }
+    }*/
 
     public void setVar(VariableTable variableTable, int num){
         this.variableTable = variableTable;

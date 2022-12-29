@@ -12,9 +12,9 @@ public class Main{
 
         Tree tree = TreeFromXml.buildTree();
         tree.print();
-        Tables tables = new Tables();
-        tables.createTables(tree);
-        tables.outputTablesToFiles();
+        //Tables tables = new Tables();
+        //tables.createTables(tree);
+        //tables.outputTablesToFiles();
 
     }
 

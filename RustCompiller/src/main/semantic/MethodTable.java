@@ -65,6 +65,15 @@ public class MethodTable {
         }
     }
 
+    private void bodyVariablesOldTable(ExpressionNode body, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields, VariableTable bodyTable){
+        initialTables.add(variableTable);
+        body.stmtList.list.forEach((n)->stmtVariables(n, bodyTable, initialTables, fields));
+        initialTables.remove(initialTables.size()-1);
+        if(bodyTable.size()>0){
+            variableTables.add(bodyTable);
+        }
+    }
+
     private void stmtVariables(StatementNode stmt, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
         if(stmt.type == StatementType.LET){
             letVariables(stmt.letStmt, variableTable, initialTables, fields);
@@ -106,26 +115,26 @@ public class MethodTable {
     private void idVariables(ExpressionNode ident, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
 
         //проверить переменную в локальной таблице
-        if(variableTable.contains(ident.name)){
+        /*if(variableTable.contains(ident.name)){
             ident.setVar(variableTable, variableTable.getNum(ident.name));
             return;
-        }
+        }*/
 
         //проверить переменную в таблицах верхнего уровня
-        for (VariableTable item : initialTables) {
+        /*for (VariableTable item : initialTables) {
             if(item.contains(ident.name)){
                 ident.setVar(item, item.getNum(ident.name));
                 return;
             }
-        }
+        }*/
 
         //проверить переменную в таблице полей
-        if(fields!=null && fields.contains(ident.name)){
+        /*if(fields!=null && fields.contains(ident.name)){
             ident.setVar(fields, ident.name);
             return;
-        }
+        }*/
 
-        throw new IllegalArgumentException("Необъявленная переменная " + ident.name);
+        //throw new IllegalArgumentException("Необъявленная переменная " + ident.name);
     }
 
     private void ifVariables(ExpressionNode ifNode, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
@@ -155,10 +164,6 @@ public class MethodTable {
     }
 
     private void letVariables(LetStatementNode let, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
-
-        if(variableTable.contains(let.name)){
-            throw new IllegalArgumentException("Переопределение переменной " + let.name + " для функции " + currentMethod);
-        }
         int num = variableTable.add(let.name, let.mut, let.type.getName());
         let.setVar(variableTable, num);
     }
