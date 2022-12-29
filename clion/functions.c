@@ -297,6 +297,7 @@ struct function_node* FunctionNode(char* name, struct type_node* returnType, str
     if(returnType==NULL){
         struct type_node* new_type_node = (struct type_node*) malloc(sizeof (struct type_node));
         new_type_node->ID = global_id++;
+        new_type_node->name = NULL;
         new_type_node->typeArr = NULL;
         new_type_node->exprArr = NULL;
         new_type_node->type = emptyType;

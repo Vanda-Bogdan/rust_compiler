@@ -319,7 +319,7 @@ public class Tree {
                 }
             }
             case FIELD_ACCESS -> {
-                declarationPrint(expr.id, expr.name);
+                declarationPrint2(expr.id, "field_access:", expr.name);
                 connectionPrint(expr.id, expr.exprLeft.id);
                 expressionPrint(expr.exprLeft);
             }
@@ -398,6 +398,35 @@ public class Tree {
                     connectionPrint(expr.id, expr.exprList.id);
                     expressionListPrint(expr.exprList);
                 }
+            }
+            case FIELD_ASGN -> {
+                declarationPrint(expr.id, "Expr.Expr=");
+
+                connectionPrint(expr.id, expr.exprLeft.id);
+                expressionPrint(expr.exprLeft);
+
+                connectionPrint(expr.id, expr.body.id);
+                expressionPrint(expr.body);
+
+                connectionPrint(expr.id, expr.exprRight.id);
+                expressionPrint(expr.exprRight);
+            }
+
+            case INDEX_ASGN -> {
+                declarationPrint(expr.id, "Expr[Expr]=");
+
+                connectionPrint(expr.id, expr.exprLeft.id);
+                expressionPrint(expr.exprLeft);
+
+                connectionPrint(expr.id, expr.body.id);
+                expressionPrint(expr.body);
+
+                connectionPrint(expr.id, expr.exprRight.id);
+                expressionPrint(expr.exprRight);
+            }
+
+            case FIELD_ACCESS_NEW -> {
+                declarationPrint2(expr.id, "field access:", expr.name);
             }
         }
     }
@@ -610,9 +639,9 @@ public class Tree {
         this.prg.stmtList.list.forEach(this::stmtTransform);
     }
 
-    public void exprTransform(ExpressionNode expr){
+    private void exprTransform(ExpressionNode expr){
         //Преобразование присваивания
-        if (expr.type != ExpressionType.ASGN) {
+        if (expr.type == ExpressionType.ASGN) {
             switch (expr.exprLeft.type) {
                 case INDEX -> {
                     expr.type = ExpressionType.INDEX_ASGN;
@@ -624,12 +653,15 @@ public class Tree {
                     expr.body = expr.exprLeft;
                     expr.exprLeft = expr.exprLeft.exprLeft;
                     expr.body.exprLeft = null;
+                    expr.body.type = ExpressionType.FIELD_ACCESS_NEW;
                 }
             }
+        }else if(expr.type == ExpressionType.BLOCK){
+            expr.stmtList.list.forEach(this::stmtTransform);
         }
     }
 
-    public void stmtTransform(StatementNode stmt){
+    private void stmtTransform(StatementNode stmt){
         switch (stmt.type) {
             case EXPRESSION -> {
                 exprTransform(stmt.expr);
@@ -643,7 +675,7 @@ public class Tree {
         }
     }
 
-    public void declarationTransform(DeclarationStatementNode decl){
+    private void declarationTransform(DeclarationStatementNode decl){
         switch (decl.type){
             case FUNCTION -> functionTransform(decl.functionItem);
             case CONST_STMT -> constStmtTransform(decl.constStmtItem);
@@ -652,35 +684,35 @@ public class Tree {
         }
     }
 
-    public void exprListTransform(ExpressionListNode exprList){
+    private void exprListTransform(ExpressionListNode exprList){
         exprList.list.forEach(this::exprTransform);
     }
 
-    public void constStmtTransform(ConstStatementNode constStmt){
+    private void constStmtTransform(ConstStatementNode constStmt){
         if(constStmt.expr!=null){
             exprTransform(constStmt.expr);
         }
     }
 
-    public void functionTransform(FunctionNode func){
+    private void functionTransform(FunctionNode func){
         if(func.body!=null){
             exprTransform(func.body);
         }
     }
 
-    public void traitTransform(TraitNode trait){
+    private void traitTransform(TraitNode trait){
         if(trait.associatedItemList.list.size()>0){
             trait.associatedItemList.list.forEach(this::associatedItemTransform);
         }
     }
 
-    public void implTransform(ImplNode impl){
+    private void implTransform(ImplNode impl){
         if(impl.associatedItemList.list.size()>0){
             impl.associatedItemList.list.forEach(this::associatedItemTransform);
         }
     }
 
-    public void associatedItemTransform(AssociatedItemNode item){
+    private void associatedItemTransform(AssociatedItemNode item){
         if(item.fun!=null){
             functionTransform(item.fun);
         }
