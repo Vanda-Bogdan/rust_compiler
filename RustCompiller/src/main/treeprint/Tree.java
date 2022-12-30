@@ -641,23 +641,97 @@ public class Tree {
 
     private void exprTransform(ExpressionNode expr){
         //Преобразование присваивания
-        if (expr.type == ExpressionType.ASGN) {
-            switch (expr.exprLeft.type) {
-                case INDEX -> {
-                    expr.type = ExpressionType.INDEX_ASGN;
-                    expr.body = expr.exprLeft.exprRight;
-                    expr.exprLeft = expr.exprLeft.exprLeft;
+        switch (expr.type){
+            case PLUS:
+            case MINUS:
+            case DIV:
+            case MUL:
+            case EQUAL:
+            case NOT_EQUAL:
+            case GREATER:
+            case LESS:
+            case GREATER_EQUAL:
+            case LESS_EQUAL:
+            case OR:
+            case AND:
+            case RANGE:
+            case RANGE_IN:
+            case INDEX:
+            case ARRAY_AUTO_FILL:
+                exprTransform(expr.exprLeft);
+                exprTransform(expr.exprRight);
+                break;
+            case RANGE_LEFT:
+            case RANGE_RIGHT:
+            case RANGE_IN_RIGHT:
+            case QT:
+            case U_MINUS:
+            case NEG:
+            case STRUCT_FIELD:
+            case FIELD_ACCESS:
+                exprTransform(expr.exprLeft);
+                break;
+            case BREAK:
+            case RETURN:
+                if(expr.exprLeft!=null){
+                    exprTransform(expr.exprLeft);
                 }
-                case FIELD_ACCESS -> {
-                    expr.type = ExpressionType.FIELD_ASGN;
-                    expr.body = expr.exprLeft;
-                    expr.exprLeft = expr.exprLeft.exprLeft;
-                    expr.body.exprLeft = null;
-                    expr.body.type = ExpressionType.FIELD_ACCESS_NEW;
+                break;
+            case ARRAY:
+                exprListTransform(expr.exprList);
+                break;
+            case CALL:
+            case STATIC_METHOD:
+            case STRUCT:
+                if(expr.exprList!=null){
+                    exprListTransform(expr.exprList);
                 }
-            }
-        }else if(expr.type == ExpressionType.BLOCK){
-            expr.stmtList.list.forEach(this::stmtTransform);
+                break;
+            case METHOD:
+                exprTransform(expr.exprLeft);
+                if(expr.exprList!=null){
+                    exprListTransform(expr.exprList);
+                }
+                break;
+            case IF:
+                exprTransform(expr.exprLeft);
+                exprTransform(expr.body);
+                if(expr.elseBody!=null){
+                    exprTransform(expr.elseBody);
+                }
+                break;
+            case LOOP:
+                exprTransform(expr.body);
+                break;
+            case LOOP_FOR:
+                exprTransform(expr.exprLeft);
+                exprTransform(expr.body);
+                break;
+            case LOOP_WHILE:
+                exprTransform(expr.exprLeft);
+                if(expr.body!=null){
+                    exprTransform(expr.body);
+                }
+                break;
+            case BLOCK:
+                expr.stmtList.list.forEach(this::stmtTransform);
+                break;
+            case ASGN:
+                switch (expr.exprLeft.type) {
+                    case INDEX -> {
+                        expr.type = ExpressionType.INDEX_ASGN;
+                        expr.body = expr.exprLeft.exprRight;
+                        expr.exprLeft = expr.exprLeft.exprLeft;
+                    }
+                    case FIELD_ACCESS -> {
+                        expr.type = ExpressionType.FIELD_ASGN;
+                        expr.body = expr.exprLeft;
+                        expr.exprLeft = expr.exprLeft.exprLeft;
+                        expr.body.exprLeft = null;
+                        expr.body.type = ExpressionType.FIELD_ACCESS_NEW;
+                    }
+                }
+                break;
         }
     }
 

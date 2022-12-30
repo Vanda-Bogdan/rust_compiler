@@ -408,7 +408,7 @@ public class TreeFromXml {
             case LOOP_FOR:
                 exprNode.name = ((Element)expr).getAttribute("ident");
                 exprNode.exprLeft = exprBuild(expr.getFirstChild());
-                exprNode.body = exprBuild(expr.getFirstChild().getNextSibling());
+                exprNode.body = exprBuild(expr.getFirstChild().getNextSibling());//todo чекнуть пустой цикл
                 break;
             case LOOP_WHILE:
                 Node left = expr.getFirstChild();
