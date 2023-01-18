@@ -381,7 +381,7 @@ public class Tree {
                     declarationPrint2(expr.id, "bool_lit: ", "false");
             }
             case STRUCT -> {
-                declarationPrint(expr.id, "struct_expr");
+                declarationPrint2(expr.id, "struct_expr:", expr.name);
                 if (expr.exprList != null) {
                     connectionPrint(expr.id, expr.exprList.id);
                     expressionListPrint(expr.exprList);
@@ -775,13 +775,13 @@ public class Tree {
     }
 
     private void traitTransform(TraitNode trait){
-        if(trait.associatedItemList.list.size()>0){
+        if(trait.associatedItemList!=null && trait.associatedItemList.list.size()>0){
             trait.associatedItemList.list.forEach(this::associatedItemTransform);
         }
     }
 
     private void implTransform(ImplNode impl){
-        if(impl.associatedItemList.list.size()>0){
+        if(impl.associatedItemList!=null && impl.associatedItemList.list.size()>0){
             impl.associatedItemList.list.forEach(this::associatedItemTransform);
         }
     }

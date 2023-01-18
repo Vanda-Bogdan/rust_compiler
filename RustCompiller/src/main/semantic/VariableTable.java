@@ -1,6 +1,7 @@
 package main.semantic;
 
 import main.nodes.Mutable;
+import main.nodes.TypeNode;
 
 import java.util.*;
 
@@ -19,11 +20,11 @@ public class VariableTable {
     }
 
     public int add(String name, Mutable isMut) {
-        items.add(new VariableTableItem(ID, name, isMut, "undefined"));
+        items.add(new VariableTableItem(ID, name, isMut, new TypeNode()));
         return ID++;
     }
 
-    public VariableTableItem getLast(String name, Mutable isMut, String type){
+    public VariableTableItem getLast(String name, Mutable isMut, TypeNode type){
         for (int i = items.size()-1; i>=0; i--){
             VariableTableItem item = items.get(i);
             if(Objects.equals(item.name(), name) && item.isMut()==isMut && Objects.equals(item.type, type)){
@@ -39,7 +40,7 @@ public class VariableTable {
         }
     }
 
-    public record VariableTableItem(int ID, String name, Mutable isMut, String type) {
+    public record VariableTableItem(int ID, String name, Mutable isMut, TypeNode type) {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;

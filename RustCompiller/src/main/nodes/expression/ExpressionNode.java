@@ -1,5 +1,6 @@
 package main.nodes.expression;
 
+import main.nodes.TypeNode;
 import main.nodes.VarType;
 import main.nodes.stmt.StatementListNode;
 import main.semantic.FieldTable;
@@ -23,6 +24,9 @@ public class ExpressionNode {
     public ExpressionNode body;
     public ExpressionNode elseBody;
     public StatementListNode stmtList;
+
+    //для расчета типов expr
+    public TypeNode countedType;
 
     //------Ссылка на элемент таблицы (полей или лок. переменных)------
     // *Если это локальная переменная

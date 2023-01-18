@@ -2,6 +2,8 @@ package main.nodes;
 
 import main.nodes.expression.ExpressionNode;
 
+import java.util.Objects;
+
 public class TypeNode {
     public int id;
     public VarType varType;
@@ -71,4 +73,27 @@ public class TypeNode {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TypeNode typeNode = (TypeNode) o;
+
+        if(!varType.equals(typeNode.varType)){
+            return false;
+        }
+        else {
+            if(varType==VarType.ARRAY){
+                return exprArr.equals(typeNode.exprArr) && typeArr.equals(typeNode.typeArr)
+            }
+            else {
+                return true;
+            }
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name);
+    }
 }
