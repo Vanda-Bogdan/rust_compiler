@@ -11,6 +11,10 @@ public class TypeNode {
     public TypeNode typeArr;
     public ExpressionNode exprArr;
 
+    public TypeNode(VarType varType){
+        this.varType = varType;
+    }
+
     public String getName() {
         if(varType == VarType.ID){
             return name;
@@ -84,7 +88,7 @@ public class TypeNode {
         }
         else {
             if(varType==VarType.ARRAY){
-                return exprArr.equals(typeNode.exprArr) && typeArr.equals(typeNode.typeArr)
+                return exprArr.equals(typeNode.exprArr) && typeArr.equals(typeNode.typeArr);
             }
             else {
                 return true;

@@ -2,6 +2,7 @@ package main.semantic;
 
 import main.nodes.Mutable;
 import main.nodes.TypeNode;
+import main.nodes.VarType;
 
 import java.util.*;
 
@@ -14,13 +15,13 @@ public class VariableTable {
         return items.size();
     }
 
-    public int add(String name, Mutable isMut, String type) {
+    public int add(String name, Mutable isMut, TypeNode type) {
         items.add(new VariableTableItem(ID, name, isMut, type));
         return ID++;
     }
 
     public int add(String name, Mutable isMut) {
-        items.add(new VariableTableItem(ID, name, isMut, new TypeNode()));
+        items.add(new VariableTableItem(ID, name, isMut, new TypeNode(VarType.EMPTY_TYPE)));
         return ID++;
     }
 

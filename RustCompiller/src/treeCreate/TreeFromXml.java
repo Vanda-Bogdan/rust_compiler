@@ -240,7 +240,7 @@ public class TreeFromXml {
     }
 
     public static TypeNode typeBuild(Node type){
-        TypeNode typeNode = new TypeNode();
+        TypeNode typeNode = new TypeNode(VarType.EMPTY_TYPE);
         typeNode.id = Integer.parseInt(((Element)type).getAttribute("ID"));
         String name = ((Element)type).getAttribute("ident");
         typeNode.varType = VarType.valueOf(((Element)type).getAttribute("type"));

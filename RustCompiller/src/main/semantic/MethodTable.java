@@ -1,6 +1,8 @@
 package main.semantic;
 
 import main.nodes.Mutable;
+import main.nodes.TypeNode;
+import main.nodes.VarType;
 import main.nodes.expression.ExpressionListNode;
 import main.nodes.expression.ExpressionNode;
 import main.nodes.expression.ExpressionType;
@@ -42,7 +44,7 @@ public class MethodTable {
         }
 
         //параметры
-        funcNode.paramList.list.forEach((item)-> variableTable.add(item.name, item.mut, item.type.getName()));
+        funcNode.paramList.list.forEach((item)-> variableTable.add(item.name, item.mut, item.type));
 
         //переменные в теле
         variableTables.add(variableTable);
@@ -154,7 +156,7 @@ public class MethodTable {
                 && type!=ExpressionType.RANGE_IN_RIGHT && type!=ExpressionType.RANGE_LEFT && type!=ExpressionType.ID){
             throw new IllegalArgumentException("Неверное RANGE выражение в цикле for. ID узла: " + loopFor.id);
         }
-        variableTable.add(loopFor.name, Mutable.MUT, "i32");
+        variableTable.add(loopFor.name, Mutable.MUT, new TypeNode(VarType.INT));
         bodyVariables(loopFor.body, variableTable, initialTables, fields);
     }
 
@@ -164,7 +166,7 @@ public class MethodTable {
     }
 
     private void letVariables(LetStatementNode let, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
-        int num = variableTable.add(let.name, let.mut, let.type.getName());
+        int num = variableTable.add(let.name, let.mut, let.type);
         let.setVar(variableTable, num);
     }
 
