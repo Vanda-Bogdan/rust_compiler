@@ -117,7 +117,7 @@ char* type(enum type type){
         case id_:
             return "ID";
         case array_:
-            return "ARRAY_TYPE";
+            return "ARRAY";
     }
 }
 

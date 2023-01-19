@@ -54,7 +54,7 @@ public class MethodTable {
 
         variableTables.forEach(variableTableFinal::merge);
         //-----------------Добавление метода в таблицу
-        items.put(funcNode.name, new MethodTableItem(funcNode.returnType.getNameForTable(), variableTableFinal, funcNode.body!=null, funcNode.paramList.type));
+        items.put(funcNode.name, new MethodTableItem(funcNode.returnType, variableTableFinal, funcNode.body!=null, funcNode.paramList.type));
     }
 
     private void bodyVariables(ExpressionNode body, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
@@ -117,26 +117,28 @@ public class MethodTable {
     private void idVariables(ExpressionNode ident, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
 
         //проверить переменную в локальной таблице
-        /*if(variableTable.contains(ident.name)){
-            ident.setVar(variableTable, variableTable.getNum(ident.name));
+        VariableTable.VariableTableItem varItem = variableTable.getLast(ident.name);
+        if(varItem!=null){
+            ident.setVar(varItem);
             return;
-        }*/
+        }
 
         //проверить переменную в таблицах верхнего уровня
-        /*for (VariableTable item : initialTables) {
-            if(item.contains(ident.name)){
-                ident.setVar(item, item.getNum(ident.name));
+        for (VariableTable item : initialTables) {
+            varItem = item.getLast(ident.name);
+            if(varItem!=null){
+                ident.setVar(varItem);
                 return;
             }
-        }*/
+        }
 
         //проверить переменную в таблице полей
-        /*if(fields!=null && fields.contains(ident.name)){
-            ident.setVar(fields, ident.name);
+        if(fields!=null && fields.contains(ident.name)){
+            ident.setVar(fields.get(ident.name));
             return;
-        }*/
+        }
 
-        //throw new IllegalArgumentException("Необъявленная переменная " + ident.name);
+        throw new IllegalArgumentException("Необъявленная переменная " + ident.name);
     }
 
     private void ifVariables(ExpressionNode ifNode, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
@@ -167,9 +169,9 @@ public class MethodTable {
 
     private void letVariables(LetStatementNode let, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
         int num = variableTable.add(let.name, let.mut, let.type);
-        let.setVar(variableTable, num);
+        let.setVar(variableTable.getByID(num));
     }
 
-    public record MethodTableItem(String returnType, VariableTable variableTable, boolean hasBody, FunctionType functionType) {
+    public record MethodTableItem(TypeNode returnType, VariableTable variableTable, boolean hasBody, FunctionType functionType) {
     }
 }

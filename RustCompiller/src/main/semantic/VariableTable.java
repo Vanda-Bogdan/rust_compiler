@@ -25,10 +25,20 @@ public class VariableTable {
         return ID++;
     }
 
-    public VariableTableItem getLast(String name, Mutable isMut, TypeNode type){
+    public VariableTableItem getLast(String name){
         for (int i = items.size()-1; i>=0; i--){
             VariableTableItem item = items.get(i);
-            if(Objects.equals(item.name(), name) && item.isMut()==isMut && Objects.equals(item.type, type)){
+            if(Objects.equals(item.name(), name)){
+                return item;
+            }
+        }
+        return null;
+    }
+
+    public VariableTableItem getByID(int ID){
+        for (int i = items.size()-1; i>=0; i--){
+            VariableTableItem item = items.get(i);
+            if(item.ID == ID){
                 return item;
             }
         }

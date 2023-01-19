@@ -14,7 +14,7 @@ public class LetStatementNode {
     public ExpressionNode expr;
 
     //------Ссылка на таблицу лок. переменных------
-    private VariableTable variableTable;
+    private VariableTable.VariableTableItem variableTableItem;
 
     //номер в таблице лок. переменных
     private int localVarNumber;
@@ -23,9 +23,8 @@ public class LetStatementNode {
         return variableTable.get(this.localVarNumber);
     }*/
 
-    public void setVar(VariableTable variableTable, int num){
-        this.variableTable = variableTable;
-        this.localVarNumber = num;
+    public void setVar(VariableTable.VariableTableItem item){
+        this.variableTableItem = item;
     }
 
 }
