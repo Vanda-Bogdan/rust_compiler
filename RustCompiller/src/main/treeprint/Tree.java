@@ -640,7 +640,9 @@ public class Tree {
     }
 
     private void exprTransform(ExpressionNode expr){
-        //Преобразование присваивания
+        if(expr==null){
+            return;
+        }
         switch (expr.type){
             case PLUS:
             case MINUS:
