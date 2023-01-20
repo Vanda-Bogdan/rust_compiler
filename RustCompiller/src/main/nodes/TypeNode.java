@@ -3,7 +3,7 @@ package main.nodes;
 import main.nodes.expression.ExpressionNode;
 
 import java.util.Objects;
-
+//[i32;2]
 public class TypeNode {
     public int id;
     public VarType varType;
@@ -15,7 +15,18 @@ public class TypeNode {
         this.varType = varType;
     }
 
-    public String getName() {
+    public static TypeNode TypeNodeId(String name) {
+        TypeNode node = new TypeNode(VarType.ID);
+        node.name = name;
+        return node;
+    }
+
+    public static TypeNode TypeNodeArray(String name) {
+        // TODO something
+        return null;
+    }
+
+        public String getName() {
         if(varType == VarType.ID){
             return name;
         }

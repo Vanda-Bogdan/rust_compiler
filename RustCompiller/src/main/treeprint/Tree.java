@@ -24,6 +24,10 @@ import main.nodes.trait.AssociatedItemNode;
 import main.nodes.trait.TraitNode;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Vector;
 
 import static main.nodes.VarType.ARRAY;
 
@@ -794,6 +798,141 @@ public class Tree {
         }
         if(item.constStmt!=null){
             constStmtTransform(item.constStmt);
+        }
+    }
+
+    /*------------------------------------------Определение типов expression----------------------------------------------*/
+    private void defineTypeOfExpr(ExpressionNode expr) {
+        switch (expr.type) {
+            case PLUS, MINUS, MUL, DIV -> {
+                defineTypeOfExpr(expr.exprLeft);
+                defineTypeOfExpr(expr.exprRight);
+                if (expr.exprLeft.countedType.varType == VarType.INT && expr.exprRight.countedType.varType == VarType.INT) {
+                    expr.countedType = new TypeNode(VarType.INT);
+                }
+                else if (expr.exprLeft.countedType.varType == VarType.FLOAT && expr.exprRight.countedType.varType == VarType.FLOAT) {
+                    expr.countedType = new TypeNode(VarType.FLOAT);
+                }
+                else {
+                    throw new IllegalArgumentException("Неверные типы выражений при выполнении арифметических операций");
+                }
+            }
+            case EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL -> {
+                defineTypeOfExpr(expr.exprLeft);
+                defineTypeOfExpr(expr.exprRight);
+                if (expr.exprLeft.countedType.getName() == expr.exprRight.countedType.getName()) {
+                    expr.countedType = new TypeNode(VarType.BOOL);
+                }
+                else {
+                    throw new IllegalArgumentException("Несовместимые типы для выполнения операции сравнения");
+                }
+            }
+            case QT -> {
+                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!Лучше забить!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            }
+            case U_MINUS -> {
+                defineTypeOfExpr(expr.exprLeft);
+                if (expr.exprLeft.countedType.varType == VarType.INT) {
+                    expr.countedType = new TypeNode(VarType.INT);
+                }
+                else if (expr.exprLeft.countedType.varType == VarType.FLOAT) {
+                    expr.countedType = new TypeNode(VarType.FLOAT);
+                }
+                else {
+                    throw new IllegalArgumentException("Невозможно применить унарный минус к выражению данного типа");
+                }
+            }
+            case NEG -> {
+                defineTypeOfExpr(expr.exprLeft);
+                if (expr.exprLeft.countedType.varType == VarType.BOOL) {
+                    expr.countedType = new TypeNode(VarType.BOOL);
+                }
+                else {
+                    throw new IllegalArgumentException("Невозможно применить отрицание к не boolean выражению");
+                }
+            }
+            case OR, AND -> {
+                defineTypeOfExpr(expr.exprLeft);
+                defineTypeOfExpr(expr.exprRight);
+                if (expr.exprLeft.countedType.varType == VarType.BOOL && expr.exprRight.countedType.varType == VarType.BOOL) {
+                    expr.countedType = new TypeNode(VarType.BOOL);
+                }
+                else {
+                    throw new IllegalArgumentException("Невозможно применить логические И / ИЛИ к не boolean выражениям");
+                }
+            }
+            case ASGN -> {
+
+            }
+            case BREAK -> {
+            }
+            case RETURN -> {
+            }
+            case ARRAY -> {
+
+            }
+            case ARRAY_AUTO_FILL -> {
+
+            }
+            case INDEX -> {
+            }
+            case RANGE -> {
+            }
+            case RANGE_IN -> {
+            }
+            case RANGE_LEFT -> {
+            }
+            case RANGE_RIGHT -> {
+            }
+            case RANGE_IN_RIGHT -> {
+            }
+            case ID -> {
+            }
+            case SELF -> {
+            }
+            case CALL -> {
+            }
+            case METHOD -> {
+            }
+            case FIELD_ACCESS -> {
+            }
+            case IF -> {
+            }
+            case LOOP -> {
+            }
+            case LOOP_WHILE, LOOP_FOR, CONTINUE -> {
+                expr.countedType = new TypeNode(VarType.EMPTY_TYPE);
+            }
+            case BLOCK -> {
+            }
+            case INT_LIT -> {
+                expr.countedType = new TypeNode(VarType.INT);
+            }
+            case FLOAT_LIT -> {
+                expr.countedType = new TypeNode(VarType.FLOAT);
+            }
+            case CHAR_LIT -> {
+                expr.countedType = new TypeNode(VarType.CHAR);
+            }
+            case STRING_LIT -> {
+                expr.countedType = new TypeNode(VarType.STRING);
+            }
+            case BOOL_LIT -> {
+                expr.countedType = new TypeNode(VarType.BOOL);
+            }
+            case STRUCT -> {
+                expr.countedType = TypeNode.TypeNodeId(expr.name);
+            }
+            case STRUCT_FIELD -> {
+            }
+            case STATIC_METHOD -> {
+            }
+            case INDEX_ASGN -> {
+            }
+            case FIELD_ASGN -> {
+            }
+            case FIELD_ACCESS_NEW -> {
+            }
         }
     }
 }
