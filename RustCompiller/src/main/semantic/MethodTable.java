@@ -102,12 +102,14 @@ public class MethodTable {
             }
             case RANGE_LEFT, RANGE_RIGHT, RANGE_IN_RIGHT, QT, U_MINUS, NEG, STRUCT_FIELD, FIELD_ACCESS, BREAK, RETURN ->
                     exprVariables(expression.exprLeft, variableTable, initialTables, fields);
-            case ARRAY, CALL, METHOD, STATIC_METHOD, STRUCT -> exprListVariables(expression.exprList, variableTable, initialTables, fields);
+            case ARRAY, STRUCT -> exprListVariables(expression.exprList, variableTable, initialTables, fields);
+            case CALL, METHOD, STATIC_METHOD -> methodVariables(expression, variableTable, initialTables, fields);
         }
     }
 
-    private void staticMethodVariables(ExpressionListNode exprList, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
-
+    private void methodVariables(ExpressionNode expression, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
+        expression.setVar(getMethod(expression.name));
+        exprListVariables(expression.exprList, variableTable, initialTables, fields);
     }
 
     private void exprListVariables(ExpressionListNode exprList, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){

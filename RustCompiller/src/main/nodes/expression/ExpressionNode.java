@@ -4,6 +4,7 @@ import main.nodes.TypeNode;
 import main.nodes.VarType;
 import main.nodes.stmt.StatementListNode;
 import main.semantic.FieldTable;
+import main.semantic.MethodTable;
 import main.semantic.VariableTable;
 
 import java.util.Objects;
@@ -28,10 +29,9 @@ public class ExpressionNode {
     //для расчета типов expr
     public TypeNode countedType;
 
-    //------Ссылка на элемент таблицы (полей или лок. переменных)------
+    //------Ссылка на элемент таблицы------
     // *Если это локальная переменная
     private VariableTable.VariableTableItem variableTableItem;
-
 
     public void setVar(VariableTable.VariableTableItem item){
         this.variableTableItem = item;
@@ -42,6 +42,13 @@ public class ExpressionNode {
 
     public void setVar(FieldTable.FieldTableItem item){
         this.fieldTableItem = item;
+    }
+
+    // *Если это вызов метода
+    private MethodTable.MethodTableItem methodTableItem;
+
+    public void setVar(MethodTable.MethodTableItem item){
+        this.methodTableItem = item;
     }
 
     @Override
