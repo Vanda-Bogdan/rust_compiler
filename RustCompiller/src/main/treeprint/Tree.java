@@ -935,4 +935,18 @@ public class Tree {
             }
         }
     }
+
+    /*private TypeNode defineTypeOfExprList(ExpressionListNode exprList){
+        if(exprList==null){
+            return null;
+        }
+        TypeNode currentType = new TypeNode(ARRAY);
+        if(exprList.list.size()>0){
+            defineTypeOfExpr(exprList.list.get(0));
+            currentType.typeArr = exprList.list.get(0).countedType;
+            for (ExpressionNode expr: exprList.list) {
+
+            }
+        }
+    }*/
 }

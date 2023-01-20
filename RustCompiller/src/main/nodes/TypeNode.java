@@ -15,6 +15,12 @@ public class TypeNode {
         this.varType = varType;
     }
 
+    //конструктор для ID и Enum
+    public TypeNode(String name){
+        this.varType = VarType.ID;
+        this.name = name;
+    }
+
     public static TypeNode TypeNodeId(String name) {
         TypeNode node = new TypeNode(VarType.ID);
         node.name = name;
@@ -26,7 +32,7 @@ public class TypeNode {
         return null;
     }
 
-        public String getName() {
+    public String getName() {
         if(varType == VarType.ID){
             return name;
         }

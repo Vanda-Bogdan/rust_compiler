@@ -156,7 +156,7 @@ public class Tables {
                         if(const_!=null){
                             //Добавить const в таблицу констант данной структуры
                             int name = struct.constantAdd(Constant.UTF8, fieldName);
-                            int type = struct.constantAdd(Constant.UTF8, value.type());
+                            int type = struct.constantAdd(Constant.UTF8, value.type().getNameForTable());
                             int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
                             int class_ = struct.getConstNumber(Constant.CLASS);
                             struct.constantAdd(Constant.METHOD_REF, class_, N_T);
@@ -180,7 +180,7 @@ public class Tables {
 
                         //Добавить const в таблицу констант данной структуры
                         int name = struct.constantAdd(Constant.UTF8, fieldName);
-                        int type = struct.constantAdd(Constant.UTF8, value.type());
+                        int type = struct.constantAdd(Constant.UTF8, value.type().getNameForTable());
                         int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
                         int class_ = struct.getConstNumber(Constant.CLASS);
                         struct.constantAdd(Constant.METHOD_REF, class_, N_T);

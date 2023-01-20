@@ -106,6 +106,10 @@ public class MethodTable {
         }
     }
 
+    private void staticMethodVariables(ExpressionListNode exprList, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
+
+    }
+
     private void exprListVariables(ExpressionListNode exprList, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
         if (exprList == null) {
             return;

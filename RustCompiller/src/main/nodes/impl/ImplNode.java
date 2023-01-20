@@ -40,13 +40,13 @@ public class ImplNode {
         return null;
     }
 
-    public ConstStatementNode hasInitialization(String name, String type){
+    public ConstStatementNode hasInitialization(String name, TypeNode type){
 
         if(associatedItemList==null){
             return null;
         }
         for (AssociatedItemNode item : associatedItemList.list){
-            if(item.constStmt!=null && Objects.equals(item.constStmt.name, name) && Objects.equals(item.constStmt.type.getName(), type) && item.constStmt.expr!=null){
+            if(item.constStmt!=null && Objects.equals(item.constStmt.name, name) && item.constStmt.type.equals(type) && item.constStmt.expr!=null){
                 return item.constStmt;
             }
         }

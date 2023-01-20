@@ -1,6 +1,7 @@
 package main.semantic;
 
 
+import main.nodes.TypeNode;
 import main.nodes.conststmt.ConstStatementNode;
 import main.nodes.enumm.EnumItemNode;
 import main.nodes.expression.ExpressionNode;
@@ -22,21 +23,21 @@ public class FieldTable {
     }
 
     public void add(ConstStatementNode constStmt){
-        items.put(constStmt.name, new FieldTableItem(constStmt.type.getName(), true, constStmt.expr));
+        items.put(constStmt.name, new FieldTableItem(constStmt.type, true, constStmt.expr));
     }
 
     public void add(StructItemNode structItem){
-        items.put(structItem.name, new FieldTableItem(structItem.type.getName(), false, null));
+        items.put(structItem.name, new FieldTableItem(structItem.type, false, null));
     }
 
     public void add(EnumItemNode enumItem, String name){
-        items.put(enumItem.name, new FieldTableItem(name, false, enumItem.expr));
+        items.put(enumItem.name, new FieldTableItem(new TypeNode(name), false, enumItem.expr));
     }
 
     public void add(String name, FieldTableItem item){
         items.put(name, item);
     }
 
-    public record FieldTableItem(String type, boolean isConst, ExpressionNode expr) {
+    public record FieldTableItem(TypeNode type, boolean isConst, ExpressionNode expr) {
     }
 }
