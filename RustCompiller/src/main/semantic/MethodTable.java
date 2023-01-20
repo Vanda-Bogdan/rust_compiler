@@ -7,6 +7,7 @@ import main.nodes.expression.ExpressionListNode;
 import main.nodes.expression.ExpressionNode;
 import main.nodes.expression.ExpressionType;
 import main.nodes.function.FunctionNode;
+import main.nodes.function.FunctionParamListNode;
 import main.nodes.function.FunctionType;
 import main.nodes.letstmt.LetStatementNode;
 import main.nodes.stmt.StatementNode;
@@ -54,7 +55,7 @@ public class MethodTable {
 
         variableTables.forEach(variableTableFinal::merge);
         //-----------------Добавление метода в таблицу
-        items.put(funcNode.name, new MethodTableItem(funcNode.returnType, variableTableFinal, funcNode.body!=null, funcNode.paramList.type));
+        items.put(funcNode.name, new MethodTableItem(funcNode.returnType, variableTableFinal, funcNode.body!=null, funcNode.paramList.type, funcNode.paramList));
     }
 
     private void bodyVariables(ExpressionNode body, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
@@ -172,6 +173,6 @@ public class MethodTable {
         let.setVar(variableTable.getByID(num));
     }
 
-    public record MethodTableItem(TypeNode returnType, VariableTable variableTable, boolean hasBody, FunctionType functionType) {
+    public record MethodTableItem(TypeNode returnType, VariableTable variableTable, boolean hasBody, FunctionType functionType, FunctionParamListNode params) {
     }
 }
