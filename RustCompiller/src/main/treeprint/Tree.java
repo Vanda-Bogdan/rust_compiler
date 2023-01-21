@@ -905,6 +905,7 @@ public class Tree {
                 expr.countedType = new TypeNode(VarType.EMPTY_TYPE);
             }
             case BLOCK -> {
+                expr.countedType = defineTypeOfBlock(expr.stmtList);
             }
             case INT_LIT -> {
                 expr.countedType = new TypeNode(VarType.INT);
@@ -938,10 +939,11 @@ public class Tree {
     }
 
     private TypeNode defineTypeOfArray(ExpressionListNode exprList){
-        if(exprList==null){
-            return null;
-        }
         TypeNode currentType = new TypeNode(ARRAY);
+        if(exprList==null){
+            currentType.typeArr = new TypeNode(EMPTY_TYPE);
+            return currentType;
+        }
         TypeNode bufferType;
         if(exprList.list.size()>0){
             defineTypeOfExpr(exprList.list.get(0));
@@ -955,5 +957,24 @@ public class Tree {
             }
         }
         return currentType;
+    }
+
+    private TypeNode defineTypeOfBlock(StatementListNode stmtList){
+        TypeNode result = new TypeNode(EMPTY_TYPE);
+        if(stmtList==null){
+            return result;
+        }
+
+        StatementNode stmt = stmtList.list.get(stmtList.list.size() - 1);
+        switch (stmt.type){
+            case LET, SEMICOLON -> {
+                return result;
+            }
+            case EXPRESSION -> {
+                defineTypeOfExpr(stmt.expr);
+                return stmt.expr.countedType;
+            }
+            default -> throw new IllegalArgumentException("define Type Of Block Error. ID: " + stmt.expr.id);
+        }
     }
 }
