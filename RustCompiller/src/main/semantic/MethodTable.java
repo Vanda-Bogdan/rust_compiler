@@ -142,14 +142,13 @@ public class MethodTable {
 
     private void fieldAccessVariables(ExpressionNode expression, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
 
+        exprVariables(expression.exprLeft, variableTable, initialTables, fields);
         expression.exprLeft.defineTypeOfExpr();
         if(expression.exprLeft.countedType.varType!=VarType.ID){
             throw new IllegalArgumentException("Доступ к полю возможен только у идентификатора. ID: " + expression.exprLeft.id);
         }
         ClassTable classTable = tables.tableByName(expression.exprLeft.countedType.name);
         expression.setVar(classTable.getField(expression.name));
-        
-        exprVariables(expression.exprLeft, variableTable, initialTables, fields);
     }
 
     private void exprListVariables(ExpressionListNode exprList, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
@@ -217,6 +216,8 @@ public class MethodTable {
     private void letVariables(LetStatementNode let, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
         int num = variableTable.add(let.name, let.mut, let.type);
         let.setVar(variableTable.getByID(num));
+
+        exprVariables(let.expr, variableTable, initialTables, fields);
     }
 
     public record MethodTableItem(TypeNode returnType, VariableTable variableTable, boolean hasBody, FunctionType functionType, FunctionParamListNode params) {

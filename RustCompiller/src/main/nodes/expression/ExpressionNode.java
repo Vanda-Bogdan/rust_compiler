@@ -144,7 +144,7 @@ public class ExpressionNode {
             case ASGN, INDEX_ASGN, FIELD_ASGN -> {
                 exprLeft.defineTypeOfExpr();
                 exprRight.defineTypeOfExpr();
-                if (exprLeft.countedType.getName() == exprRight.countedType.getName()) {
+                if (Objects.equals(exprLeft.countedType.getName(), exprRight.countedType.getName())) {
                     countedType = exprLeft.countedType;
                 }
                 else {
@@ -196,6 +196,7 @@ public class ExpressionNode {
 
             }
             case FIELD_ACCESS -> {
+                //todo вставить филд акцесс
             }
             case IF -> {
                 exprLeft.defineTypeOfExpr();
@@ -247,7 +248,7 @@ public class ExpressionNode {
                 countedType = methodTableItem.returnType();
             }
             case FIELD_ACCESS_NEW -> {
-
+                //todo вставить филд акцесс
             }
         }
     }
