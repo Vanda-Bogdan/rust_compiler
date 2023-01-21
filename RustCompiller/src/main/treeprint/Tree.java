@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import static main.nodes.VarType.ARRAY;
+import static main.nodes.VarType.EMPTY_TYPE;
 
 public class Tree {
 
@@ -869,7 +870,7 @@ public class Tree {
             case RETURN -> {
             }
             case ARRAY -> {
-
+                expr.countedType = defineTypeOfArray(expr.exprList);
             }
             case ARRAY_AUTO_FILL -> {
 
@@ -936,17 +937,23 @@ public class Tree {
         }
     }
 
-    /*private TypeNode defineTypeOfExprList(ExpressionListNode exprList){
+    private TypeNode defineTypeOfArray(ExpressionListNode exprList){
         if(exprList==null){
             return null;
         }
         TypeNode currentType = new TypeNode(ARRAY);
+        TypeNode bufferType;
         if(exprList.list.size()>0){
             defineTypeOfExpr(exprList.list.get(0));
             currentType.typeArr = exprList.list.get(0).countedType;
             for (ExpressionNode expr: exprList.list) {
-
+                defineTypeOfExpr(expr);
+                bufferType = expr.countedType;
+                if(!bufferType.equals(currentType.typeArr)){
+                    throw new IllegalArgumentException("Неверный тип узла " + expr.id + ": " + expr.countedType.getName() + " для массива с элементами типа " + currentType.typeArr.getName());
+                }
             }
         }
-    }*/
+        return currentType;
+    }
 }
