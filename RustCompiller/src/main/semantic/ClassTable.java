@@ -18,9 +18,8 @@ public class ClassTable {
 
     public ClassTable(String name, Tables tables) {
         this.name = name;
+        this.tables = tables;
     }
-
-
 
     //------------------------------------------Constant Table-------------------------------------------------------
     private ConstantTable constantTable = new ConstantTable();
@@ -92,6 +91,10 @@ public class ClassTable {
 
     public void addToMethodTable(FunctionNode funcNode, FieldTable fields){
         methodTable.add(funcNode, fields, tables);
+    }
+
+    public MethodTable.MethodTableItem getMethod(String name){
+        return methodTable.getMethod(name);
     }
 
     public void addToMethodTable(String name, MethodTable.MethodTableItem item){

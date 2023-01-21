@@ -106,9 +106,33 @@ public class MethodTable {
             case RANGE_LEFT, RANGE_RIGHT, RANGE_IN_RIGHT, QT, U_MINUS, NEG, STRUCT_FIELD, BREAK, RETURN ->
                     exprVariables(expression.exprLeft, variableTable, initialTables, fields);
             case ARRAY, STRUCT -> exprListVariables(expression.exprList, variableTable, initialTables, fields);
-            case CALL, METHOD, STATIC_METHOD -> methodVariables(expression, variableTable, initialTables, fields);
+            case CALL -> methodVariables(expression, variableTable, initialTables, fields);
+            case METHOD -> classMethodVariables(expression, variableTable, initialTables, fields);
+            case STATIC_METHOD -> classStaticMethodVariables(expression, variableTable, initialTables, fields);
             case FIELD_ACCESS -> fieldAccessVariables(expression, variableTable, initialTables, fields);
         }
+    }
+
+    private void classMethodVariables(ExpressionNode expression, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
+
+        exprVariables(expression.exprLeft, variableTable, initialTables, fields);
+        expression.exprLeft.defineTypeOfExpr();
+        ClassTable classTable = tables.tableByName(expression.exprLeft.countedType.name);
+        if(classTable!=null){
+            expression.setVar(classTable.getMethod(expression.name));
+        }
+        exprListVariables(expression.exprList, variableTable, initialTables, fields);
+    }
+
+    private void classStaticMethodVariables(ExpressionNode expression, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
+
+        ClassTable classTable = tables.tableByName(expression.parentId);
+        if(classTable==null){
+            throw new IllegalArgumentException("Не существует класса " + expression.parentId + ". ID: " + expression.id);
+        }
+        expression.setVar(classTable.getMethod(expression.name));
+
+        exprListVariables(expression.exprList, variableTable, initialTables, fields);
     }
 
     private void methodVariables(ExpressionNode expression, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
