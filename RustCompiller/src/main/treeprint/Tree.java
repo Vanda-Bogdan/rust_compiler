@@ -956,6 +956,7 @@ public class Tree {
                 }
             }
         }
+        currentType.exprArr = new ExpressionNode(exprList.list.size());
         return currentType;
     }
 

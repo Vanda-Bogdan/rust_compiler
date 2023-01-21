@@ -33,7 +33,10 @@ public class MethodTable {
         items.put(name, item);
     }
 
-    public void add(FunctionNode funcNode, FieldTable fields){
+    private Tables tables;
+
+    public void add(FunctionNode funcNode, FieldTable fields, Tables tables){
+        this.tables = tables;
         variableTables.clear();
         VariableTable variableTable = new VariableTable();
         VariableTable variableTableFinal = new VariableTable();
@@ -68,14 +71,14 @@ public class MethodTable {
         }
     }
 
-    private void bodyVariablesOldTable(ExpressionNode body, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields, VariableTable bodyTable){
+    /*private void bodyVariablesOldTable(ExpressionNode body, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields, VariableTable bodyTable){
         initialTables.add(variableTable);
         body.stmtList.list.forEach((n)->stmtVariables(n, bodyTable, initialTables, fields));
         initialTables.remove(initialTables.size()-1);
         if(bodyTable.size()>0){
             variableTables.add(bodyTable);
         }
-    }
+    }*/
 
     private void stmtVariables(StatementNode stmt, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
         if(stmt.type == StatementType.LET){
@@ -100,16 +103,27 @@ public class MethodTable {
                 exprVariables(expression.exprLeft, variableTable, initialTables, fields);
                 exprVariables(expression.exprRight, variableTable, initialTables, fields);
             }
-            case RANGE_LEFT, RANGE_RIGHT, RANGE_IN_RIGHT, QT, U_MINUS, NEG, STRUCT_FIELD, FIELD_ACCESS, BREAK, RETURN ->
+            case RANGE_LEFT, RANGE_RIGHT, RANGE_IN_RIGHT, QT, U_MINUS, NEG, STRUCT_FIELD, BREAK, RETURN ->
                     exprVariables(expression.exprLeft, variableTable, initialTables, fields);
             case ARRAY, STRUCT -> exprListVariables(expression.exprList, variableTable, initialTables, fields);
             case CALL, METHOD, STATIC_METHOD -> methodVariables(expression, variableTable, initialTables, fields);
+            case FIELD_ACCESS -> fieldAccessVariables(expression, variableTable, initialTables, fields);
         }
     }
 
     private void methodVariables(ExpressionNode expression, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
         expression.setVar(getMethod(expression.name));
         exprListVariables(expression.exprList, variableTable, initialTables, fields);
+    }
+
+    private void fieldAccessVariables(ExpressionNode expression, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
+
+        /*VariableTable.VariableTableItem varItem = variableTable.getLast(ident.name);
+        if(varItem!=null){
+            ident.setVar(varItem);
+            return;
+        }*/
+        exprVariables(expression.exprLeft, variableTable, initialTables, fields);
     }
 
     private void exprListVariables(ExpressionListNode exprList, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){

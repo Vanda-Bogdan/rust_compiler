@@ -14,9 +14,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ClassTable {
 
     String name;
-    public ClassTable(String name) {
+    private Tables tables;
+
+    public ClassTable(String name, Tables tables) {
         this.name = name;
     }
+
+
 
     //------------------------------------------Constant Table-------------------------------------------------------
     private ConstantTable constantTable = new ConstantTable();
@@ -79,11 +83,11 @@ public class ClassTable {
     private MethodTable methodTable = new MethodTable();
 
     public void addToMethodTable(FunctionNode funcNode){
-        methodTable.add(funcNode, null);
+        methodTable.add(funcNode, null, tables);
     }
 
     public void addToMethodTable(FunctionNode funcNode, FieldTable fields){
-        methodTable.add(funcNode, fields);
+        methodTable.add(funcNode, fields, tables);
     }
 
     public void addToMethodTable(String name, MethodTable.MethodTableItem item){

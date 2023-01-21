@@ -26,6 +26,16 @@ public class ExpressionNode {
     public ExpressionNode elseBody;
     public StatementListNode stmtList;
 
+    public ExpressionNode(){
+
+    }
+
+    //конструктор для занесения в тип массива кол-во
+    public ExpressionNode(int num){
+        type = ExpressionType.INT_LIT;
+        anInt = num;
+    }
+
     //для расчета типов expr
     public TypeNode countedType;
 

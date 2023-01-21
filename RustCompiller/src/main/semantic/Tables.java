@@ -33,7 +33,7 @@ public class Tables {
         if(tables.containsKey(name)){
             throw new IllegalArgumentException("Класс" + name + " уже существует");
         }
-        ClassTable table = new ClassTable(name);
+        ClassTable table = new ClassTable(name, this);
         tables.put(name, table);
         currentTable = table;
         return table;
