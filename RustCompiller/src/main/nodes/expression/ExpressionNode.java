@@ -3,11 +3,15 @@ package main.nodes.expression;
 import main.nodes.TypeNode;
 import main.nodes.VarType;
 import main.nodes.stmt.StatementListNode;
+import main.nodes.stmt.StatementNode;
 import main.semantic.FieldTable;
 import main.semantic.MethodTable;
 import main.semantic.VariableTable;
 
 import java.util.Objects;
+
+import static main.nodes.VarType.ARRAY;
+import static main.nodes.VarType.EMPTY_TYPE;
 
 public class ExpressionNode {
     public int id;
@@ -74,6 +78,221 @@ public class ExpressionNode {
 
     }
 
+    /*------------------------------------------Определение типов expression----------------------------------------------*/
+    public void defineTypeOfExpr() {
+        if(countedType!=null){
+            return;
+        }
+        switch (type) {
+            case PLUS, MINUS, MUL, DIV -> {
+                exprLeft.defineTypeOfExpr();
+                exprRight.defineTypeOfExpr();
+                if (exprLeft.countedType.varType == VarType.INT && exprRight.countedType.varType == VarType.INT) {
+                    countedType = new TypeNode(VarType.INT);
+                }
+                else if (exprLeft.countedType.varType == VarType.FLOAT && exprRight.countedType.varType == VarType.FLOAT) {
+                    countedType = new TypeNode(VarType.FLOAT);
+                }
+                else {
+                    throw new IllegalArgumentException("Неверные типы выражений при выполнении арифметических операций");
+                }
+            }
+            case EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL -> {
+                exprLeft.defineTypeOfExpr();
+                exprRight.defineTypeOfExpr();
+                if (exprLeft.countedType.getName() == exprRight.countedType.getName()) {
+                    countedType = new TypeNode(VarType.BOOL);
+                }
+                else {
+                    throw new IllegalArgumentException("Несовместимые типы для выполнения операции сравнения");
+                }
+            }
+            case QT -> {
+                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!Лучше забить!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            }
+            case U_MINUS -> {
+                exprLeft.defineTypeOfExpr();
+                if (exprLeft.countedType.varType == VarType.INT) {
+                    countedType = new TypeNode(VarType.INT);
+                }
+                else if (exprLeft.countedType.varType == VarType.FLOAT) {
+                    countedType = new TypeNode(VarType.FLOAT);
+                }
+                else {
+                    throw new IllegalArgumentException("Невозможно применить унарный минус к выражению данного типа");
+                }
+            }
+            case NEG -> {
+                exprLeft.defineTypeOfExpr();
+                if (exprLeft.countedType.varType == VarType.BOOL) {
+                    countedType = new TypeNode(VarType.BOOL);
+                }
+                else {
+                    throw new IllegalArgumentException("Невозможно применить отрицание к не boolean выражению");
+                }
+            }
+            case OR, AND -> {
+                exprLeft.defineTypeOfExpr();
+                exprRight.defineTypeOfExpr();
+                if (exprLeft.countedType.varType == VarType.BOOL && exprRight.countedType.varType == VarType.BOOL) {
+                    countedType = new TypeNode(VarType.BOOL);
+                }
+                else {
+                    throw new IllegalArgumentException("Невозможно применить логические И / ИЛИ к не boolean выражениям");
+                }
+            }
+            case ASGN, INDEX_ASGN, FIELD_ASGN -> {
+                exprLeft.defineTypeOfExpr();
+                exprRight.defineTypeOfExpr();
+                if (exprLeft.countedType.getName() == exprRight.countedType.getName()) {
+                    countedType = exprLeft.countedType;
+                }
+                else {
+                    throw new IllegalArgumentException("Несовместимые типы для выполнения операции присваивания");
+                }
+            }
+            case BREAK, RETURN -> {
+                countedType = exprLeft.countedType;
+            }
+            case ARRAY -> {
+                countedType = defineTypeOfArray(exprList);
+            }
+            case ARRAY_AUTO_FILL -> {
+                exprLeft.defineTypeOfExpr();
+                exprRight.defineTypeOfExpr();
+                if (exprLeft.countedType.varType == VarType.EMPTY_TYPE || exprRight.countedType.varType != VarType.INT) {
+                    throw new IllegalArgumentException("Неверная инициализация массива ARRAY_AUTO_FILL");
+                }
+                countedType = new TypeNode(VarType.ARRAY);
+                countedType.exprArr = exprRight;
+                countedType.typeArr = new TypeNode(exprLeft.countedType.varType);
+            }
+            case INDEX -> {
+                exprLeft.defineTypeOfExpr();
+                if (exprLeft.countedType.varType != VarType.ARRAY) {
+                    throw new IllegalArgumentException("У данного типа нет операции обращения по индексу");
+                }
+                countedType = exprLeft.countedType.typeArr;
+            }
+            case RANGE, RANGE_IN, RANGE_LEFT, RANGE_RIGHT, RANGE_IN_RIGHT -> {
+                if (exprLeft != null) {
+                    exprLeft.defineTypeOfExpr();
+                    if (exprLeft.countedType.varType != VarType.INT) {
+                        throw new IllegalArgumentException("Не int тип для левого выражения range");
+                    }
+                }
+                if (exprRight != null) {
+                    exprRight.defineTypeOfExpr();
+                    if (exprRight.countedType.varType != VarType.INT) {
+                        throw new IllegalArgumentException("Не int тип для правого выражения range");
+                    }
+                }
+                countedType = new TypeNode("Range");
+            }
+            case ID -> {
+                setTypeFromVarOrField();
+            }
+            case SELF -> {
+
+            }
+            case FIELD_ACCESS -> {
+            }
+            case IF -> {
+                exprLeft.defineTypeOfExpr();
+                body.defineTypeOfExpr();
+                elseBody.defineTypeOfExpr();
+                if (exprLeft.countedType.varType != VarType.BOOL) {
+                    throw new IllegalArgumentException("В условии if ожидается bool выражение");
+                }
+                if (exprLeft.aBoolean) {
+                    countedType = body.countedType;
+                }
+                else if (elseBody != null) {
+                    countedType = elseBody.countedType;
+                }
+            }
+            case LOOP -> {
+                body.defineTypeOfExpr();
+                countedType = body.countedType;
+            }
+            case LOOP_WHILE, LOOP_FOR, CONTINUE -> {
+                countedType = new TypeNode(VarType.EMPTY_TYPE);
+            }
+            case BLOCK -> {
+                countedType = defineTypeOfBlock(stmtList);
+            }
+            case INT_LIT -> {
+                countedType = new TypeNode(VarType.INT);
+            }
+            case FLOAT_LIT -> {
+                countedType = new TypeNode(VarType.FLOAT);
+            }
+            case CHAR_LIT -> {
+                countedType = new TypeNode(VarType.CHAR);
+            }
+            case STRING_LIT -> {
+                countedType = new TypeNode(VarType.STRING);
+            }
+            case BOOL_LIT -> {
+                countedType = new TypeNode(VarType.BOOL);
+            }
+            case STRUCT -> {
+                countedType = new TypeNode(name);
+            }
+            case STRUCT_FIELD -> {
+                exprLeft.defineTypeOfExpr();
+                countedType = exprLeft.countedType;
+            }
+            case STATIC_METHOD, CALL, METHOD -> {
+                countedType = methodTableItem.returnType();
+            }
+            case FIELD_ACCESS_NEW -> {
+
+            }
+        }
+    }
+
+    private TypeNode defineTypeOfArray(ExpressionListNode exprList){
+        TypeNode currentType = new TypeNode(ARRAY);
+        if(exprList==null){
+            currentType.typeArr = new TypeNode(EMPTY_TYPE);
+            return currentType;
+        }
+        TypeNode bufferType;
+        if(exprList.list.size()>0){
+            exprList.list.get(0).defineTypeOfExpr();
+            currentType.typeArr = exprList.list.get(0).countedType;
+            for (ExpressionNode expr: exprList.list) {
+                expr.defineTypeOfExpr();
+                bufferType = expr.countedType;
+                if(!bufferType.equals(currentType.typeArr)){
+                    throw new IllegalArgumentException("Неверный тип узла " + expr.id + ": " + expr.countedType.getName() + " для массива с элементами типа " + currentType.typeArr.getName());
+                }
+            }
+        }
+        currentType.exprArr = new ExpressionNode(exprList.list.size());
+        return currentType;
+    }
+
+    private TypeNode defineTypeOfBlock(StatementListNode stmtList){
+        TypeNode result = new TypeNode(EMPTY_TYPE);
+        if(stmtList==null){
+            return result;
+        }
+
+        StatementNode stmt = stmtList.list.get(stmtList.list.size() - 1);
+        switch (stmt.type){
+            case LET, SEMICOLON -> {
+                return result;
+            }
+            case EXPRESSION -> {
+                stmt.expr.defineTypeOfExpr();
+                return stmt.expr.countedType;
+            }
+            default -> throw new IllegalArgumentException("define Type Of Block Error. ID: " + stmt.expr.id);
+        }
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

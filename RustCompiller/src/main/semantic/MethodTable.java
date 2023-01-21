@@ -118,11 +118,13 @@ public class MethodTable {
 
     private void fieldAccessVariables(ExpressionNode expression, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
 
-        /*VariableTable.VariableTableItem varItem = variableTable.getLast(ident.name);
-        if(varItem!=null){
-            ident.setVar(varItem);
-            return;
-        }*/
+        expression.exprLeft.defineTypeOfExpr();
+        if(expression.exprLeft.countedType.varType!=VarType.ID){
+            throw new IllegalArgumentException("Доступ к полю возможен только у идентификатора. ID: " + expression.exprLeft.id);
+        }
+        ClassTable classTable = tables.tableByName(expression.exprLeft.countedType.name);
+        expression.setVar(classTable.getField(expression.name));
+        
         exprVariables(expression.exprLeft, variableTable, initialTables, fields);
     }
 

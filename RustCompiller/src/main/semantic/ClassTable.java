@@ -79,6 +79,10 @@ public class ClassTable {
 
     public boolean containsField(String name) { return fieldTable.contains(name); }
 
+    public FieldTable.FieldTableItem getField(String name){
+        return fieldTable.get(name);
+    }
+
     //------------------------------------------MethodTable------------------------------------------
     private MethodTable methodTable = new MethodTable();
 
