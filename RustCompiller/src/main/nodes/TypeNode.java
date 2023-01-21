@@ -21,12 +21,6 @@ public class TypeNode {
         this.name = name;
     }
 
-    public static TypeNode TypeNodeId(String name) {
-        TypeNode node = new TypeNode(VarType.ID);
-        node.name = name;
-        return node;
-    }
-
     public static TypeNode TypeNodeArray(String name) {
         // TODO something
         return null;

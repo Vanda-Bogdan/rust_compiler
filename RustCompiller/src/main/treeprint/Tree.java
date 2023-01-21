@@ -804,6 +804,9 @@ public class Tree {
 
     /*------------------------------------------Определение типов expression----------------------------------------------*/
     private void defineTypeOfExpr(ExpressionNode expr) {
+        if (expr == null) {
+            return;
+        }
         switch (expr.type) {
             case PLUS, MINUS, MUL, DIV -> {
                 defineTypeOfExpr(expr.exprLeft);
@@ -862,44 +865,79 @@ public class Tree {
                     throw new IllegalArgumentException("Невозможно применить логические И / ИЛИ к не boolean выражениям");
                 }
             }
-            case ASGN -> {
-
+            case ASGN, INDEX_ASGN, FIELD_ASGN -> {
+                defineTypeOfExpr(expr.exprLeft);
+                defineTypeOfExpr(expr.exprRight);
+                if (expr.exprLeft.countedType.getName() == expr.exprRight.countedType.getName()) {
+                    expr.countedType = expr.exprLeft.countedType;
+                }
+                else {
+                    throw new IllegalArgumentException("Несовместимые типы для выполнения операции присваивания");
+                }
             }
-            case BREAK -> {
-            }
-            case RETURN -> {
+            case BREAK, RETURN -> {
+                expr.countedType = expr.exprLeft.countedType;
             }
             case ARRAY -> {
                 expr.countedType = defineTypeOfArray(expr.exprList);
             }
             case ARRAY_AUTO_FILL -> {
-
+                defineTypeOfExpr(expr.exprLeft);
+                defineTypeOfExpr(expr.exprRight);
+                if (expr.exprLeft.countedType.varType == VarType.EMPTY_TYPE || expr.exprRight.countedType.varType != VarType.INT) {
+                    throw new IllegalArgumentException("Неверная инициализация массива ARRAY_AUTO_FILL");
+                }
+                expr.countedType = new TypeNode(VarType.ARRAY);
+                expr.countedType.exprArr = expr.exprRight;
+                expr.countedType.typeArr = new TypeNode(expr.exprLeft.countedType.varType);
             }
             case INDEX -> {
+                defineTypeOfExpr(expr.exprLeft);
+                if (expr.exprLeft.countedType.varType != VarType.ARRAY) {
+                    throw new IllegalArgumentException("У данного типа нет операции обращения по индексу");
+                }
+                expr.countedType = expr.exprLeft.countedType.typeArr;
             }
-            case RANGE -> {
-            }
-            case RANGE_IN -> {
-            }
-            case RANGE_LEFT -> {
-            }
-            case RANGE_RIGHT -> {
-            }
-            case RANGE_IN_RIGHT -> {
+            case RANGE, RANGE_IN, RANGE_LEFT, RANGE_RIGHT, RANGE_IN_RIGHT -> {
+                if (expr.exprLeft != null) {
+                    defineTypeOfExpr(expr.exprLeft);
+                    if (expr.exprLeft.countedType.varType != VarType.INT) {
+                        throw new IllegalArgumentException("Не int тип для левого выражения range");
+                    }
+                }
+                if (expr.exprRight != null) {
+                    defineTypeOfExpr(expr.exprRight);
+                    if (expr.exprRight.countedType.varType != VarType.INT) {
+                        throw new IllegalArgumentException("Не int тип для правого выражения range");
+                    }
+                }
+                expr.countedType = new TypeNode("Range");
             }
             case ID -> {
+                expr.setTypeFromVarOrField();
             }
             case SELF -> {
-            }
-            case CALL -> {
-            }
-            case METHOD -> {
+
             }
             case FIELD_ACCESS -> {
             }
             case IF -> {
+                defineTypeOfExpr(expr.exprLeft);
+                defineTypeOfExpr(expr.body);
+                defineTypeOfExpr(expr.elseBody);
+                if (expr.exprLeft.countedType.varType != VarType.BOOL) {
+                    throw new IllegalArgumentException("В условии if ожидается bool выражение");
+                }
+                if (expr.exprLeft.aBoolean) {
+                    expr.countedType = expr.body.countedType;
+                }
+                else if (expr.elseBody != null) {
+                    expr.countedType = expr.elseBody.countedType;
+                }
             }
             case LOOP -> {
+                defineTypeOfExpr(expr.body);
+                expr.countedType = expr.body.countedType;
             }
             case LOOP_WHILE, LOOP_FOR, CONTINUE -> {
                 expr.countedType = new TypeNode(VarType.EMPTY_TYPE);
@@ -923,17 +961,17 @@ public class Tree {
                 expr.countedType = new TypeNode(VarType.BOOL);
             }
             case STRUCT -> {
-                expr.countedType = TypeNode.TypeNodeId(expr.name);
+                expr.countedType = new TypeNode(expr.name);
             }
             case STRUCT_FIELD -> {
+                defineTypeOfExpr(expr.exprLeft);
+                expr.countedType = expr.exprLeft.countedType;
             }
-            case STATIC_METHOD -> {
-            }
-            case INDEX_ASGN -> {
-            }
-            case FIELD_ASGN -> {
+            case STATIC_METHOD, CALL, METHOD -> {
+                expr.countedType = expr.methodTableItem.returnType();
             }
             case FIELD_ACCESS_NEW -> {
+
             }
         }
     }

@@ -55,10 +55,23 @@ public class ExpressionNode {
     }
 
     // *Если это вызов метода
-    private MethodTable.MethodTableItem methodTableItem;
+    public MethodTable.MethodTableItem methodTableItem;
 
-    public void setVar(MethodTable.MethodTableItem item){
+    public void setVar(MethodTable.MethodTableItem item) {
         this.methodTableItem = item;
+    }
+
+    public void setTypeFromVarOrField() {
+        if (variableTableItem == null && fieldTableItem == null) {
+            throw new IllegalArgumentException("variableTableItem и fieldTableItem равны null в узле " + id);
+        }
+        else if (variableTableItem != null) {
+            countedType = variableTableItem.type();
+        }
+        else {
+            countedType = fieldTableItem.type();
+        }
+
     }
 
     @Override
