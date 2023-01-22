@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import static main.nodes.VarType.ARRAY;
+import static main.nodes.VarType.UNDEFINED;
 
 public class Tree {
 
@@ -775,8 +776,6 @@ public class Tree {
             case CONST_STMT -> constStmtTransform(decl.constStmtItem);
             case TRAIT -> traitTransform(decl.traitItem);
             case IMPL -> implTransform(decl.implItem);
-            case STRUCT -> {};
-            case ENUM -> {};
         }
     }
 
@@ -824,21 +823,22 @@ public class Tree {
 
     private void stmtTypes(StatementNode stmt){
         switch (stmt.type) {
-            case EXPRESSION -> {
-                exprTypes(stmt.expr);
-            }
-            case DECLARATION -> {
-                declarationTransform(stmt.declarationStmt);
-            }
-            case LET -> {
-                letTypes(stmt.letStmt);
-            }
+            case EXPRESSION -> exprTypes(stmt.expr);
+            case DECLARATION -> declarationTypes(stmt.declarationStmt);
+            case LET -> letTypes(stmt.letStmt);
         }
     }
 
     private void letTypes(LetStatementNode let){
-        let.expr.defineTypeOfExpr();
-        let.setVarType(let.expr.countedType);
+        if(let.expr!=null){
+            let.expr.defineTypeOfExpr();
+            if(let.type.varType==UNDEFINED || let.type.equals(let.expr.countedType)){
+                let.setVarType(let.expr.countedType);
+            }
+            else {
+                throw new IllegalArgumentException("Несоответствие типов в объявлении " + let.name + "(ID: " + let.id + ")");
+            }
+        }
     }
 
     private void exprTypes(ExpressionNode expr){
@@ -849,7 +849,7 @@ public class Tree {
                     throw new IllegalArgumentException("Неизвестная функция " + expr.name + "(ID: " + expr.id + ")");
                 }
                 ArrayList<FunctionParamNode> paramList = expr.methodTableItem().params().list;
-                if(expr.exprList.list.size() != paramList.size()){
+                if(expr.exprList == null && paramList.size() > 0 || expr.exprList.list.size() != paramList.size()){
                     throw new IllegalArgumentException("Несоответствие кол-ва параметров функции " + expr.name + ". ID: " + expr.id);
                 }
                 else{
@@ -857,27 +857,48 @@ public class Tree {
                     for (ExpressionNode param: expr.exprList.list){
                         param.defineTypeOfExpr();
                         if(num>paramList.size()-1){
-                            throw new IllegalArgumentException("Лишний параметр (ID: " + param.id + ") функции " + expr.name + "(ID: " + expr.id + ")");
+                            throw new IllegalArgumentException("Лишний параметр (ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + ")");
                         }
                         else if (!paramList.get(num).type.equals(expr.countedType)){
-                            throw new IllegalArgumentException("Несоответствие типа параметра " + param.name + "(ID: " + param.id + ") функции " + expr.name + "(ID: " + expr.id + "). Ожидаемый тип: " + paramList.get(num).type.getName() + ", реальный: " + param.countedType.getName());
+                            throw new IllegalArgumentException("Несоответствие типа параметра " + param.name + "(ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + "). Ожидаемый тип: " + paramList.get(num).type.getName() + ", реальный: " + param.countedType.getName());
                         }
                         num++;
                     }
                 }
                 expr.defineTypeOfExpr();
             }
+
             case METHOD -> {
 
             }
+
             case STATIC_METHOD -> {
 
             }
+
             case STRUCT -> {
-                FieldTable structFields = tables.tableByName(expr.name).fields();
+                ClassTable struct = tables.tableByName(expr.name);
+                if(struct==null){
+                    throw new IllegalArgumentException("Объявление неизвестной структуры " + expr.name + "(ID: " + expr.id + ")");
+                }
+                FieldTable structFields = struct.fields();
 
-                if(expr.exprList==null){
+                if(expr.exprList==null && structFields.items.size()>0 || expr.exprList.list.size() != structFields.items.size()){
+                    throw new IllegalArgumentException("Несоответствие кол-ва полей при инициализации объекта структуры " + expr.name + ". ID: " + expr.id);
+                }
 
+                for (ExpressionNode param : expr.exprList.list){
+                    if(param.type!=ExpressionType.STRUCT_FIELD){
+                        throw new IllegalArgumentException("Неверное выражение (ID: " + param.id + ") типа " + param.type.toString() + " при инициализации объекта структуры " + expr.name);
+                    }
+                    else if(!structFields.contains(param.name)){
+                        throw new IllegalArgumentException("Неизвестный параметр " + param.name + "(ID: " + param.id + ") при инициализации объекта структуры " + expr.name);
+                    }
+                    param.exprLeft.defineTypeOfExpr();
+                    TypeNode expectedType = structFields.get(param.name).type();
+                    if(!expectedType.equals(expr.exprLeft.countedType)){
+                        throw new IllegalArgumentException("Для параметра " + param.name + "(ID: " + param.id + ") при инициализации объекта структуры " + expr.name + " ожидался тип: " + expectedType.getName() + ", реальный тип - " + expr.exprLeft.countedType.getName());
+                    }
                 }
             }
 
@@ -887,9 +908,7 @@ public class Tree {
 
     private void declarationTypes(DeclarationStatementNode decl){
         switch (decl.type){
-            case FUNCTION -> {
-
-            }
+            case FUNCTION -> functionTypes(decl.functionItem);
             case ENUM -> {}
             case CONST_STMT -> {}
             case STRUCT -> {}
@@ -899,7 +918,9 @@ public class Tree {
     }
 
     private void functionTypes(FunctionNode function){
-
+        if(function.body.stmtList!=null){
+            function.body.stmtList.list.forEach(this::stmtTypes);
+        }
     }
 
 }

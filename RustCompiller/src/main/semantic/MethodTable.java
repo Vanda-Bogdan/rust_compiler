@@ -143,10 +143,10 @@ public class MethodTable {
         exprVariables(expression.exprLeft, variableTable, initialTables, fields);
         expression.exprLeft.defineTypeOfExpr();
         ClassTable classTable = tables.tableByName(expression.exprLeft.countedType.name);
-        if(classTable==null){
-            throw new IllegalArgumentException("Не удалось найти класс " + expression.exprLeft.countedType.name + "(ID: " + expression.exprLeft.id + ")");
+        if(classTable!=null){
+           //throw new IllegalArgumentException("Не существует класса " + expression.exprLeft.countedType.name + "(ID: " + expression.exprLeft.id + ")");
+            expression.setMethod(expression.name, classTable.methods());
         }
-        expression.setMethod(expression.name, classTable.methods());
 
         exprListVariables(expression.exprList, variableTable, initialTables, fields);
     }

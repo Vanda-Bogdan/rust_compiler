@@ -13,6 +13,8 @@ public class Main{
         Tree tree = TreeFromXml.buildTree();
         tree.transform();
         tree.print();
+        tree.createTables();
+        tree.typesCheck();
 
     }
 

@@ -26,7 +26,8 @@ public class LetStatementNode {
     }
 
     public void setVarType(TypeNode newType){
-       variableTable.resetType(varID, newType);
+        type=newType;
+        variableTable.resetType(varID, newType);
     }
 
 }
