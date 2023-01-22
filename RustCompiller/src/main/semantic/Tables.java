@@ -80,25 +80,11 @@ public class Tables {
 
     private void declStmtClasses(DeclarationStatementNode declStmt){
         switch (declStmt.type) {
-            case STRUCT -> {
-                structClasses(declStmt.structItem);
-            }
-
-            case IMPL -> {
-                implClasses(declStmt.implItem);
-            }
-
-            case ENUM -> {
-                enumClasses(declStmt.enumItem);
-            }
-
-            case CONST_STMT -> {
-                constStmtClasses(declStmt.constStmtItem);
-            }
-
-            case FUNCTION -> {
-                functionClasses(declStmt.functionItem);
-            }
+            case STRUCT -> structClasses(declStmt.structItem);
+            case IMPL -> implClasses(declStmt.implItem);
+            case ENUM -> enumClasses(declStmt.enumItem);
+            case CONST_STMT -> constStmtClasses(declStmt.constStmtItem);
+            case FUNCTION -> functionClasses(declStmt.functionItem);
         }
     }
 

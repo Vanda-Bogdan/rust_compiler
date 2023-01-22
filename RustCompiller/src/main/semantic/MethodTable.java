@@ -143,9 +143,11 @@ public class MethodTable {
         exprVariables(expression.exprLeft, variableTable, initialTables, fields);
         expression.exprLeft.defineTypeOfExpr();
         ClassTable classTable = tables.tableByName(expression.exprLeft.countedType.name);
-        if(classTable!=null){
-            expression.setMethod(expression.name, classTable.methods());
+        if(classTable==null){
+            throw new IllegalArgumentException("Не удалось найти класс " + expression.exprLeft.countedType.name + "(ID: " + expression.exprLeft.id + ")");
         }
+        expression.setMethod(expression.name, classTable.methods());
+
         exprListVariables(expression.exprList, variableTable, initialTables, fields);
     }
 
@@ -153,10 +155,9 @@ public class MethodTable {
 
         ClassTable classTable = tables.tableByName(expression.parentId);
         if(classTable==null){
-            throw new IllegalArgumentException("Не существует класса " + expression.parentId + ". ID: " + expression.id);
+            throw new IllegalArgumentException("Не существует класса " + expression.parentId + "(ID: " + expression.id + ")");
         }
         expression.setMethod(expression.name, classTable.methods());
-
         exprListVariables(expression.exprList, variableTable, initialTables, fields);
     }
 
@@ -209,7 +210,7 @@ public class MethodTable {
             return;
         }
 
-        throw new IllegalArgumentException("Необъявленная переменная " + ident.name);
+        throw new IllegalArgumentException("Необъявленная переменная " + ident.name + "(ID: " + ident.id + ")");
     }
 
     private void ifVariables(ExpressionNode ifNode, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){

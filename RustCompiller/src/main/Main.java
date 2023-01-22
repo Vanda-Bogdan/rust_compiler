@@ -13,9 +13,6 @@ public class Main{
         Tree tree = TreeFromXml.buildTree();
         tree.transform();
         tree.print();
-        Tables tables = new Tables();
-        tables.createTables(tree);
-        tables.outputTablesToFiles();
 
     }
 

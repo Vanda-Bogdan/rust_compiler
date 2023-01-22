@@ -22,6 +22,10 @@ import main.nodes.struct.StructNode;
 import main.nodes.trait.AssociatedItemListNode;
 import main.nodes.trait.AssociatedItemNode;
 import main.nodes.trait.TraitNode;
+import main.semantic.ClassTable;
+import main.semantic.FieldTable;
+import main.semantic.Tables;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -39,6 +43,15 @@ public class Tree {
 
     public Tree(ProgramNode prg) {
         this.prg = prg;
+    }
+
+    //-----------------------Таблицы--------------------------
+    private Tables tables;
+
+    public void createTables(){
+        tables = new Tables();
+        tables.createTables(this);
+        tables.outputTablesToFiles();
     }
 
     //---------------------------------Вывод дерева в дот-------------------------------
@@ -762,6 +775,8 @@ public class Tree {
             case CONST_STMT -> constStmtTransform(decl.constStmtItem);
             case TRAIT -> traitTransform(decl.traitItem);
             case IMPL -> implTransform(decl.implItem);
+            case STRUCT -> {};
+            case ENUM -> {};
         }
     }
 
@@ -802,6 +817,89 @@ public class Tree {
         }
     }
 
-    //----------------------------------- Простановка типов -------------------------------------
+    //----------------------------------- Проверка соответствия типов-------------------------------------
+    public void typesCheck(){
+        this.prg.stmtList.list.forEach(this::stmtTypes);
+    }
+
+    private void stmtTypes(StatementNode stmt){
+        switch (stmt.type) {
+            case EXPRESSION -> {
+                exprTypes(stmt.expr);
+            }
+            case DECLARATION -> {
+                declarationTransform(stmt.declarationStmt);
+            }
+            case LET -> {
+                letTypes(stmt.letStmt);
+            }
+        }
+    }
+
+    private void letTypes(LetStatementNode let){
+        let.expr.defineTypeOfExpr();
+        let.setVarType(let.expr.countedType);
+    }
+
+    private void exprTypes(ExpressionNode expr){
+        switch (expr.type){
+            case CALL -> {
+                //проверка совпадений типов переданных параметров функции
+                if(expr.methodTableItem()==null){
+                    throw new IllegalArgumentException("Неизвестная функция " + expr.name + "(ID: " + expr.id + ")");
+                }
+                ArrayList<FunctionParamNode> paramList = expr.methodTableItem().params().list;
+                if(expr.exprList.list.size() != paramList.size()){
+                    throw new IllegalArgumentException("Несоответствие кол-ва параметров функции " + expr.name + ". ID: " + expr.id);
+                }
+                else{
+                    int num = 0;
+                    for (ExpressionNode param: expr.exprList.list){
+                        param.defineTypeOfExpr();
+                        if(num>paramList.size()-1){
+                            throw new IllegalArgumentException("Лишний параметр (ID: " + param.id + ") функции " + expr.name + "(ID: " + expr.id + ")");
+                        }
+                        else if (!paramList.get(num).type.equals(expr.countedType)){
+                            throw new IllegalArgumentException("Несоответствие типа параметра " + param.name + "(ID: " + param.id + ") функции " + expr.name + "(ID: " + expr.id + "). Ожидаемый тип: " + paramList.get(num).type.getName() + ", реальный: " + param.countedType.getName());
+                        }
+                        num++;
+                    }
+                }
+                expr.defineTypeOfExpr();
+            }
+            case METHOD -> {
+
+            }
+            case STATIC_METHOD -> {
+
+            }
+            case STRUCT -> {
+                FieldTable structFields = tables.tableByName(expr.name).fields();
+
+                if(expr.exprList==null){
+
+                }
+            }
+
+            default -> expr.defineTypeOfExpr();
+        }
+    }
+
+    private void declarationTypes(DeclarationStatementNode decl){
+        switch (decl.type){
+            case FUNCTION -> {
+
+            }
+            case ENUM -> {}
+            case CONST_STMT -> {}
+            case STRUCT -> {}
+            case TRAIT -> {}
+            case IMPL -> {}
+        }
+    }
+
+    private void functionTypes(FunctionNode function){
+
+    }
 
 }

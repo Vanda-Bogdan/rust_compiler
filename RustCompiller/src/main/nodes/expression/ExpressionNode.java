@@ -130,7 +130,7 @@ public class ExpressionNode {
             case EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL -> {
                 exprLeft.defineTypeOfExpr();
                 exprRight.defineTypeOfExpr();
-                if (exprLeft.countedType.getName() == exprRight.countedType.getName()) {
+                if (Objects.equals(exprLeft.countedType.getName(), exprRight.countedType.getName())) {
                     countedType = new TypeNode(VarType.BOOL);
                 }
                 else {
