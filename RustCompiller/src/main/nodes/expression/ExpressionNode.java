@@ -8,6 +8,7 @@ import main.semantic.FieldTable;
 import main.semantic.MethodTable;
 import main.semantic.VariableTable;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 import static main.nodes.VarType.*;
@@ -237,8 +238,7 @@ public class ExpressionNode {
                 }
             }
             case LOOP -> {
-                body.defineTypeOfExpr();
-                countedType = body.countedType;
+                countedType = body.defineTypeOfLoopBody();
             }
             case LOOP_WHILE, LOOP_FOR, CONTINUE -> countedType = new TypeNode(VOID);
             case BLOCK -> countedType = defineTypeOfBlock(stmtList);
@@ -249,6 +249,48 @@ public class ExpressionNode {
             case BOOL_LIT -> countedType = new TypeNode(VarType.BOOL);
             case STRUCT -> countedType = new TypeNode(name);
             case STATIC_METHOD, CALL, METHOD -> countedType = methodTableItem().returnType();
+        }
+    }
+
+    private TypeNode defineTypeOfLoopBody() {
+        // Массив break
+        ArrayList<ExpressionNode> breaks = new ArrayList<>();
+
+        // Получение возвращаемого типа break и проверка идентичности типов во всех break
+        body.findBreakInBlock(breaks);
+        for (int i = 0; i < breaks.size(); i++) {
+            breaks.get(i).defineTypeOfExpr();
+            if (i > 0 && breaks.get(0).countedType.getName() != breaks.get(i).countedType.getName()) {
+                throw new IllegalArgumentException("В break ожидается тип " + breaks.get(0).countedType.getName()
+                        + ", получен " + breaks.get(i).countedType.getName());
+            }
+        }
+
+        if (breaks.size() == 0)
+            return new TypeNode(VarType.VOID);
+        else
+            return breaks.get(0).countedType;
+    }
+
+    private void findBreakInBlock(ArrayList<ExpressionNode> breaks) {
+        switch (this.type) {
+            case BLOCK -> {
+                for (StatementNode item : this.stmtList.list) {
+                    if (item.expr.type == ExpressionType.BREAK) {
+                        breaks.add(item.expr);
+                    }
+                    item.expr.findBreakInBlock(breaks);
+                }
+            }
+            case LOOP_FOR, LOOP_WHILE -> {}
+            default -> {
+                if (body != null) {
+                    body.findBreakInBlock(breaks);
+                }
+                if (elseBody != null) {
+                    elseBody.findBreakInBlock(breaks);
+                }
+            }
         }
     }
 
