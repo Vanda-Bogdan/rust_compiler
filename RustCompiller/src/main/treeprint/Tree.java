@@ -1,4 +1,5 @@
 package main.treeprint;
+
 import main.nodes.*;
 import main.nodes.conststmt.ConstStatementNode;
 import main.nodes.declstmt.DeclarationStatementNode;
@@ -49,7 +50,7 @@ public class Tree {
     //-----------------------Таблицы--------------------------
     private Tables tables;
 
-    public void createTables(){
+    public void createTables() {
         tables = new Tables();
         tables.createTables(this);
         tables.outputTablesToFiles();
@@ -99,8 +100,7 @@ public class Tree {
     private void typePrint(TypeNode typeNode) throws IOException {
         if (typeNode.exprArr == null) {
             declarationPrint2(typeNode.id, "type:", type(typeNode.varType) + " " + typeNode.name);
-        }
-        else {
+        } else {
             declarationPrint2(typeNode.id, "[type; Expr]", type(typeNode.varType) + " " + typeNode.name);
         }
         if (typeNode.varType == ARRAY) {
@@ -493,32 +493,32 @@ public class Tree {
 
         switch (declarationStmt.type) {
             case ENUM -> {
-                declarationPrint(declarationStmt.id,  "enum");
+                declarationPrint(declarationStmt.id, "enum");
                 connectionPrint(declarationStmt.id, declarationStmt.enumItem.id);
                 enumPrint(declarationStmt.enumItem);
             }
             case FUNCTION -> {
-                declarationPrint(declarationStmt.id,  "function");
+                declarationPrint(declarationStmt.id, "function");
                 connectionPrint(declarationStmt.id, declarationStmt.functionItem.id);
                 functionPrint(declarationStmt.functionItem);
             }
             case CONST_STMT -> {
-                declarationPrint(declarationStmt.id,  "const_stmt");
+                declarationPrint(declarationStmt.id, "const_stmt");
                 connectionPrint(declarationStmt.id, declarationStmt.constStmtItem.id);
                 constStmtPrint(declarationStmt.constStmtItem);
             }
             case STRUCT -> {
-                declarationPrint(declarationStmt.id,  "struct");
+                declarationPrint(declarationStmt.id, "struct");
                 connectionPrint(declarationStmt.id, declarationStmt.structItem.id);
                 structPrint(declarationStmt.structItem);
             }
             case TRAIT -> {
-                declarationPrint(declarationStmt.id,  "trait");
+                declarationPrint(declarationStmt.id, "trait");
                 connectionPrint(declarationStmt.id, declarationStmt.traitItem.id);
                 traitPrint(declarationStmt.traitItem);
             }
             case IMPL -> {
-                declarationPrint(declarationStmt.id,  "impl");
+                declarationPrint(declarationStmt.id, "impl");
                 connectionPrint(declarationStmt.id, declarationStmt.implItem.id);
                 implPrint(declarationStmt.implItem);
             }
@@ -529,8 +529,7 @@ public class Tree {
         String type;
         if (letStmt.mut == Mutable.MUT) {
             type = "mutable";
-        }
-        else {
+        } else {
             type = "not_mutable";
         }
         declarationPrint2(letStmt.id, type, letStmt.name);
@@ -625,12 +624,12 @@ public class Tree {
     private void associatedItemPrint(AssociatedItemNode item) throws IOException {
 
         if (item.fun != null) {
-            declarationPrint(item.id,  "function");
+            declarationPrint(item.id, "function");
             connectionPrint(item.id, item.fun.id);
             functionPrint(item.fun);
         }
         if (item.constStmt != null) {
-            declarationPrint(item.id,  "const_item");
+            declarationPrint(item.id, "const_item");
             connectionPrint(item.id, item.constStmt.id);
             constStmtPrint(item.constStmt);
         }
@@ -654,15 +653,15 @@ public class Tree {
     }
 
     //------------------------------Преобразование дерева-----------------------------------//
-    public void transform(){
+    public void transform() {
         this.prg.stmtList.list.forEach(this::stmtTransform);
     }
 
-    private void exprTransform(ExpressionNode expr){
-        if(expr==null){
+    private void exprTransform(ExpressionNode expr) {
+        if (expr == null) {
             return;
         }
-        switch (expr.type){
+        switch (expr.type) {
             case PLUS:
             case MINUS:
             case DIV:
@@ -694,7 +693,7 @@ public class Tree {
                 break;
             case BREAK:
             case RETURN:
-                if(expr.exprLeft!=null){
+                if (expr.exprLeft != null) {
                     exprTransform(expr.exprLeft);
                 }
                 break;
@@ -704,20 +703,20 @@ public class Tree {
             case CALL:
             case STATIC_METHOD:
             case STRUCT:
-                if(expr.exprList!=null){
+                if (expr.exprList != null) {
                     exprListTransform(expr.exprList);
                 }
                 break;
             case METHOD:
                 exprTransform(expr.exprLeft);
-                if(expr.exprList!=null){
+                if (expr.exprList != null) {
                     exprListTransform(expr.exprList);
                 }
                 break;
             case IF:
                 exprTransform(expr.exprLeft);
                 exprTransform(expr.body);
-                if(expr.elseBody!=null){
+                if (expr.elseBody != null) {
                     exprTransform(expr.elseBody);
                 }
                 break;
@@ -730,7 +729,7 @@ public class Tree {
                 break;
             case LOOP_WHILE:
                 exprTransform(expr.exprLeft);
-                if(expr.body!=null){
+                if (expr.body != null) {
                     exprTransform(expr.body);
                 }
                 break;
@@ -756,7 +755,7 @@ public class Tree {
         }
     }
 
-    private void stmtTransform(StatementNode stmt){
+    private void stmtTransform(StatementNode stmt) {
         switch (stmt.type) {
             case EXPRESSION -> {
                 exprTransform(stmt.expr);
@@ -770,8 +769,8 @@ public class Tree {
         }
     }
 
-    private void declarationTransform(DeclarationStatementNode decl){
-        switch (decl.type){
+    private void declarationTransform(DeclarationStatementNode decl) {
+        switch (decl.type) {
             case FUNCTION -> functionTransform(decl.functionItem);
             case CONST_STMT -> constStmtTransform(decl.constStmtItem);
             case TRAIT -> traitTransform(decl.traitItem);
@@ -779,49 +778,49 @@ public class Tree {
         }
     }
 
-    private void exprListTransform(ExpressionListNode exprList){
+    private void exprListTransform(ExpressionListNode exprList) {
         exprList.list.forEach(this::exprTransform);
     }
 
-    private void constStmtTransform(ConstStatementNode constStmt){
-        if(constStmt.expr!=null){
+    private void constStmtTransform(ConstStatementNode constStmt) {
+        if (constStmt.expr != null) {
             exprTransform(constStmt.expr);
         }
     }
 
-    private void functionTransform(FunctionNode func){
-        if(func.body!=null){
+    private void functionTransform(FunctionNode func) {
+        if (func.body != null) {
             exprTransform(func.body);
         }
     }
 
-    private void traitTransform(TraitNode trait){
-        if(trait.associatedItemList!=null && trait.associatedItemList.list.size()>0){
+    private void traitTransform(TraitNode trait) {
+        if (trait.associatedItemList != null && trait.associatedItemList.list.size() > 0) {
             trait.associatedItemList.list.forEach(this::associatedItemTransform);
         }
     }
 
-    private void implTransform(ImplNode impl){
-        if(impl.associatedItemList!=null && impl.associatedItemList.list.size()>0){
+    private void implTransform(ImplNode impl) {
+        if (impl.associatedItemList != null && impl.associatedItemList.list.size() > 0) {
             impl.associatedItemList.list.forEach(this::associatedItemTransform);
         }
     }
 
-    private void associatedItemTransform(AssociatedItemNode item){
-        if(item.fun!=null){
+    private void associatedItemTransform(AssociatedItemNode item) {
+        if (item.fun != null) {
             functionTransform(item.fun);
         }
-        if(item.constStmt!=null){
+        if (item.constStmt != null) {
             constStmtTransform(item.constStmt);
         }
     }
 
     //----------------------------------- Проверка соответствия типов-------------------------------------
-    public void typesCheck(){
+    public void typesCheck() {
         this.prg.stmtList.list.forEach(this::stmtTypes);
     }
 
-    private void stmtTypes(StatementNode stmt){
+    private void stmtTypes(StatementNode stmt) {
         switch (stmt.type) {
             case EXPRESSION -> exprTypes(stmt.expr);
             case DECLARATION -> declarationTypes(stmt.declarationStmt);
@@ -829,43 +828,39 @@ public class Tree {
         }
     }
 
-    private void letTypes(LetStatementNode let){
-        if(let.expr!=null){
-            let.expr.defineTypeOfExpr();
-            if(let.type.varType==UNDEFINED || let.type.equals(let.expr.countedType)){
+    private void letTypes(LetStatementNode let) {
+        if (let.expr != null) {
+            exprTypes(let.expr);
+            if (let.type.varType == UNDEFINED || let.type.equals(let.expr.countedType)) {
                 let.setVarType(let.expr.countedType);
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("Несоответствие типов в объявлении " + let.name + "(ID: " + let.id + ")");
             }
         }
     }
 
-    private void exprTypes(ExpressionNode expr){
-        switch (expr.type){
+    private void exprTypes(ExpressionNode expr) {
+        switch (expr.type) {
             case CALL -> {
                 //проверка совпадений типов переданных параметров функции
-                if(expr.methodTableItem()==null){
+                if (expr.methodTableItem() == null) {
                     //todo проверка на стандартную функцию? хз как должно быть.
-                    if(!tables.standardFunctionExists(expr.name)){
+                    if (!tables.standardFunctionExists(expr.name)) {
                         throw new IllegalArgumentException("Неизвестная функция " + expr.name + "(ID: " + expr.id + ")");
-                    }
-                    else {
+                    } else {
                         expr.countedType = tables.standardFunctionReturnType(expr.name);
                     }
-                }else {
+                } else {
                     ArrayList<FunctionParamNode> paramList = expr.methodTableItem().params().list;
-                    if(expr.exprList == null && paramList.size() > 0 || expr.exprList.list.size() != paramList.size()){
-                        throw new IllegalArgumentException("Несоответствие кол-ва параметров функции " + expr.name + ". ID: " + expr.id);
-                    }
-                    else{
+                    if (expr.exprList == null && paramList.size() > 0 || expr.exprList.list.size() != paramList.size()) {
+                        throw new IllegalArgumentException("Несоответствие кол-ва параметров функции " + expr.name + ". Требуется " + paramList.size() + " параметров. (ID: " + expr.id + ")");
+                    } else {
                         int num = 0;
-                        for (ExpressionNode param: expr.exprList.list){
+                        for (ExpressionNode param : expr.exprList.list) {
                             param.defineTypeOfExpr();
-                            if(num>paramList.size()-1){
+                            if (num > paramList.size() - 1) {
                                 throw new IllegalArgumentException("Лишний параметр (ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + ")");
-                            }
-                            else if (!paramList.get(num).type.equals(expr.countedType)){
+                            } else if (!paramList.get(num).type.equals(param.countedType)) {
                                 throw new IllegalArgumentException("Несоответствие типа параметра " + param.name + "(ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + "). Ожидаемый тип: " + paramList.get(num).type.getName() + ", реальный: " + param.countedType.getName());
                             }
                             num++;
@@ -877,56 +872,134 @@ public class Tree {
             }
 
             case METHOD -> {
+                expr.exprLeft.defineTypeOfExpr();
+                ClassTable classTable = tables.tableByName(expr.exprLeft.countedType.name);
+                if (classTable == null) {
+                    throw new IllegalArgumentException("Неизвестный класс " + expr.exprLeft.countedType.name + "(ID: " + expr.id + ")");
+                }
+                expr.setMethod(expr.name, classTable.methods());
+                if (expr.methodTableItem() == null) {
+                    throw new IllegalArgumentException("Неизвестный метод " + expr.name + " для класса " + expr.exprLeft.countedType.name + "(ID: " + expr.id + ")");
+                }
 
+                ArrayList<FunctionParamNode> paramList = expr.methodTableItem().params().list;
+
+                if (expr.exprList == null) {
+                    if (paramList.size() > 0) {
+                        throw new IllegalArgumentException("Несоответствие кол-ва параметров метода " + expr.name + ". Требуется " + paramList.size() + " параметров. (ID: " + expr.id + ")");
+                    }
+                }
+                else if (expr.exprList.list.size() != paramList.size()) {
+                    throw new IllegalArgumentException("Несоответствие кол-ва параметров метода " + expr.name + ". Требуется " + paramList.size() + " параметров. (ID: " + expr.id + ")");
+                }
+                else {
+                    int num = 0;
+                    for (ExpressionNode param : expr.exprList.list) {
+                        param.defineTypeOfExpr();
+                        if (num > paramList.size() - 1) {
+                            throw new IllegalArgumentException("Лишний параметр (ID: " + param.id + ") вызова метода " + expr.name + "(ID: " + expr.id + ")");
+                        } else if (!paramList.get(num).type.equals(param.countedType)) {
+                            TypeNode type1 = paramList.get(num).type;
+                            TypeNode type2 = expr.countedType;
+                            throw new IllegalArgumentException("Несоответствие типа параметра " + param.name + "(ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + "). Ожидаемый тип: " + paramList.get(num).type.getName() + ", реальный: " + param.countedType.getName());
+                        }
+                        num++;
+                    }
+                    expr.defineTypeOfExpr();
+                }
             }
 
             case STATIC_METHOD -> {
+                ClassTable classTable = tables.tableByName(expr.parentId);
+                if (classTable == null) {
+                    throw new IllegalArgumentException("Неизвестный класс " + expr.parentId + "(ID: " + expr.id + ")");
+                }
+                expr.setMethod(expr.name, classTable.methods());
+                if (expr.methodTableItem() == null) {
+                    throw new IllegalArgumentException("Неизвестный статический метод " + expr.name + " для класса " + expr.parentId + "(ID: " + expr.id + ")");
+                }
+
+                ArrayList<FunctionParamNode> paramList = expr.methodTableItem().params().list;
+
+                if (expr.exprList == null) {
+                    if (paramList.size() > 0) {
+                        throw new IllegalArgumentException("Несоответствие кол-ва параметров статического метода " + expr.name + ". Требуется " + paramList.size() + " параметров. (ID: " + expr.id + ")");
+                    }
+                }
+                else if (expr.exprList.list.size() != paramList.size()) {
+                    throw new IllegalArgumentException("Несоответствие кол-ва параметров статического метода " + expr.name + ". Требуется " + paramList.size() + " параметров. (ID: " + expr.id + ")");
+                }
+                else {
+                    int num = 0;
+                    for (ExpressionNode param : expr.exprList.list) {
+                        param.defineTypeOfExpr();
+                        if (num > paramList.size() - 1) {
+                            throw new IllegalArgumentException("Лишний параметр (ID: " + param.id + ") вызова метода " + expr.name + "(ID: " + expr.id + ")");
+                        } else if (!paramList.get(num).type.equals(param.countedType)) {
+                            TypeNode type1 = paramList.get(num).type;
+                            TypeNode type2 = expr.countedType;
+                            throw new IllegalArgumentException("Несоответствие типа параметра " + param.name + "(ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + "). Ожидаемый тип: " + paramList.get(num).type.getName() + ", реальный: " + param.countedType.getName());
+                        }
+                        num++;
+                    }
+                    expr.defineTypeOfExpr();
+                }
 
             }
 
             case STRUCT -> {
                 ClassTable struct = tables.tableByName(expr.name);
-                if(struct==null){
+                if (struct == null) {
                     throw new IllegalArgumentException("Объявление неизвестной структуры " + expr.name + "(ID: " + expr.id + ")");
                 }
                 FieldTable structFields = struct.fields();
 
-                if(expr.exprList==null && structFields.items.size()>0 || expr.exprList.list.size() != structFields.items.size()){
-                    throw new IllegalArgumentException("Несоответствие кол-ва полей при инициализации объекта структуры " + expr.name + ". ID: " + expr.id);
+                if (expr.exprList == null) {
+                    if (structFields.items.size() > 0) {
+                        throw new IllegalArgumentException("Несоответствие кол-ва полей при инициализации объекта структуры " + expr.name + ". ID: " + expr.id);
+                    }
                 }
-
-                for (ExpressionNode param : expr.exprList.list){
-                    if(param.type!=ExpressionType.STRUCT_FIELD){
-                        throw new IllegalArgumentException("Неверное выражение (ID: " + param.id + ") типа " + param.type.toString() + " при инициализации объекта структуры " + expr.name);
+                else if (expr.exprList.list.size() != structFields.amountNotConst()) {
+                    throw new IllegalArgumentException("Несоответствие кол-ва полей при инициализации объекта структуры " + expr.name + ". Требуется " + structFields.items.size() + " полей, получено " + expr.exprList.list.size() + " полей. (ID: "+ expr.id + ")");
+                }
+                else {
+                    for (ExpressionNode param : expr.exprList.list) {
+                        if (param.type != ExpressionType.STRUCT_FIELD) {
+                            throw new IllegalArgumentException("Неверное выражение (ID: " + param.id + ") типа " + param.type.toString() + " при инициализации объекта структуры " + expr.name);
+                        } else if (!structFields.contains(param.name)) {
+                            throw new IllegalArgumentException("Неизвестный параметр " + param.name + "(ID: " + param.id + ") при инициализации объекта структуры " + expr.name);
+                        }
+                        param.exprLeft.defineTypeOfExpr();
+                        TypeNode expectedType = structFields.get(param.name).type();
+                        if (!expectedType.equals(param.exprLeft.countedType)) {
+                            throw new IllegalArgumentException("Для параметра " + param.name + "(ID: " + param.id + ") при инициализации объекта структуры " + expr.name + " ожидался тип: " + expectedType.getName() + ", реальный тип - " + param.exprLeft.countedType.getName());
+                        }
                     }
-                    else if(!structFields.contains(param.name)){
-                        throw new IllegalArgumentException("Неизвестный параметр " + param.name + "(ID: " + param.id + ") при инициализации объекта структуры " + expr.name);
-                    }
-                    param.exprLeft.defineTypeOfExpr();
-                    TypeNode expectedType = structFields.get(param.name).type();
-                    if(!expectedType.equals(expr.exprLeft.countedType)){
-                        throw new IllegalArgumentException("Для параметра " + param.name + "(ID: " + param.id + ") при инициализации объекта структуры " + expr.name + " ожидался тип: " + expectedType.getName() + ", реальный тип - " + expr.exprLeft.countedType.getName());
-                    }
+                    expr.defineTypeOfExpr();
                 }
             }
-
             default -> expr.defineTypeOfExpr();
         }
     }
 
-    private void declarationTypes(DeclarationStatementNode decl){
-        switch (decl.type){
+    private void declarationTypes(DeclarationStatementNode decl) {
+        switch (decl.type) {
             case FUNCTION -> functionTypes(decl.functionItem);
-            case ENUM -> {}
-            case CONST_STMT -> {}
-            case STRUCT -> {}
-            case TRAIT -> {}
-            case IMPL -> {}
+            case ENUM -> {
+            }
+            case CONST_STMT -> {
+            }
+            case STRUCT -> {
+            }
+            case TRAIT -> {
+            }
+            case IMPL -> {
+            }
         }
     }
 
-    private void functionTypes(FunctionNode function){
-        if(function.body.stmtList!=null){
+    private void functionTypes(FunctionNode function) {
+        if (function.body.stmtList != null) {
             function.body.stmtList.list.forEach(this::stmtTypes);
         }
     }

@@ -141,23 +141,11 @@ public class MethodTable {
     private void classMethodVariables(ExpressionNode expression, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
 
         exprVariables(expression.exprLeft, variableTable, initialTables, fields);
-        expression.exprLeft.defineTypeOfExpr();
-        ClassTable classTable = tables.tableByName(expression.exprLeft.countedType.name);
-        if(classTable!=null){
-           //throw new IllegalArgumentException("Не существует класса " + expression.exprLeft.countedType.name + "(ID: " + expression.exprLeft.id + ")");
-            expression.setMethod(expression.name, classTable.methods());
-        }
-
         exprListVariables(expression.exprList, variableTable, initialTables, fields);
     }
 
     private void classStaticMethodVariables(ExpressionNode expression, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
 
-        ClassTable classTable = tables.tableByName(expression.parentId);
-        if(classTable==null){
-            throw new IllegalArgumentException("Не существует класса " + expression.parentId + "(ID: " + expression.id + ")");
-        }
-        expression.setMethod(expression.name, classTable.methods());
         exprListVariables(expression.exprList, variableTable, initialTables, fields);
     }
 

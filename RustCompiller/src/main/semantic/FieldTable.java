@@ -22,16 +22,29 @@ public class FieldTable {
         return items.containsKey(name);
     }
 
+    private int amountNotConst = 0;
+    public int amountNotConst(){
+        return amountNotConst;
+    }
+
+    private int amountConst = 0;
+    public int amountConst(){
+        return amountConst;
+    }
+
     public void add(ConstStatementNode constStmt){
         items.put(constStmt.name, new FieldTableItem(constStmt.type, true, constStmt.expr));
+        amountConst++;
     }
 
     public void add(StructItemNode structItem){
         items.put(structItem.name, new FieldTableItem(structItem.type, false, null));
+        amountNotConst++;
     }
 
     public void add(EnumItemNode enumItem, String name){
         items.put(enumItem.name, new FieldTableItem(new TypeNode(name), false, enumItem.expr));
+        amountNotConst++;
     }
 
     public void add(String name, FieldTableItem item){
