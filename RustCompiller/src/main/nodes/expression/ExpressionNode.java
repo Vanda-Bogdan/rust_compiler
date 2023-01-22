@@ -237,9 +237,7 @@ public class ExpressionNode {
                     countedType = elseBody.countedType;
                 }
             }
-            case LOOP -> {
-                countedType = body.defineTypeOfLoopBody();
-            }
+            case LOOP -> countedType = this.defineTypeOfLoopBody();
             case LOOP_WHILE, LOOP_FOR, CONTINUE -> countedType = new TypeNode(VOID);
             case BLOCK -> countedType = defineTypeOfBlock(stmtList);
             case INT_LIT -> countedType = new TypeNode(VarType.INT);
@@ -262,7 +260,7 @@ public class ExpressionNode {
             breaks.get(i).defineTypeOfExpr();
             if (i > 0 && breaks.get(0).countedType.getName() != breaks.get(i).countedType.getName()) {
                 throw new IllegalArgumentException("В break ожидается тип " + breaks.get(0).countedType.getName()
-                        + ", получен " + breaks.get(i).countedType.getName());
+                        + ", получен " + breaks.get(i).countedType.getName() + "(ID: " + breaks.get(i).id + ")");
             }
         }
 
@@ -276,7 +274,7 @@ public class ExpressionNode {
         switch (this.type) {
             case BLOCK -> {
                 for (StatementNode item : this.stmtList.list) {
-                    if (item.expr.type == ExpressionType.BREAK) {
+                    if (item.expr.type == ExpressionType.BREAK) {//todo проверка что expr!=null
                         breaks.add(item.expr);
                     }
                     item.expr.findBreakInBlock(breaks);
