@@ -846,26 +846,34 @@ public class Tree {
             case CALL -> {
                 //проверка совпадений типов переданных параметров функции
                 if(expr.methodTableItem()==null){
-                    throw new IllegalArgumentException("Неизвестная функция " + expr.name + "(ID: " + expr.id + ")");
-                }
-                ArrayList<FunctionParamNode> paramList = expr.methodTableItem().params().list;
-                if(expr.exprList == null && paramList.size() > 0 || expr.exprList.list.size() != paramList.size()){
-                    throw new IllegalArgumentException("Несоответствие кол-ва параметров функции " + expr.name + ". ID: " + expr.id);
-                }
-                else{
-                    int num = 0;
-                    for (ExpressionNode param: expr.exprList.list){
-                        param.defineTypeOfExpr();
-                        if(num>paramList.size()-1){
-                            throw new IllegalArgumentException("Лишний параметр (ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + ")");
-                        }
-                        else if (!paramList.get(num).type.equals(expr.countedType)){
-                            throw new IllegalArgumentException("Несоответствие типа параметра " + param.name + "(ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + "). Ожидаемый тип: " + paramList.get(num).type.getName() + ", реальный: " + param.countedType.getName());
-                        }
-                        num++;
+                    //todo проверка на стандартную функцию? хз как должно быть.
+                    if(!tables.standardFunctionExists(expr.name)){
+                        throw new IllegalArgumentException("Неизвестная функция " + expr.name + "(ID: " + expr.id + ")");
                     }
+                    else {
+                        expr.countedType = tables.standardFunctionReturnType(expr.name);
+                    }
+                }else {
+                    ArrayList<FunctionParamNode> paramList = expr.methodTableItem().params().list;
+                    if(expr.exprList == null && paramList.size() > 0 || expr.exprList.list.size() != paramList.size()){
+                        throw new IllegalArgumentException("Несоответствие кол-ва параметров функции " + expr.name + ". ID: " + expr.id);
+                    }
+                    else{
+                        int num = 0;
+                        for (ExpressionNode param: expr.exprList.list){
+                            param.defineTypeOfExpr();
+                            if(num>paramList.size()-1){
+                                throw new IllegalArgumentException("Лишний параметр (ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + ")");
+                            }
+                            else if (!paramList.get(num).type.equals(expr.countedType)){
+                                throw new IllegalArgumentException("Несоответствие типа параметра " + param.name + "(ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + "). Ожидаемый тип: " + paramList.get(num).type.getName() + ", реальный: " + param.countedType.getName());
+                            }
+                            num++;
+                        }
+                    }
+                    expr.defineTypeOfExpr();
                 }
-                expr.defineTypeOfExpr();
+
             }
 
             case METHOD -> {

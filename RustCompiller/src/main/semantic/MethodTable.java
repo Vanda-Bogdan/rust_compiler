@@ -228,7 +228,7 @@ public class MethodTable {
         ExpressionType type = loopFor.exprLeft.type;
         if(type!= ExpressionType.RANGE && type!=ExpressionType.RANGE_IN && type!=ExpressionType.RANGE_RIGHT
                 && type!=ExpressionType.RANGE_IN_RIGHT && type!=ExpressionType.RANGE_LEFT && type!=ExpressionType.ID){
-            throw new IllegalArgumentException("Неверное RANGE выражение в цикле for. ID узла: " + loopFor.id);
+            throw new IllegalArgumentException("Неверное RANGE выражение в цикле for (ID: " + loopFor.id + ")");
         }
         variableTable.add(loopFor.name, Mutable.MUT, new TypeNode(VarType.INT));
         bodyVariables(loopFor.body, variableTable, initialTables, fields);

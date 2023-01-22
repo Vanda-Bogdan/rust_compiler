@@ -85,6 +85,7 @@ public class ExpressionNode {
             throw new IllegalArgumentException("variableTableItem и fieldTableItem равны null в узле " + id);
         }
         else if (variableTableItem() != null) {
+            VariableTable.VariableTableItem item = variableTableItem();
             countedType = variableTableItem().type();
         }
         else {
@@ -124,7 +125,7 @@ public class ExpressionNode {
                     countedType = new TypeNode(VarType.FLOAT);
                 }
                 else {
-                    throw new IllegalArgumentException("Неверные типы выражений при выполнении арифметических операций");
+                    throw new IllegalArgumentException("Неверные типы выражений при выполнении арифметических операций (ID: " + this.id + ")");
                 }
             }
             case EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL -> {
@@ -134,7 +135,7 @@ public class ExpressionNode {
                     countedType = new TypeNode(VarType.BOOL);
                 }
                 else {
-                    throw new IllegalArgumentException("Несовместимые типы для выполнения операции сравнения");
+                    throw new IllegalArgumentException("Несовместимые типы для выполнения операции сравнения (ID: " + this.id + ")");
                 }
             }
             case QT -> {
@@ -149,7 +150,7 @@ public class ExpressionNode {
                     countedType = new TypeNode(VarType.FLOAT);
                 }
                 else {
-                    throw new IllegalArgumentException("Невозможно применить унарный минус к выражению данного типа");
+                    throw new IllegalArgumentException("Невозможно применить унарный минус к выражению данного типа (ID:" + this.id + ")");
                 }
             }
             case NEG -> {
@@ -158,7 +159,7 @@ public class ExpressionNode {
                     countedType = new TypeNode(VarType.BOOL);
                 }
                 else {
-                    throw new IllegalArgumentException("Невозможно применить отрицание к не boolean выражению");
+                    throw new IllegalArgumentException("Невозможно применить отрицание к не boolean выражению (ID:" + this.id + ")");
                 }
             }
             case OR, AND -> {
@@ -168,7 +169,7 @@ public class ExpressionNode {
                     countedType = new TypeNode(VarType.BOOL);
                 }
                 else {
-                    throw new IllegalArgumentException("Невозможно применить логические И / ИЛИ к не boolean выражениям");
+                    throw new IllegalArgumentException("Невозможно применить логические И / ИЛИ к не boolean выражениям (ID:" + this.id + ")");
                 }
             }
             case ASGN, INDEX_ASGN, FIELD_ASGN -> {
@@ -178,7 +179,7 @@ public class ExpressionNode {
                     countedType = exprLeft.countedType;
                 }
                 else {
-                    throw new IllegalArgumentException("Несовместимые типы для выполнения операции присваивания");
+                    throw new IllegalArgumentException("Несовместимые типы для выполнения операции присваивания (ID: " + this.id + ")");
                 }
             }
             case BREAK, RETURN, STRUCT_FIELD -> {
@@ -190,7 +191,7 @@ public class ExpressionNode {
                 exprLeft.defineTypeOfExpr();
                 exprRight.defineTypeOfExpr();
                 if (exprLeft.countedType.varType == VarType.UNDEFINED || exprRight.countedType.varType != VarType.INT) {
-                    throw new IllegalArgumentException("Неверная инициализация массива ARRAY_AUTO_FILL");
+                    throw new IllegalArgumentException("Неверная инициализация массива ARRAY_AUTO_FILL (ID: " + this.id + ")");
                 }
                 countedType = new TypeNode(VarType.ARRAY);
                 countedType.exprArr = exprRight;
@@ -199,7 +200,7 @@ public class ExpressionNode {
             case INDEX -> {
                 exprLeft.defineTypeOfExpr();
                 if (exprLeft.countedType.varType != VarType.ARRAY) {
-                    throw new IllegalArgumentException("У данного типа нет операции обращения по индексу");
+                    throw new IllegalArgumentException("У данного типа нет операции обращения по индексу (ID:" + this.id + ")");
                 }
                 countedType = exprLeft.countedType.typeArr;
             }
@@ -207,13 +208,13 @@ public class ExpressionNode {
                 if (exprLeft != null) {
                     exprLeft.defineTypeOfExpr();
                     if (exprLeft.countedType.varType != VarType.INT) {
-                        throw new IllegalArgumentException("Не int тип для левого выражения range");
+                        throw new IllegalArgumentException("Не int тип для левого выражения range (ID:" + this.id + ")");
                     }
                 }
                 if (exprRight != null) {
                     exprRight.defineTypeOfExpr();
                     if (exprRight.countedType.varType != VarType.INT) {
-                        throw new IllegalArgumentException("Не int тип для правого выражения range");
+                        throw new IllegalArgumentException("Не int тип для правого выражения range (ID:" + this.id + ")");
                     }
                 }
                 countedType = new TypeNode("Range");
@@ -226,7 +227,7 @@ public class ExpressionNode {
                 body.defineTypeOfExpr();
                 elseBody.defineTypeOfExpr();
                 if (exprLeft.countedType.varType != VarType.BOOL) {
-                    throw new IllegalArgumentException("В условии if ожидается bool выражение");
+                    throw new IllegalArgumentException("В условии if ожидается bool выражение (ID:" + this.id + ")");
                 }
                 if (exprLeft.aBoolean) {
                     countedType = body.countedType;

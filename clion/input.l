@@ -39,9 +39,11 @@ enum { printf("(%s) - Found KW_ENUM\n", yytext); return ENUM;}
 extern { printf("(%s) - Found KW_EXTERN\n", yytext);}
 fn { printf("(%s) - Found KW_FN\n", yytext); return FN;}
 for { printf("(%s) - Found KW_FOR\n", yytext); return FOR;}
+i32 { printf("(%s) - Found KW_INT\n", yytext); return INT;}
 if { printf("(%s) - Found KW_IF\n", yytext); return IF;}
 impl { printf("(%s) - Found KW_IMPL\n", yytext); return IMPL;}
 in { printf("(%s) - Found KW_IN\n", yytext); return IN;}
+f64 { printf("(%s) - Found KW_FLOAT\n", yytext); return FLOAT;}
 let { printf("(%s) - Found KW_LET\n", yytext); return LET;}
 loop { printf("(%s) - Found KW_LOOP\n", yytext); return LOOP;}
 match { printf("(%s) - Found KW_MATCH\n", yytext);}

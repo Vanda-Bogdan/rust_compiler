@@ -26,10 +26,14 @@ public class VariableTable {
     }
 
     public void resetType(int ID, TypeNode newType){
+        int num = 0;
         for (VariableTableItem item :items) {
             if(item.ID() == ID){
-                item = new VariableTableItem(item.ID(), item.name(), item.isMut(), newType);
+                items.set(num, new VariableTableItem(item.ID(), item.name(), item.isMut(), newType));
+                //item = new VariableTableItem(item.ID(), item.name(), item.isMut(), newType);
+                return;
             }
+            num++;
         }
     }
 

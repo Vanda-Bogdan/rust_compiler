@@ -1,10 +1,14 @@
 package main.semantic;
 
+import main.nodes.TypeNode;
+import main.nodes.VarType;
 import main.nodes.conststmt.ConstStatementNode;
 import main.nodes.declstmt.DeclarationStatementNode;
 import main.nodes.declstmt.DeclarationStatementType;
 import main.nodes.enumm.EnumNode;
 import main.nodes.function.FunctionNode;
+import main.nodes.function.FunctionParamListNode;
+import main.nodes.function.FunctionType;
 import main.nodes.impl.ImplNode;
 import main.nodes.stmt.StatementListNode;
 import main.nodes.stmt.StatementNode;
@@ -14,7 +18,9 @@ import main.nodes.trait.AssociatedItemNode;
 import main.treeprint.Tree;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Tables {
@@ -24,6 +30,21 @@ public class Tables {
     private HashMap<String, ClassTable> tables = new HashMap<String, ClassTable>();
 
     private TraitTable traitTable = new TraitTable();
+
+    //--------------------------- Список стандартных функций ----------------------
+    private HashMap<String, TypeNode> standardFunctionsList = new HashMap<>();
+
+    public void addStandardFunction(String name, TypeNode returnType){
+        standardFunctionsList.put(name, returnType);
+    }
+
+    public boolean standardFunctionExists(String name){
+        return standardFunctionsList.get(name) != null;
+    }
+
+    public TypeNode standardFunctionReturnType(String name){
+        return standardFunctionsList.get(name);
+    }
 
     public ClassTable tableByName(String name){
         return tables.get(name);
@@ -44,9 +65,16 @@ public class Tables {
         ClassTable main = createTable("Main");
         int className = main.constantAdd(Constant.UTF8, "Main");
         main.constantAdd(Constant.CLASS, className);
+        mainActionsBefore(main);
 
         stmtListTrait(tree.prg.stmtList);
         stmtListClasses(tree.prg.stmtList);
+    }
+
+    public void mainActionsBefore(ClassTable main){
+        //todo добавить стандартные функции типа println
+        //main.addToMethodTable("println", new MethodTable.MethodTableItem(new TypeNode(VarType.VOID), new VariableTable(), true, FunctionType.ASSOCIATED, new FunctionParamListNode()));
+        addStandardFunction("println", new TypeNode(VarType.VOID));
     }
 
     //----------------------------------------Сбор всех трейтов-----------------------------------------
