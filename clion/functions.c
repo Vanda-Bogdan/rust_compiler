@@ -300,7 +300,7 @@ struct function_node* FunctionNode(char* name, struct type_node* returnType, str
         new_type_node->name = NULL;
         new_type_node->typeArr = NULL;
         new_type_node->exprArr = NULL;
-        new_type_node->type = emptyType;
+        new_type_node->type = void_;
         new_node->returnType = new_type_node;
     }
     else{
@@ -446,7 +446,7 @@ struct let_stmt_node* LetStmt(char* name, struct type_node* type, enum mutable m
         new_type_node->ID = global_id++;
         new_type_node->typeArr = NULL;
         new_type_node->exprArr = NULL;
-        new_type_node->type = emptyType;
+        new_type_node->type = undefined;
         new_type_node->name = NULL;
         new_node->type = new_type_node;
     }

@@ -79,8 +79,11 @@ public class TypeNode {
             case BOOL -> {
                 return "B";
             }
-            case EMPTY_TYPE -> {
+            case VOID -> {
                 return "V";
+            }
+            case UNDEFINED -> {
+                return "UNDEFINED";
             }
             default -> {
                 return null;

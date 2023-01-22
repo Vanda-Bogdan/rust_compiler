@@ -14,17 +14,19 @@ public class LetStatementNode {
     public ExpressionNode expr;
 
     //------Ссылка на таблицу лок. переменных------
-    private VariableTable.VariableTableItem variableTableItem;
+    private int varID;
+    private VariableTable variableTable;
+    public VariableTable.VariableTableItem variableTableItem(){
+        return variableTable.getByID(varID);
+    }
 
-    //номер в таблице лок. переменных
-    private int localVarNumber;
+    public void setVar(int ID, VariableTable table){
+        varID = ID;
+        variableTable = table;
+    }
 
-    /*public VariableTable.VariableTableItem localTableItem(){
-        return variableTable.get(this.localVarNumber);
-    }*/
-
-    public void setVar(VariableTable.VariableTableItem item){
-        this.variableTableItem = item;
+    public void setVarType(TypeNode newType){
+       variableTable.resetType(varID, newType);
     }
 
 }

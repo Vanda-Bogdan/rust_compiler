@@ -102,8 +102,8 @@ void connection_print(int parent_ID, int child_ID){
 
 char* type(enum type type){
     switch (type) {
-        case emptyType:
-            return "EMPTY_TYPE";
+        case void_:
+            return "VOID";
         case int_:
             return "INT";
         case char_:
@@ -118,6 +118,8 @@ char* type(enum type type){
             return "ID";
         case array_:
             return "ARRAY";
+        case undefined:
+            return "UNDEFINED";
     }
 }
 

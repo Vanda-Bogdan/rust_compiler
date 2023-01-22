@@ -4,7 +4,7 @@
 
 /*--------------------------------------------------Type--------------------------------------------------------------*/
 enum type {
-    emptyType, int_, char_, string_, float_, bool_, id_, array_
+    void_, int_, char_, string_, float_, bool_, id_, array_, undefined
 };
 
 struct type_node{

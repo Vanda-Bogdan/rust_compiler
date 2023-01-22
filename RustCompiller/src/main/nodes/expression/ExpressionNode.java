@@ -10,8 +10,7 @@ import main.semantic.VariableTable;
 
 import java.util.Objects;
 
-import static main.nodes.VarType.ARRAY;
-import static main.nodes.VarType.EMPTY_TYPE;
+import static main.nodes.VarType.*;
 
 public class ExpressionNode {
     public int id;
@@ -45,37 +44,68 @@ public class ExpressionNode {
 
     //------Ссылка на элемент таблицы------
     // *Если это локальная переменная
-    private VariableTable.VariableTableItem variableTableItem;
+    private int varID;
+    private VariableTable variableTable;
+    public VariableTable.VariableTableItem variableTableItem(){
+        return variableTable.getByID(varID);
+    }
 
-    public void setVar(VariableTable.VariableTableItem item){
-        this.variableTableItem = item;
+    public void setVar(int ID, VariableTable table){
+        varID = ID;
+        variableTable = table;
     }
 
     // *Если это поле
-    private FieldTable.FieldTableItem fieldTableItem;
+    private String fieldName;
+    private FieldTable fieldTable;
+    public FieldTable.FieldTableItem fieldTableItem(){
+        return fieldTable.get(fieldName);
+    }
 
-    public void setVar(FieldTable.FieldTableItem item){
-        this.fieldTableItem = item;
+    public void setField(String name, FieldTable table){
+        fieldName = name;
+        fieldTable = table;
     }
 
     // *Если это вызов метода
-    public MethodTable.MethodTableItem methodTableItem;
-
-    public void setVar(MethodTable.MethodTableItem item) {
-        this.methodTableItem = item;
+    public String methodName;
+    private MethodTable methodTable;
+    public MethodTable.MethodTableItem methodTableItem(){
+        return methodTable.get(methodName);
     }
 
+    public void setMethod(String name, MethodTable table) {
+        methodName = name;
+        methodTable = table;
+    }
+
+
     public void setTypeFromVarOrField() {
-        if (variableTableItem == null && fieldTableItem == null) {
+        if (variableTableItem() == null && fieldTableItem() == null) {
             throw new IllegalArgumentException("variableTableItem и fieldTableItem равны null в узле " + id);
         }
-        else if (variableTableItem != null) {
-            countedType = variableTableItem.type();
+        else if (variableTableItem() != null) {
+            countedType = variableTableItem().type();
         }
         else {
-            countedType = fieldTableItem.type();
+            countedType = fieldTableItem().type();
         }
+    }
 
+    public void setTypeFromField(){
+        if(fieldTableItem() == null){
+            throw new IllegalArgumentException("fieldTableItem равен null в узле " + id);
+        }else {
+            countedType = fieldTableItem().type();
+        }
+    }
+
+    public void setTypeFromVar(){
+        if(variableTableItem() == null){
+            throw new IllegalArgumentException("variableTableItem равен null в узле " + id);
+        }else {
+            countedType = variableTableItem().type();
+        }
     }
 
     /*------------------------------------------Определение типов expression----------------------------------------------*/
@@ -151,16 +181,15 @@ public class ExpressionNode {
                     throw new IllegalArgumentException("Несовместимые типы для выполнения операции присваивания");
                 }
             }
-            case BREAK, RETURN -> {
+            case BREAK, RETURN, STRUCT_FIELD -> {
+                exprLeft.defineTypeOfExpr();
                 countedType = exprLeft.countedType;
             }
-            case ARRAY -> {
-                countedType = defineTypeOfArray(exprList);
-            }
+            case ARRAY -> countedType = defineTypeOfArray(exprList);
             case ARRAY_AUTO_FILL -> {
                 exprLeft.defineTypeOfExpr();
                 exprRight.defineTypeOfExpr();
-                if (exprLeft.countedType.varType == VarType.EMPTY_TYPE || exprRight.countedType.varType != VarType.INT) {
+                if (exprLeft.countedType.varType == VarType.UNDEFINED || exprRight.countedType.varType != VarType.INT) {
                     throw new IllegalArgumentException("Неверная инициализация массива ARRAY_AUTO_FILL");
                 }
                 countedType = new TypeNode(VarType.ARRAY);
@@ -189,15 +218,9 @@ public class ExpressionNode {
                 }
                 countedType = new TypeNode("Range");
             }
-            case ID -> {
-                setTypeFromVarOrField();
-            }
-            case SELF -> {
-
-            }
-            case FIELD_ACCESS -> {
-                //todo вставить филд акцесс
-            }
+            case ID -> setTypeFromVarOrField();
+            case SELF -> setTypeFromVar();
+            case FIELD_ACCESS, FIELD_ACCESS_NEW -> setTypeFromField();
             case IF -> {
                 exprLeft.defineTypeOfExpr();
                 body.defineTypeOfExpr();
@@ -216,47 +239,22 @@ public class ExpressionNode {
                 body.defineTypeOfExpr();
                 countedType = body.countedType;
             }
-            case LOOP_WHILE, LOOP_FOR, CONTINUE -> {
-                countedType = new TypeNode(VarType.EMPTY_TYPE);
-            }
-            case BLOCK -> {
-                countedType = defineTypeOfBlock(stmtList);
-            }
-            case INT_LIT -> {
-                countedType = new TypeNode(VarType.INT);
-            }
-            case FLOAT_LIT -> {
-                countedType = new TypeNode(VarType.FLOAT);
-            }
-            case CHAR_LIT -> {
-                countedType = new TypeNode(VarType.CHAR);
-            }
-            case STRING_LIT -> {
-                countedType = new TypeNode(VarType.STRING);
-            }
-            case BOOL_LIT -> {
-                countedType = new TypeNode(VarType.BOOL);
-            }
-            case STRUCT -> {
-                countedType = new TypeNode(name);
-            }
-            case STRUCT_FIELD -> {
-                exprLeft.defineTypeOfExpr();
-                countedType = exprLeft.countedType;
-            }
-            case STATIC_METHOD, CALL, METHOD -> {
-                countedType = methodTableItem.returnType();
-            }
-            case FIELD_ACCESS_NEW -> {
-                //todo вставить филд акцесс
-            }
+            case LOOP_WHILE, LOOP_FOR, CONTINUE -> countedType = new TypeNode(VOID);
+            case BLOCK -> countedType = defineTypeOfBlock(stmtList);
+            case INT_LIT -> countedType = new TypeNode(VarType.INT);
+            case FLOAT_LIT -> countedType = new TypeNode(VarType.FLOAT);
+            case CHAR_LIT -> countedType = new TypeNode(VarType.CHAR);
+            case STRING_LIT -> countedType = new TypeNode(VarType.STRING);
+            case BOOL_LIT -> countedType = new TypeNode(VarType.BOOL);
+            case STRUCT -> countedType = new TypeNode(name);
+            case STATIC_METHOD, CALL, METHOD -> countedType = methodTableItem().returnType();
         }
     }
 
     private TypeNode defineTypeOfArray(ExpressionListNode exprList){
         TypeNode currentType = new TypeNode(ARRAY);
         if(exprList==null){
-            currentType.typeArr = new TypeNode(EMPTY_TYPE);
+            currentType.typeArr = new TypeNode(UNDEFINED);
             return currentType;
         }
         TypeNode bufferType;
@@ -276,7 +274,7 @@ public class ExpressionNode {
     }
 
     private TypeNode defineTypeOfBlock(StatementListNode stmtList){
-        TypeNode result = new TypeNode(EMPTY_TYPE);
+        TypeNode result = new TypeNode(VOID);
         if(stmtList==null){
             return result;
         }

@@ -39,6 +39,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Objects;
 
 public class TreeFromXml {
     public static final String path = "treeXML.xml";
@@ -240,7 +241,7 @@ public class TreeFromXml {
     }
 
     public static TypeNode typeBuild(Node type){
-        TypeNode typeNode = new TypeNode(VarType.EMPTY_TYPE);
+        TypeNode typeNode = new TypeNode(VarType.UNDEFINED);
         typeNode.id = Integer.parseInt(((Element)type).getAttribute("ID"));
         String name = ((Element)type).getAttribute("ident");
         typeNode.varType = VarType.valueOf(((Element)type).getAttribute("type"));
@@ -430,7 +431,7 @@ public class TreeFromXml {
                 break;
             case BOOL_LIT:
                 String bool = ((Element)expr).getAttribute("value");
-                if(bool == "true"){
+                if(Objects.equals(bool, "true")){
                     exprNode.aBoolean = true;
                 }
                 else {

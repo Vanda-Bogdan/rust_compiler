@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import static main.nodes.VarType.ARRAY;
-import static main.nodes.VarType.EMPTY_TYPE;
 
 public class Tree {
 
@@ -71,14 +70,15 @@ public class Tree {
 
     private String type(VarType type) {
         return switch (type) {
-            case EMPTY_TYPE -> "EMPTY_TYPE";
+            case VOID -> "VOID";
+            case UNDEFINED -> "UNDEFINED";
             case INT -> "INT";
             case CHAR -> "CHAR";
             case STRING -> "STRING";
             case FLOAT -> "FLOAT";
             case BOOL -> "BOOL";
             case ID -> "ID_TYPE";
-            case ARRAY -> "ARRAY_TYPE";
+            case ARRAY -> "ARRAY";
         };
     }
 
@@ -801,4 +801,7 @@ public class Tree {
             constStmtTransform(item.constStmt);
         }
     }
+
+    //----------------------------------- Простановка типов -------------------------------------
+
 }

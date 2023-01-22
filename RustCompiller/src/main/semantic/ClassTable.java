@@ -85,6 +85,10 @@ public class ClassTable {
     //------------------------------------------MethodTable------------------------------------------
     private MethodTable methodTable = new MethodTable();
 
+    public MethodTable methods(){
+        return methodTable;
+    }
+
     public void addToMethodTable(FunctionNode funcNode){
         methodTable.add(funcNode, null, tables);
     }

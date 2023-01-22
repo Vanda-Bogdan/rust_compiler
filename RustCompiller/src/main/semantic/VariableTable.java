@@ -21,8 +21,16 @@ public class VariableTable {
     }
 
     public int add(String name, Mutable isMut) {
-        items.add(new VariableTableItem(ID, name, isMut, new TypeNode(VarType.EMPTY_TYPE)));
+        items.add(new VariableTableItem(ID, name, isMut, new TypeNode(VarType.UNDEFINED)));
         return ID++;
+    }
+
+    public void resetType(int ID, TypeNode newType){
+        for (VariableTableItem item :items) {
+            if(item.ID() == ID){
+                item = new VariableTableItem(item.ID(), item.name(), item.isMut(), newType);
+            }
+        }
     }
 
     public VariableTableItem getLast(String name){
