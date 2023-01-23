@@ -21,11 +21,6 @@ public class TypeNode {
         this.name = name;
     }
 
-    public static TypeNode TypeNodeArray(String name) {
-        // TODO something
-        return null;
-    }
-
     public String getName() {
         if(varType == VarType.ID){
             return name;
@@ -40,7 +35,7 @@ public class TypeNode {
 
     public String getNameForTable(){
         if(varType == VarType.ID){
-            return name;    // TODO сделать i32, f64 ключевыми словами языка
+            return name;
         }
         else if(varType != VarType.ARRAY){
             return typeParse(varType);

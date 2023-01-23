@@ -1220,6 +1220,7 @@ public class Tree {
             }
 
             case BLOCK -> expr.stmtList.list.forEach(this::stmtTypes);
+            //todo continue?
             default -> expr.defineTypeOfExpr();
         }
     }

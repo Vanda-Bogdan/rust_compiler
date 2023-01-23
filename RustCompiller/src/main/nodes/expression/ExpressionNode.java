@@ -173,10 +173,12 @@ public class ExpressionNode {
         switch (this.type) {
             case BLOCK -> {
                 for (StatementNode item : this.stmtList.list) {
-                    if (item.expr.type == ExpressionType.BREAK) {//todo проверка что expr!=null
-                        breaks.add(item.expr);
+                    if(item.expr!=null){
+                        if (item.expr.type == ExpressionType.BREAK) {
+                            breaks.add(item.expr);
+                        }
+                        item.expr.findBreakInBlock(breaks);
                     }
-                    item.expr.findBreakInBlock(breaks);
                 }
             }
             case LOOP_FOR, LOOP_WHILE -> {}
