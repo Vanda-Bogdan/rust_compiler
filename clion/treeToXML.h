@@ -362,7 +362,7 @@ void expr_xml(struct expr_node *expr){
             break;
 
         case char_lit:
-            fprintf(xml, "<expr type=\"FLOAT_LIT\" value=\"%c\" ID=\"%d\"/>", expr->Char, expr->ID);
+            fprintf(xml, "<expr type=\"CHAR_LIT\" value=\"%c\" ID=\"%d\"/>", expr->Char, expr->ID);
             break;
 
         case string_lit:

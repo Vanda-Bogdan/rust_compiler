@@ -19,6 +19,7 @@ public class ClassTable {
     public ClassTable(String name, Tables tables) {
         this.name = name;
         this.tables = tables;
+        this.methodTable = new MethodTable(name);
     }
 
     //------------------------------------------Constant Table-------------------------------------------------------
@@ -83,7 +84,7 @@ public class ClassTable {
     }
 
     //------------------------------------------MethodTable------------------------------------------
-    private MethodTable methodTable = new MethodTable();
+    private MethodTable methodTable;
 
     public MethodTable methods(){
         return methodTable;

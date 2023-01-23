@@ -32,10 +32,10 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Vector;
 
-import static main.nodes.VarType.ARRAY;
-import static main.nodes.VarType.UNDEFINED;
+import static main.nodes.VarType.*;
 
 public class Tree {
 
@@ -338,7 +338,7 @@ public class Tree {
                 }
             }
             case FIELD_ACCESS -> {
-                declarationPrint2(expr.id, "field_access:", expr.name);
+                declarationPrint2(expr.id, "Expr.", expr.name);
                 connectionPrint(expr.id, expr.exprLeft.id);
                 expressionPrint(expr.exprLeft);
             }
@@ -407,7 +407,7 @@ public class Tree {
                 }
             }
             case STRUCT_FIELD -> {
-                declarationPrint2(expr.id, "identifier: ", expr.name);
+                declarationPrint2(expr.id, "struct_field: ", expr.name);
                 connectionPrint(expr.id, expr.exprLeft.id);
                 expressionPrint(expr.exprLeft);
             }
@@ -445,7 +445,7 @@ public class Tree {
             }
 
             case FIELD_ACCESS_NEW -> {
-                declarationPrint2(expr.id, "field access:", expr.name);
+                declarationPrint2(expr.id, "field access new:", expr.name);
             }
         }
     }
@@ -834,7 +834,7 @@ public class Tree {
             if (let.type.varType == UNDEFINED || let.type.equals(let.expr.countedType)) {
                 let.setVarType(let.expr.countedType);
             } else {
-                throw new IllegalArgumentException("Несоответствие типов в объявлении " + let.name + "(ID: " + let.id + ")");
+                throw new IllegalArgumentException("Несоответствие типов в объявлении " + let.name + "(ID: " + let.id + "). Ожидался тип " + let.type.getName() + ", реальный - " + let.expr.countedType.getName());
             }
         }
     }
@@ -978,9 +978,253 @@ public class Tree {
                     expr.defineTypeOfExpr();
                 }
             }
+            case IF -> {
+                exprTypes(expr.exprLeft);
+                if (expr.exprLeft.countedType.varType != VarType.BOOL) {
+                    throw new IllegalArgumentException("В условии if ожидается bool выражение (ID:" + expr.id + ")");
+                }
+                exprTypes(expr.body);
+                if(expr.elseBody!=null){
+                    exprTypes(expr.elseBody);
+                }
+
+                expr.defineTypeOfExpr();
+            }
+
+            case FIELD_ACCESS -> {
+                exprTypes(expr.exprLeft);
+                if(expr.exprLeft.countedType.varType!=VarType.ID){
+                    throw new IllegalArgumentException("Доступ к полю возможен только у идентификатора (ID: " + expr.exprLeft.id + ")");
+                }
+                ClassTable classTable = tables.tableByName(expr.exprLeft.countedType.name);
+                if (classTable == null) {
+                    throw new IllegalArgumentException("Неизвестный класс " + expr.exprLeft.countedType.name + "(ID: " + expr.exprLeft.id + ")");
+                }
+                expr.setField(expr.name, classTable.fields());
+                expr.setTypeFromField();
+            }
+
+            case FIELD_ASGN -> {
+                exprTypes(expr.exprLeft);
+                if(expr.exprLeft.countedType.varType!=VarType.ID){
+                    throw new IllegalArgumentException("Доступ к полю возможен только у идентификатора (ID: " + expr.exprLeft.id + ")");
+                }
+
+                ClassTable classTable = tables.tableByName(expr.exprLeft.countedType.name);
+                if (classTable == null) {
+                    throw new IllegalArgumentException("Неизвестный класс " + expr.exprLeft.countedType.name + " (ID: " + expr.exprLeft.id + ")");
+                }
+
+                expr.body.setField(expr.body.name, classTable.fields());
+                expr.body.setTypeFromField();
+                exprTypes(expr.exprRight);
+
+                if(!expr.body.countedType.equals(expr.exprRight.countedType)){
+                    throw new IllegalArgumentException("Нельзя присвоить полю " + expr.body.name + " типа " + expr.body.countedType.getName() + " выражение типа " + expr.exprRight.countedType.getName() + " (ID: " + expr.id + ")");
+                }
+            }
+
+            case ASGN -> {
+                exprTypes(expr.exprLeft);
+                exprTypes(expr.exprRight);
+                if(!expr.exprLeft.countedType.equals(expr.exprRight.countedType)){
+                    throw new IllegalArgumentException("Ошибка присвоения (ID: " + expr.id + "). Ожидался тип " + expr.exprLeft.countedType.getName() + ", реальный - " + expr.exprRight.countedType.getName());
+                }
+                expr.exprLeft.countedType = expr.exprRight.countedType;
+                expr.defineTypeOfExpr();
+            }
+
+            //---------------------------- Арифметические и логические -----------------------------
+            case PLUS, MINUS, MUL, DIV -> {
+                exprTypes(expr.exprLeft);
+                exprTypes(expr.exprRight);
+
+                if (expr.exprLeft.countedType.varType == VarType.INT && expr.exprRight.countedType.varType == VarType.INT) {
+                    expr.countedType = new TypeNode(VarType.INT);
+                }
+                else if (expr.exprLeft.countedType.varType == VarType.FLOAT && expr.exprRight.countedType.varType == VarType.FLOAT) {
+                    expr.countedType = new TypeNode(VarType.FLOAT);
+                }
+                else {
+                    throw new IllegalArgumentException("Неверные типы выражений при выполнении арифметической операции (ID: " + expr.id + "). Типы " + expr.exprLeft.countedType.getName() + " и " + expr.exprRight.countedType.getName() + "несовместимы");
+                }
+
+                expr.defineTypeOfExpr();
+            }
+            case EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL -> {
+                exprTypes(expr.exprLeft);
+                exprTypes(expr.exprRight);
+                TypeNode leftType = expr.exprLeft.countedType;
+                if (leftType.equals(expr.exprRight.countedType)) {
+                    if(leftType.varType != INT && leftType.varType!= FLOAT && leftType.varType != BOOL){//todo не все можно сравнить, например классы
+                        throw new IllegalArgumentException("Тип " + leftType.getName() + " не поддается сравнению (ID: " + expr.id + ")");
+                    }
+                    expr.defineTypeOfExpr();
+                }
+                else {
+                    throw new IllegalArgumentException("Несовместимые типы для выполнения операции сравнения (ID: " + expr.id + ")");
+                }
+            }
+            case U_MINUS -> {
+                exprTypes(expr.exprLeft);
+                if (expr.exprLeft.countedType.varType == VarType.INT) {
+                    expr.countedType = new TypeNode(VarType.INT);
+                }
+                else if (expr.exprLeft.countedType.varType == VarType.FLOAT) {
+                    expr.countedType = new TypeNode(VarType.FLOAT);
+                }
+                else {
+                    throw new IllegalArgumentException("Невозможно применить унарный минус к выражению типа " + expr.exprLeft.countedType.getName() + " (ID:" + expr.id + ")");
+                }
+            }
+            case NEG -> {
+                exprTypes(expr.exprLeft);
+                if (expr.exprLeft.countedType.varType == VarType.BOOL) {
+                    expr.defineTypeOfExpr();
+                }
+                else {
+                    throw new IllegalArgumentException("Невозможно применить отрицание к выражению типа" + expr.exprLeft.countedType.getName() + " (ID:" + expr.id + ")");
+                }
+            }
+            case OR, AND -> {
+                exprTypes(expr.exprLeft);
+                exprTypes(expr.exprRight);
+                if (expr.exprLeft.countedType.varType == VarType.BOOL && expr.exprRight.countedType.varType == VarType.BOOL) {
+                    expr.defineTypeOfExpr();
+                }
+                else {
+                    throw new IllegalArgumentException("Невозможно применить логические И / ИЛИ к не boolean выражениям (ID:" + expr.id + "). Предоставленные типы: " + expr.exprLeft.countedType.getName() + " " + expr.exprRight.countedType.getName());
+                }
+            }
+            //------------------------- LOOP --------------------------------
+            case LOOP_WHILE -> {
+                exprTypes(expr.exprLeft);
+                if(expr.exprLeft.countedType.varType!=BOOL){
+                    throw new IllegalArgumentException("Выражение в условии while(ID: " + expr.id + ") должно возвращать bool");
+                }
+                expr.defineTypeOfExpr();
+                exprTypes(expr.body);
+            }
+            case LOOP_FOR -> {
+                ExpressionType type = expr.exprLeft.type;
+                if(type!= ExpressionType.RANGE && type!=ExpressionType.RANGE_IN && type!=ExpressionType.RANGE_RIGHT
+                        && type!=ExpressionType.RANGE_IN_RIGHT && type!=ExpressionType.RANGE_LEFT && type!=ExpressionType.ID){
+                    throw new IllegalArgumentException("Неверное RANGE выражение в цикле for (ID: " + expr.id + ")");
+                }
+                expr.defineTypeOfExpr();
+                exprTypes(expr.exprLeft);
+                exprTypes(expr.body);
+            }
+            case LOOP -> {
+                // Массив break
+                ArrayList<ExpressionNode> breaks = new ArrayList<>();
+                breaks.clear();
+
+                // Получение возвращаемого типа break и проверка идентичности типов во всех break
+                expr.body.findBreakInBlock(breaks);
+                for (int i = 0; i < breaks.size(); i++) {
+                    exprTypes(breaks.get(i));
+                    if (i > 0 && !Objects.equals(breaks.get(0).countedType.getName(), breaks.get(i).countedType.getName())) {
+                        throw new IllegalArgumentException("В break ожидается тип " + breaks.get(0).countedType.getName()
+                                + ", получен " + breaks.get(i).countedType.getName() + "(ID: " + breaks.get(i).id + ")");
+                    }
+                }
+                if (breaks.size() == 0)
+                    expr.countedType =  new TypeNode(VarType.VOID);
+                else
+                    expr.countedType = breaks.get(0).countedType;
+
+                exprTypes(expr.body);
+            }
+            //------------------------- ARRAY --------------------------------
+            case ARRAY -> {
+                ExpressionListNode exprList = expr.exprList;
+                TypeNode currentType = new TypeNode(ARRAY);
+                if(exprList==null){
+                    currentType.typeArr = new TypeNode(UNDEFINED);
+                    expr.countedType = currentType;
+                }
+
+                TypeNode bufferType;
+                if(exprList.list.size()>0){
+                    exprTypes(exprList.list.get(0));
+                    currentType.typeArr = exprList.list.get(0).countedType;
+                    for (ExpressionNode curExpr: exprList.list) {
+                        exprTypes(curExpr);
+                        bufferType = curExpr.countedType;
+                        if(!bufferType.equals(currentType.typeArr)){
+                            throw new IllegalArgumentException("Неверный тип узла " + curExpr.id + ": " + curExpr.countedType.getName() + " для массива с элементами типа " + currentType.typeArr.getName());
+                        }
+                    }
+                }
+                currentType.exprArr = new ExpressionNode(exprList.list.size());
+                expr.countedType = currentType;
+            }
+            case INDEX -> {
+                exprTypes(expr.exprLeft);
+                exprTypes(expr.exprRight);
+
+                if (expr.exprLeft.countedType.varType != VarType.ARRAY) {
+                    throw new IllegalArgumentException("У данного типа нет операции обращения по индексу (ID:" + expr.id + ")");
+                }
+                if (expr.exprRight.countedType.varType!=INT){
+                    throw new IllegalArgumentException("Номер взятия по индексу должен быть INT (ID: " + expr.exprRight.id + ")");
+                }
+
+                expr.defineTypeOfExpr();
+            }
+            case INDEX_ASGN -> {
+                exprTypes(expr.body);
+                if(expr.body.countedType.varType!=INT){
+                    throw new IllegalArgumentException("Номер взятия по индексу должен быть INT (ID: " + expr.body.id + ")");
+                }
+                exprTypes(expr.exprRight);
+                exprTypes(expr.exprLeft);
+                if(!expr.exprLeft.countedType.typeArr.equals(expr.exprRight.countedType)){
+                    throw new IllegalArgumentException("Неверное присвоение элементу массива " + expr.exprLeft.name + ". Ожидался тип " + expr.exprLeft.countedType.typeArr.getName() + ", реальный: " + expr.exprRight.countedType.getName() + ". (ID: " + expr.id + ")");
+                }
+            }
+            //------------------------- RANGE --------------------------------
+            case RANGE, RANGE_IN, RANGE_LEFT, RANGE_RIGHT, RANGE_IN_RIGHT -> {
+                if (expr.exprLeft != null) {
+                    exprTypes(expr.exprLeft);
+                    if (expr.exprLeft.countedType.varType != VarType.INT) {
+                        throw new IllegalArgumentException("Не int тип для левого выражения range (ID:" + expr.id + ")");
+                    }
+                }
+                if (expr.exprRight != null) {
+                    exprTypes(expr.exprRight);
+                    if (expr.exprRight.countedType.varType != VarType.INT) {
+                        throw new IllegalArgumentException("Не int тип для правого выражения range (ID:" + expr.id + ")");
+                    }
+                }
+            }
+
+            //------------------------- Остальное ----------------------------------
+            case BREAK, RETURN, STRUCT_FIELD -> {
+                if(expr.exprLeft!=null){
+                    exprTypes(expr.exprLeft);
+                    expr.defineTypeOfExpr();
+                }
+                else {
+                    expr.countedType = new TypeNode(VOID);
+                }
+            }
+            case ARRAY_AUTO_FILL -> {
+                exprTypes(expr.exprLeft);
+                exprTypes(expr.exprRight);
+                if(expr.exprLeft.countedType.varType == UNDEFINED || expr.exprLeft.countedType.varType == VOID){
+                    throw new IllegalArgumentException("Неверный тип (ID: " + expr.exprLeft.id + ") для заполнения массива (ID: " + expr.id + ")");
+                }
+                expr.defineTypeOfExpr();
+            }
+
+            case BLOCK -> expr.stmtList.list.forEach(this::stmtTypes);
             default -> expr.defineTypeOfExpr();
         }
     }
+
+
 
     private void declarationTypes(DeclarationStatementNode decl) {
         switch (decl.type) {

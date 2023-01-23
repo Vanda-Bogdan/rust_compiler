@@ -19,6 +19,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MethodTable {
 
+    public MethodTable(String className){
+        this.className = className;
+    }
+
     public HashMap<String, MethodTableItem> items = new HashMap<>();
 
     public MethodTableItem get(String name){
@@ -38,6 +42,7 @@ public class MethodTable {
     }
 
     private Tables tables;
+    private String className;
 
     public void add(FunctionNode funcNode, FieldTable fields, Tables tables){
         this.tables = tables;
@@ -48,7 +53,7 @@ public class MethodTable {
         //--------Заполнение таблицы локальных переменных
         //self
         if(funcNode.paramList.type != FunctionType.ASSOCIATED){
-            variableTable.add("self", Mutable.NOT_MUT);
+            variableTable.add("self", Mutable.NOT_MUT, new TypeNode(className));
         }
 
         //параметры
@@ -104,9 +109,17 @@ public class MethodTable {
             case LOOP_WHILE -> loopWhileVariables(expression, variableTable, initialTables, fields);
             case ID -> idVariables(expression, variableTable, initialTables, fields);
             case SELF -> selfVariables(expression, variableTable, initialTables, fields);
-            case PLUS, MINUS, DIV, MUL, EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL, OR, AND, ASGN, RANGE, RANGE_IN, INDEX, ARRAY_AUTO_FILL -> {
+            case PLUS, MINUS, DIV, MUL, EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL, OR, AND, ASGN, RANGE, RANGE_IN, ARRAY_AUTO_FILL, INDEX -> {
                 exprVariables(expression.exprLeft, variableTable, initialTables, fields);
                 exprVariables(expression.exprRight, variableTable, initialTables, fields);
+            }
+            case FIELD_ASGN, INDEX_ASGN -> {
+                exprVariables(expression.exprLeft, variableTable, initialTables, fields);
+                exprVariables(expression.body, variableTable, initialTables, fields);
+                exprVariables(expression.exprRight, variableTable, initialTables, fields);
+            }
+            case FIELD_ACCESS_NEW -> {
+
             }
             case RANGE_LEFT, RANGE_RIGHT, RANGE_IN_RIGHT, QT, U_MINUS, NEG, STRUCT_FIELD, BREAK, RETURN ->
                     exprVariables(expression.exprLeft, variableTable, initialTables, fields);
@@ -130,7 +143,7 @@ public class MethodTable {
         for (VariableTable item : initialTables) {
             varItem = item.getLast("self");
             if(varItem!=null){
-                expression.setVar(varItem.ID(), variableTable);
+                expression.setVar(varItem.ID(), item);
                 return;
             }
         }
@@ -157,12 +170,6 @@ public class MethodTable {
     private void fieldAccessVariables(ExpressionNode expression, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
 
         exprVariables(expression.exprLeft, variableTable, initialTables, fields);
-        expression.exprLeft.defineTypeOfExpr();
-        if(expression.exprLeft.countedType.varType!=VarType.ID){
-            throw new IllegalArgumentException("Доступ к полю возможен только у идентификатора. ID: " + expression.exprLeft.id);
-        }
-        ClassTable classTable = tables.tableByName(expression.exprLeft.countedType.name);
-        expression.setField(expression.name, classTable.fields());
     }
 
     private void exprListVariables(ExpressionListNode exprList, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
@@ -202,6 +209,7 @@ public class MethodTable {
     }
 
     private void ifVariables(ExpressionNode ifNode, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
+        exprVariables(ifNode.exprLeft, variableTable, initialTables, fields);
         bodyVariables(ifNode.body, variableTable, initialTables, fields);
         if(ifNode.elseBody!=null){
             bodyVariables(ifNode.elseBody, variableTable, initialTables, fields);
@@ -213,11 +221,7 @@ public class MethodTable {
     }
 
     private void loopForVariables(ExpressionNode loopFor, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
-        ExpressionType type = loopFor.exprLeft.type;
-        if(type!= ExpressionType.RANGE && type!=ExpressionType.RANGE_IN && type!=ExpressionType.RANGE_RIGHT
-                && type!=ExpressionType.RANGE_IN_RIGHT && type!=ExpressionType.RANGE_LEFT && type!=ExpressionType.ID){
-            throw new IllegalArgumentException("Неверное RANGE выражение в цикле for (ID: " + loopFor.id + ")");
-        }
+
         variableTable.add(loopFor.name, Mutable.MUT, new TypeNode(VarType.INT));
         bodyVariables(loopFor.body, variableTable, initialTables, fields);
     }
