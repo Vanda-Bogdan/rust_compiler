@@ -8,4 +8,12 @@ public class FunctionParamNode {
     public String name;
     public Mutable mut;
     public TypeNode type;
+
+    public FunctionParamNode(String name, Mutable mut, TypeNode type){
+        this.name = name;
+        this.mut = mut;
+        this.type = type;
+    }
+
+    public FunctionParamNode(){}
 }

@@ -43,6 +43,7 @@ public class MethodTable {
 
     private Tables tables;
     private String className;
+    private StandardFunctionList standardFunctionList = new StandardFunctionList();
 
     public void add(FunctionNode funcNode, FieldTable fields, Tables tables){
         this.tables = tables;
@@ -163,7 +164,13 @@ public class MethodTable {
     }
 
     private void methodVariables(ExpressionNode expression, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
-        expression.setMethod(expression.name, this);
+
+        if(standardFunctionList.standardFunctionExists(expression.name)){
+            expression.setStandartMethod(expression.name);
+        }else {
+            expression.setMethod(expression.name, this);
+        }
+
         exprListVariables(expression.exprList, variableTable, initialTables, fields);
     }
 

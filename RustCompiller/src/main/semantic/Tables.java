@@ -31,21 +31,6 @@ public class Tables {
 
     private TraitTable traitTable = new TraitTable();
 
-    //--------------------------- Список стандартных функций ----------------------
-    private HashMap<String, TypeNode> standardFunctionsList = new HashMap<>();
-
-    public void addStandardFunction(String name, TypeNode returnType){
-        standardFunctionsList.put(name, returnType);
-    }
-
-    public boolean standardFunctionExists(String name){
-        return standardFunctionsList.get(name) != null;
-    }
-
-    public TypeNode standardFunctionReturnType(String name){
-        return standardFunctionsList.get(name);
-    }
-
     public ClassTable tableByName(String name){
         return tables.get(name);
     }
@@ -74,7 +59,7 @@ public class Tables {
     public void mainActionsBefore(ClassTable main){
         //todo добавить стандартные функции типа println
         //main.addToMethodTable("println", new MethodTable.MethodTableItem(new TypeNode(VarType.VOID), new VariableTable(), true, FunctionType.ASSOCIATED, new FunctionParamListNode()));
-        addStandardFunction("println", new TypeNode(VarType.VOID));
+        //addStandardFunction("println", new TypeNode(VarType.VOID));
     }
 
     //----------------------------------------Сбор всех трейтов-----------------------------------------

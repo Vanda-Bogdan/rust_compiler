@@ -6,6 +6,7 @@ import main.nodes.stmt.StatementListNode;
 import main.nodes.stmt.StatementNode;
 import main.semantic.FieldTable;
 import main.semantic.MethodTable;
+import main.semantic.StandardFunctionList;
 import main.semantic.VariableTable;
 
 import java.util.ArrayList;
@@ -70,9 +71,17 @@ public class ExpressionNode {
 
     // *Если это вызов метода
     public String methodName;
+    public String standardMethodName;
     private MethodTable methodTable;
+    private StandardFunctionList standardFunctionList = new StandardFunctionList();
+
     public MethodTable.MethodTableItem methodTableItem(){
-        return methodTable.get(methodName);
+        if(methodName!=null){
+            return methodTable.get(methodName);
+        }
+        else {
+            return standardFunctionList.method(standardMethodName);
+        }
     }
 
     public void setMethod(String name, MethodTable table) {
@@ -80,6 +89,9 @@ public class ExpressionNode {
         methodTable = table;
     }
 
+    public void setStandartMethod(String name){
+        this.standardMethodName = name;
+    }
 
     public void setTypeFromVarOrField() {
         if (variableTableItem() == null && fieldTableItem() == null) {
