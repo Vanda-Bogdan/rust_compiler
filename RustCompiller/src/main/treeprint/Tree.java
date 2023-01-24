@@ -846,12 +846,6 @@ public class Tree {
             case CALL -> {
                 //проверка совпадений типов переданных параметров функции
                 if (expr.methodTableItem() == null) {
-                    //todo проверка на стандартную функцию? хз как должно быть.
-                    /*if (!tables.standardFunctionExists(expr.name)) {
-                        throw new IllegalArgumentException("Неизвестная функция " + expr.name + "(ID: " + expr.id + ")");
-                    } else {
-                        expr.countedType = tables.standardFunctionReturnType(expr.name);
-                    }*/
                     throw new IllegalArgumentException("Неизвестная функция " + expr.name + "(ID: " + expr.id + ")");
                 } else {
                     ArrayList<FunctionParamNode> paramList = expr.methodTableItem().params().list;
@@ -1126,7 +1120,6 @@ public class Tree {
             case LOOP -> {
                 // Массив break
                 ArrayList<ExpressionNode> breaks = new ArrayList<>();
-                breaks.clear();
 
                 // Получение возвращаемого типа break и проверка идентичности типов во всех break
                 expr.body.findBreakInBlock(breaks);
@@ -1152,21 +1145,22 @@ public class Tree {
                     currentType.typeArr = new TypeNode(UNDEFINED);
                     expr.countedType = currentType;
                 }
-
-                TypeNode bufferType;
-                if(exprList.list.size()>0){
-                    exprTypes(exprList.list.get(0));
-                    currentType.typeArr = exprList.list.get(0).countedType;
-                    for (ExpressionNode curExpr: exprList.list) {
-                        exprTypes(curExpr);
-                        bufferType = curExpr.countedType;
-                        if(!bufferType.equals(currentType.typeArr)){
-                            throw new IllegalArgumentException("Неверный тип узла " + curExpr.id + ": " + curExpr.countedType.getName() + " для массива с элементами типа " + currentType.typeArr.getName());
+                else {
+                    TypeNode bufferType;
+                    if(exprList.list.size()>0){
+                        exprTypes(exprList.list.get(0));
+                        currentType.typeArr = exprList.list.get(0).countedType;
+                        for (ExpressionNode curExpr: exprList.list) {
+                            exprTypes(curExpr);
+                            bufferType = curExpr.countedType;
+                            if(!bufferType.equals(currentType.typeArr)){
+                                throw new IllegalArgumentException("Неверный тип узла " + curExpr.id + ": " + curExpr.countedType.getName() + " для массива с элементами типа " + currentType.typeArr.getName());
+                            }
                         }
                     }
+                    currentType.exprArr = new ExpressionNode(exprList.list.size());
+                    expr.countedType = currentType;
                 }
-                currentType.exprArr = new ExpressionNode(exprList.list.size());
-                expr.countedType = currentType;
             }
             case INDEX -> {
                 exprTypes(expr.exprLeft);
@@ -1234,7 +1228,6 @@ public class Tree {
     }
 
 
-
     private void declarationTypes(DeclarationStatementNode decl) {
         switch (decl.type) {
             case FUNCTION -> functionTypes(decl.functionItem);
@@ -1254,6 +1247,7 @@ public class Tree {
         if (function.body.stmtList != null) {
             function.body.stmtList.list.forEach(this::stmtTypes);
         }
+        functionReturnCheck(function);
     }
 
     private void structTypes(StructNode struct){
@@ -1284,7 +1278,95 @@ public class Tree {
                 if(item.fun!=null){
                     functionTypes(item.fun);
                 }else if(item.constStmt!=null){
+                    //todo const_stmt
+                }
+            }
+        }
+    }
 
+    //---------------------- Проверка return в функции -----------------------------
+    private void functionReturnCheck(FunctionNode function){
+        if (function.returnType.varType != VOID) {
+            if (function.body.stmtList == null) {
+                throw new IllegalArgumentException("Пустое тело у функции " + function.name + ", но ожидалось возвращаемое значение типа " + function.returnType.getName());
+            } else if (!bodyHasReturn(function, function.body)) {
+                throw new IllegalArgumentException("У функции " + function.name + "(ID: " + function.id + ") нет явного возвращаемого значения");
+            }
+        }
+        bodyReturnValidation(function, function.body);
+    }
+
+    private boolean bodyHasReturn(FunctionNode function, ExpressionNode body){
+        if(body.stmtList!=null){
+            for (StatementNode stmt : body.stmtList.list){
+                if(stmt.type == StatementType.EXPRESSION){
+                    switch (stmt.expr.type){
+                        case RETURN -> {
+                            if(function.returnType.varType == VOID){
+                                if(stmt.expr.exprLeft!=null){
+                                    throw new IllegalArgumentException("Узел (ID: " + stmt.expr.id + ") возвращает тип " + stmt.expr.exprLeft.countedType.getName() + ", когда функция " + function.name + " должна возвращать тип " + function.returnType.getName());
+                                }else {
+                                    return true;
+                                }
+                            }
+                            else {
+                                if(stmt.expr.exprLeft!=null){
+                                    if(stmt.expr.exprLeft.countedType.equals(function.returnType)){
+                                        return true;
+                                    }else {
+                                        throw new IllegalArgumentException("Узел (ID: " + stmt.expr.id + ") возвращает тип " + stmt.expr.exprLeft.countedType.getName() + ", когда функция " + function.name + " должна возвращать тип " + function.returnType.getName());
+                                    }
+                                }else {
+                                    throw new IllegalArgumentException("Узел (ID: " + stmt.expr.id + ") возвращает пустое значение, когда функция " + function.name + " должна возвращать тип " + function.returnType.getName());
+                                }
+                            }
+                        }
+                        case IF -> {
+                            if(stmt.expr.elseBody!=null && bodyHasReturn(function, stmt.expr.body) && bodyHasReturn(function, stmt.expr.elseBody)){
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            StatementNode lastStmt = body.stmtList.list.get(body.stmtList.list.size()-1);
+            if(lastStmt.type==StatementType.EXPRESSION && lastStmt.expr.countedType.equals(function.returnType)){
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    private void bodyReturnValidation(FunctionNode function, ExpressionNode body){
+        if(body.stmtList!=null) {
+            for (StatementNode stmt : body.stmtList.list) {
+                if (stmt.type == StatementType.EXPRESSION) {
+                    exprReturnValidation(function, stmt.expr);
+                }
+            }
+        }
+    }
+
+    private void exprReturnValidation(FunctionNode function, ExpressionNode expr){
+        switch (expr.type){
+            case RETURN -> {
+                if(function.returnType.varType == VOID){
+                    if(expr.exprLeft!=null){
+                        throw new IllegalArgumentException("Узел (ID: " + expr.id + ") возвращает тип " + expr.exprLeft.countedType.getName() + ", когда функция " + function.name + " должна возвращать тип " + function.returnType.getName());
+                    }
+                }
+                else {
+                    if(!expr.exprLeft.countedType.equals(function.returnType)){
+                        throw new IllegalArgumentException("Узел (ID: " + expr.id + ") возвращает тип " + expr.exprLeft.countedType.getName() + ", когда функция " + function.name + " должна возвращать тип " + function.returnType.getName());
+                    }
+                }
+            }
+            case LOOP_FOR, LOOP_WHILE, LOOP -> bodyReturnValidation(function, expr.body);
+            case IF -> {
+                bodyReturnValidation(function, expr.body);
+                if(expr.elseBody!=null){
+                    bodyReturnValidation(function, expr.elseBody);
                 }
             }
         }

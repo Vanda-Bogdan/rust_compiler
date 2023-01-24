@@ -129,7 +129,7 @@ public class ExpressionNode {
         }
         switch (type) {
             case PLUS, MINUS, MUL, DIV, U_MINUS, ASGN, BREAK, RETURN, STRUCT_FIELD -> countedType = exprLeft.countedType;
-            case EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL, NEG, OR, AND -> countedType = new TypeNode(VarType.BOOL);
+            case EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL, NEG, OR, AND, BOOL_LIT -> countedType = new TypeNode(VarType.BOOL);
             case ARRAY_AUTO_FILL -> {
                 countedType = new TypeNode(VarType.ARRAY);
                 countedType.exprArr = exprRight;
@@ -155,7 +155,6 @@ public class ExpressionNode {
             case FLOAT_LIT -> countedType = new TypeNode(VarType.FLOAT);
             case CHAR_LIT -> countedType = new TypeNode(VarType.CHAR);
             case STRING_LIT -> countedType = new TypeNode(VarType.STRING);
-            case BOOL_LIT -> countedType = new TypeNode(VarType.BOOL);
             case STRUCT -> countedType = new TypeNode(name);
             case STATIC_METHOD, CALL, METHOD -> countedType = methodTableItem().returnType();
         }
