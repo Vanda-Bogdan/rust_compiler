@@ -734,7 +734,9 @@ public class Tree {
                 }
                 break;
             case BLOCK:
-                expr.stmtList.list.forEach(this::stmtTransform);
+                if(expr.stmtList!=null){
+                    expr.stmtList.list.forEach(this::stmtTransform);
+                }
                 break;
             case ASGN:
                 switch (expr.exprLeft.type) {
@@ -857,6 +859,7 @@ public class Tree {
                         if (paramList.size() > 0) {
                             throw new IllegalArgumentException("Несоответствие кол-ва параметров функции " + expr.name + ". Требуется " + paramList.size() + " параметров. (ID: " + expr.id + ")");
                         }
+                        expr.defineTypeOfExpr();
                     }
                     else if (expr.exprList.list.size() != paramList.size()) {
                         throw new IllegalArgumentException("Несоответствие кол-ва параметров функции " + expr.name + ". Требуется " + paramList.size() + " параметров. (ID: " + expr.id + ")");
@@ -895,6 +898,7 @@ public class Tree {
                     if (paramList.size() > 0) {
                         throw new IllegalArgumentException("Несоответствие кол-ва параметров метода " + expr.name + ". Требуется " + paramList.size() + " параметров. (ID: " + expr.id + ")");
                     }
+                    expr.defineTypeOfExpr();
                 }
                 else if (expr.exprList.list.size() != paramList.size()) {
                     throw new IllegalArgumentException("Несоответствие кол-ва параметров метода " + expr.name + ". Требуется " + paramList.size() + " параметров. (ID: " + expr.id + ")");
@@ -930,6 +934,7 @@ public class Tree {
                     if (paramList.size() > 0) {
                         throw new IllegalArgumentException("Несоответствие кол-ва параметров статического метода " + expr.name + ". Требуется " + paramList.size() + " параметров. (ID: " + expr.id + ")");
                     }
+                    expr.defineTypeOfExpr();
                 }
                 else if (expr.exprList.list.size() != paramList.size()) {
                     throw new IllegalArgumentException("Несоответствие кол-ва параметров статического метода " + expr.name + ". Требуется " + paramList.size() + " параметров. (ID: " + expr.id + ")");

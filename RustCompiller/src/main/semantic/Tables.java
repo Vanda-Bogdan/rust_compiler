@@ -136,7 +136,7 @@ public class Tables {
             case TRAIT -> {
                 TraitTable.TraitItem trait = traitTable.traitByName(impl.name);
                 if(trait==null){
-                    throw new IllegalArgumentException("Не существует trait " + impl.name);
+                    throw new IllegalArgumentException("Не существует trait " + impl.name + " (ID: " + impl.id + ")");
                 }
 
                 //----------------------Константы--------------------------
@@ -220,7 +220,7 @@ public class Tables {
                             struct.constantAdd(Constant.METHOD_REF, class_, N_T);
 
                             //Добавить метод в таблицу методов данной структуры
-                            struct.addToMethodTable(trait.trait().getFunction(func.name), struct.fields());
+                            struct.addToMethodTable(func, struct.fields());
                         } else {
                             throw new IllegalArgumentException("Отсутствует реализация в impl " + impl.name + " for " + impl.implType + "для функции " + func.name);
                         }

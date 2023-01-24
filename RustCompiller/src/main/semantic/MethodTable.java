@@ -72,6 +72,9 @@ public class MethodTable {
     }
 
     private void bodyVariables(ExpressionNode body, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
+        if(body.stmtList==null){
+            return;
+        }
         initialTables.add(variableTable);
         VariableTable bodyTable = new VariableTable();
         body.stmtList.list.forEach((n)->stmtVariables(n, bodyTable, initialTables, fields));
