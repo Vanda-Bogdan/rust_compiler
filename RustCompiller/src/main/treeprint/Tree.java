@@ -1232,22 +1232,34 @@ public class Tree {
         switch (decl.type) {
             case FUNCTION -> functionTypes(decl.functionItem);
             case ENUM -> {
+                //todo хз че в енаме проверить можно
             }
-            case CONST_STMT -> {
-            }
+            case CONST_STMT -> constStmtTypes(decl.constStmtItem);
             case STRUCT -> structTypes(decl.structItem);
-            case TRAIT -> {
-
-            }
+            case TRAIT -> traitTypes(decl.traitItem);
             case IMPL -> implTypes(decl.implItem);
         }
     }
 
-    private void functionTypes(FunctionNode function) {
-        if (function.body.stmtList != null) {
-            function.body.stmtList.list.forEach(this::stmtTypes);
+    private void traitTypes(TraitNode trait){
+        if(trait.associatedItemList!=null){
+            for (AssociatedItemNode item : trait.associatedItemList.list){
+                if(item.fun!=null){
+                    functionTypes(item.fun);
+                }else if(item.constStmt!=null){
+                    constStmtTypes(item.constStmt);
+                }
+            }
         }
-        functionReturnCheck(function);
+    }
+
+    private void functionTypes(FunctionNode function) {
+        if(function.body!=null){
+            if (function.body.stmtList != null) {
+                function.body.stmtList.list.forEach(this::stmtTypes);
+            }
+            functionReturnCheck(function);
+        }
     }
 
     private void structTypes(StructNode struct){
@@ -1278,9 +1290,16 @@ public class Tree {
                 if(item.fun!=null){
                     functionTypes(item.fun);
                 }else if(item.constStmt!=null){
-                    //todo const_stmt
+                    constStmtTypes(item.constStmt);
                 }
             }
+        }
+    }
+
+    private void constStmtTypes(ConstStatementNode constStmt){
+        exprTypes(constStmt.expr);
+        if(!constStmt.expr.countedType.equals(constStmt.type)){
+            throw new IllegalArgumentException("При присвоении константе " + constStmt.name + " (ID: " + constStmt.id + ") значения ожидался тип " + constStmt.type.getName() + ", реальный - " + constStmt.expr.countedType.getName());
         }
     }
 
@@ -1330,10 +1349,7 @@ public class Tree {
                 }
             }
             StatementNode lastStmt = body.stmtList.list.get(body.stmtList.list.size()-1);
-            if(lastStmt.type==StatementType.EXPRESSION && lastStmt.expr.countedType.equals(function.returnType)){
-                return true;
-            }
-            return false;
+            return lastStmt.type == StatementType.EXPRESSION && lastStmt.expr.countedType.equals(function.returnType);
         }
         return false;
     }
