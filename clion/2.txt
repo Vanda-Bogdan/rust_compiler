@@ -3,7 +3,7 @@
  */
 struct Engine {
     creator_name : String,
-    volume : f32
+    volume : f64
 }
 
 /**
@@ -53,12 +53,12 @@ trait CanDrownOut {
  */
 impl Car {
      fn typeBody(&self) -> String {
-        if (self.body.height > 4 && self.body.width > 3) { "Big car".to_string(); } else { "Small car".to_string(); };
+        if (self.body.height > 4 && self.body.width > 3) { "Big car"; } else { "Small car"; };
     }
 }
 impl CanDrive for Car {
     fn drive(&self, speed : i32) {
-        println("{}", speed);
+        println_i32("{}", speed);
     }
 }
 impl CanDrownOut for Car {}
@@ -81,14 +81,23 @@ fn main () {
         body : Body { height : 4, width : 2 }
     };
 
-    println("{}", car.typeBody());
+    let mut aboba = car.engine;
+    println(car.typeBody());
+
+
     car.start();
-    car.drive(4);
+    car.drive(1);
     car.drownOut();
     Car::check();
 
     let n : i32 = 10;
-    let mut arr : [i32; 10] = [4, 2, 6, 8, 2, 5, 1, 8, 6, 7,];
+    let mut arr = [1];
+    let mut arr3 = [car ; 3];
+    arr[n] = 3;
+
+    let mut string_arr = ["str"; 10];
+    let mut int_arr = [1, 2, 3, 5 ,8 ,-3];
+
 
     for (i in 0..9) {
         let mut j = 0;
@@ -105,18 +114,23 @@ fn main () {
     let mut i = 0;
     let res : String = loop {
         if (i < 10) {
-            println("{}", arr[i]);
+            break "aboba";
         }
         else {
-            break "end".to_string();
+            break "end";
         };
         i = i + 1;
     };
 
+    let mut a = func_with_params(1, 2, "string");
 }
 
 fn print() -> i32 {
     2 + 2;
+}
+
+fn func_with_params(a : i32, b : i32, c : String) -> i32 {
+    1 * 2 + 9 ;
 }
 
 
