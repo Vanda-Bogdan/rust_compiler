@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClassTable {
 
-    String name;
+    public String name;
     private Tables tables;
 
     public ClassTable(String name, Tables tables) {
@@ -23,7 +23,7 @@ public class ClassTable {
     }
 
     //------------------------------------------Constant Table-------------------------------------------------------
-    private ConstantTable constantTable = new ConstantTable();
+    public ConstantTable constantTable = new ConstantTable();
 
     public int getConstNumber(Constant constant){
         return constantTable.getConstNumber(constant);

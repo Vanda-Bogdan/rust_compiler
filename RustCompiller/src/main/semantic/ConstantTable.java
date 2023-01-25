@@ -1,5 +1,7 @@
 package main.semantic;
 
+import main.generation.utils.Utils;
+
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -79,6 +81,37 @@ public class ConstantTable {
         ConstantTableItem(Constant type, int num1, int num2){
             this(type, "", num1, num2);
         }
+    }
+
+    // -----------------------------------Перевод таблицы констант в массив байт--------------------------------------//
+    public ArrayList<byte[]> constantTableToByteArray() {
+        ArrayList<byte[]> result = new ArrayList<>();
+        for (ConstantTableItem item : items) {
+            switch (item.type()) {
+                case UTF8 -> {
+                    result.add(Utils.intTo1ByteArray(item.type.code));
+                    result.add(Utils.intTo2ByteArray(item.utf8().length()));
+                    result.add(item.utf8().getBytes());
+                }
+                case INTEGER -> {
+                    result.add(Utils.intTo1ByteArray(item.type.code));
+                    result.add(Utils.intTo4ByteArray(item.firstVal));
+                }
+                case FLOAT -> {
+                    result.add(Utils.intTo1ByteArray(item.type.code));
+                }
+                case STRING, CLASS -> {
+                    result.add(Utils.intTo1ByteArray(item.type.code));
+                    result.add(Utils.intTo2ByteArray(item.firstVal()));
+                }
+                case NAME_AND_TYPE, FIELD_REF, METHOD_REF -> {
+                    result.add(Utils.intTo1ByteArray(item.type.code));
+                    result.add(Utils.intTo2ByteArray(item.firstVal()));
+                    result.add(Utils.intTo2ByteArray(item.secondVal()));
+                }
+            }
+        }
+        return result;
     }
 }
 
