@@ -15,13 +15,13 @@ public class VariableTable {
         return items.size();
     }
 
-    public int add(String name, Mutable isMut, TypeNode type) {
-        items.add(new VariableTableItem(ID, name, isMut, type));
+    public int add(String name, Mutable isMut, TypeNode type, boolean isInitialized) {
+        items.add(new VariableTableItem(ID, name, isMut, type, isInitialized));
         return ID++;
     }
 
     public int add(String name, Mutable isMut) {
-        items.add(new VariableTableItem(ID, name, isMut, new TypeNode(VarType.UNDEFINED)));
+        items.add(new VariableTableItem(ID, name, isMut, new TypeNode(VarType.UNDEFINED), false));
         return ID++;
     }
 
@@ -29,8 +29,19 @@ public class VariableTable {
         int num = 0;
         for (VariableTableItem item :items) {
             if(item.ID() == ID){
-                items.set(num, new VariableTableItem(item.ID(), item.name(), item.isMut(), newType));
+                items.set(num, new VariableTableItem(item.ID(), item.name(), item.isMut(), newType, item.isInitialized()));
                 //item = new VariableTableItem(item.ID(), item.name(), item.isMut(), newType);
+                return;
+            }
+            num++;
+        }
+    }
+
+    public void setInitializated(int ID){
+        int num = 0;
+        for (VariableTableItem item :items) {
+            if(item.ID() == ID){
+                items.set(num, new VariableTableItem(item.ID(), item.name(), item.isMut(), item.type(), true));
                 return;
             }
             num++;
@@ -59,11 +70,11 @@ public class VariableTable {
 
     public void merge(VariableTable other){
         for (VariableTableItem item: other.items) {
-            add(item.name(), item.isMut(), item.type());
+            add(item.name(), item.isMut(), item.type(), item.isInitialized());
         }
     }
 
-    public record VariableTableItem(int ID, String name, Mutable isMut, TypeNode type) {
+    public record VariableTableItem(int ID, String name, Mutable isMut, TypeNode type, boolean isInitialized) {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;

@@ -1027,12 +1027,18 @@ public class Tree {
             }
 
             case ASGN -> {
+                if(expr.exprLeft.type!=ExpressionType.ID){
+                    throw new IllegalArgumentException("Невозможно присвоение выражению типа " + expr.exprLeft.type.toString() + "(ID: " + expr.exprLeft.id + ")");
+                }
+                checkMutabilityAsgn(expr.exprLeft);
                 exprTypes(expr.exprLeft);
                 exprTypes(expr.exprRight);
+                checkInitialization(expr.exprRight);
                 if(!expr.exprLeft.countedType.equals(expr.exprRight.countedType)){
                     throw new IllegalArgumentException("Ошибка присвоения (ID: " + expr.id + "). Ожидался тип " + expr.exprLeft.countedType.getName() + ", реальный - " + expr.exprRight.countedType.getName());
                 }
                 expr.exprLeft.countedType = expr.exprRight.countedType;
+                expr.exprLeft.setInitializated();
                 expr.defineTypeOfExpr();
             }
 
@@ -1040,6 +1046,9 @@ public class Tree {
             case PLUS, MINUS, MUL, DIV -> {
                 exprTypes(expr.exprLeft);
                 exprTypes(expr.exprRight);
+
+                checkInitialization(expr.exprLeft);
+                checkInitialization(expr.exprRight);
 
                 if (expr.exprLeft.countedType.varType == VarType.INT && expr.exprRight.countedType.varType == VarType.INT) {
                     expr.countedType = new TypeNode(VarType.INT);
@@ -1056,6 +1065,8 @@ public class Tree {
             case EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL -> {
                 exprTypes(expr.exprLeft);
                 exprTypes(expr.exprRight);
+                checkInitialization(expr.exprLeft);
+                checkInitialization(expr.exprRight);
                 TypeNode leftType = expr.exprLeft.countedType;
                 if (leftType.equals(expr.exprRight.countedType)) {
                     if(leftType.varType != INT && leftType.varType!= FLOAT && leftType.varType != BOOL){//todo не все можно сравнить, например классы
@@ -1069,6 +1080,7 @@ public class Tree {
             }
             case U_MINUS -> {
                 exprTypes(expr.exprLeft);
+                checkInitialization(expr.exprLeft);
                 if (expr.exprLeft.countedType.varType == VarType.INT) {
                     expr.countedType = new TypeNode(VarType.INT);
                 }
@@ -1081,6 +1093,8 @@ public class Tree {
             }
             case NEG -> {
                 exprTypes(expr.exprLeft);
+                checkInitialization(expr.exprLeft);
+
                 if (expr.exprLeft.countedType.varType == VarType.BOOL) {
                     expr.defineTypeOfExpr();
                 }
@@ -1091,6 +1105,8 @@ public class Tree {
             case OR, AND -> {
                 exprTypes(expr.exprLeft);
                 exprTypes(expr.exprRight);
+                checkInitialization(expr.exprLeft);
+                checkInitialization(expr.exprRight);
                 if (expr.exprLeft.countedType.varType == VarType.BOOL && expr.exprRight.countedType.varType == VarType.BOOL) {
                     expr.defineTypeOfExpr();
                 }
@@ -1101,6 +1117,8 @@ public class Tree {
             //------------------------- LOOP --------------------------------
             case LOOP_WHILE -> {
                 exprTypes(expr.exprLeft);
+                checkInitialization(expr.exprLeft);
+
                 if(expr.exprLeft.countedType.varType!=BOOL){
                     throw new IllegalArgumentException("Выражение в условии while(ID: " + expr.id + ") должно возвращать bool");
                 }
@@ -1149,6 +1167,7 @@ public class Tree {
                     TypeNode bufferType;
                     if(exprList.list.size()>0){
                         exprTypes(exprList.list.get(0));
+                        checkInitialization(exprList.list.get(0));
                         currentType.typeArr = exprList.list.get(0).countedType;
                         for (ExpressionNode curExpr: exprList.list) {
                             exprTypes(curExpr);
@@ -1165,6 +1184,8 @@ public class Tree {
             case INDEX -> {
                 exprTypes(expr.exprLeft);
                 exprTypes(expr.exprRight);
+                checkInitialization(expr.exprLeft);
+                checkInitialization(expr.exprRight);
 
                 if (expr.exprLeft.countedType.varType != VarType.ARRAY) {
                     throw new IllegalArgumentException("У данного типа нет операции обращения по индексу (ID:" + expr.id + ")");
@@ -1177,11 +1198,15 @@ public class Tree {
             }
             case INDEX_ASGN -> {
                 exprTypes(expr.body);
+                checkMutabilityAsgn(expr.exprLeft);
                 if(expr.body.countedType.varType!=INT){
                     throw new IllegalArgumentException("Номер взятия по индексу должен быть INT (ID: " + expr.body.id + ")");
                 }
                 exprTypes(expr.exprRight);
                 exprTypes(expr.exprLeft);
+                checkInitialization(expr.exprLeft);
+                checkInitialization(expr.exprRight);
+
                 if(!expr.exprLeft.countedType.typeArr.equals(expr.exprRight.countedType)){
                     throw new IllegalArgumentException("Неверное присвоение элементу массива " + expr.exprLeft.name + ". Ожидался тип " + expr.exprLeft.countedType.typeArr.getName() + ", реальный: " + expr.exprRight.countedType.getName() + ". (ID: " + expr.id + ")");
                 }
@@ -1193,12 +1218,14 @@ public class Tree {
                     if (expr.exprLeft.countedType.varType != VarType.INT) {
                         throw new IllegalArgumentException("Не int тип для левого выражения range (ID:" + expr.id + ")");
                     }
+                    checkInitialization(expr.exprLeft);
                 }
                 if (expr.exprRight != null) {
                     exprTypes(expr.exprRight);
                     if (expr.exprRight.countedType.varType != VarType.INT) {
                         throw new IllegalArgumentException("Не int тип для правого выражения range (ID:" + expr.id + ")");
                     }
+                    checkInitialization(expr.exprRight);
                 }
             }
 
@@ -1207,6 +1234,7 @@ public class Tree {
                 if(expr.exprLeft!=null){
                     exprTypes(expr.exprLeft);
                     expr.defineTypeOfExpr();
+                    checkInitialization(expr.exprLeft);
                 }
                 else {
                     expr.countedType = new TypeNode(VOID);
@@ -1215,6 +1243,8 @@ public class Tree {
             case ARRAY_AUTO_FILL -> {
                 exprTypes(expr.exprLeft);
                 exprTypes(expr.exprRight);
+                checkInitialization(expr.exprLeft);
+                checkInitialization(expr.exprRight);
                 if(expr.exprLeft.countedType.varType == UNDEFINED || expr.exprLeft.countedType.varType == VOID){
                     throw new IllegalArgumentException("Неверный тип (ID: " + expr.exprLeft.id + ") для заполнения массива (ID: " + expr.id + ")");
                 }
@@ -1224,6 +1254,24 @@ public class Tree {
             case BLOCK -> expr.stmtList.list.forEach(this::stmtTypes);
             //todo continue?
             default -> expr.defineTypeOfExpr();
+        }
+    }
+
+    private void checkInitialization(ExpressionNode expr){
+        if(expr==null){
+            return;
+        }
+        if(expr.type==ExpressionType.ID && expr.variableTableItem()!= null && !expr.variableTableItem().isInitialized()){
+            throw new IllegalArgumentException("Неинициализированная переменная " + expr.name + "(ID: " + expr.id + ")");
+        }
+    }
+
+    private void checkMutabilityAsgn(ExpressionNode exprLeft){
+        if(exprLeft==null || exprLeft.type!=ExpressionType.ID){
+            return;
+        }
+        if(exprLeft.variableTableItem()!=null && exprLeft.variableTableItem().isMut()==Mutable.NOT_MUT) {
+            throw new IllegalArgumentException("Невозможно присвоение не модифицируемому выражению(ID: " + exprLeft.id + ")");
         }
     }
 

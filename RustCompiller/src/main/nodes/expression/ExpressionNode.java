@@ -57,6 +57,10 @@ public class ExpressionNode {
         variableTable = table;
     }
 
+    public void setInitializated(){
+        variableTable.setInitializated(varID);
+    }
+
     // *Если это поле
     private String fieldName;
     private FieldTable fieldTable;
