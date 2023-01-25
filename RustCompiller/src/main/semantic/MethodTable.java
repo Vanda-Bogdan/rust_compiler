@@ -54,11 +54,11 @@ public class MethodTable {
         //--------Заполнение таблицы локальных переменных
         //self
         if(funcNode.paramList.type != FunctionType.ASSOCIATED){
-            variableTable.add("self", Mutable.NOT_MUT, new TypeNode(className));
+            variableTable.add("self", Mutable.NOT_MUT, new TypeNode(className), true);
         }
 
         //параметры
-        funcNode.paramList.list.forEach((item)-> variableTable.add(item.name, item.mut, item.type));
+        funcNode.paramList.list.forEach((item)-> variableTable.add(item.name, item.mut, item.type, true));
 
         //переменные в теле
         variableTables.add(variableTable);
@@ -83,15 +83,6 @@ public class MethodTable {
             variableTables.add(bodyTable);
         }
     }
-
-    /*private void bodyVariablesOldTable(ExpressionNode body, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields, VariableTable bodyTable){
-        initialTables.add(variableTable);
-        body.stmtList.list.forEach((n)->stmtVariables(n, bodyTable, initialTables, fields));
-        initialTables.remove(initialTables.size()-1);
-        if(bodyTable.size()>0){
-            variableTables.add(bodyTable);
-        }
-    }*/
 
     private void stmtVariables(StatementNode stmt, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
         if(stmt.type == StatementType.LET){
@@ -232,7 +223,8 @@ public class MethodTable {
 
     private void loopForVariables(ExpressionNode loopFor, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
 
-        variableTable.add(loopFor.name, Mutable.MUT, new TypeNode(VarType.INT));
+        int num = variableTable.add(loopFor.name, Mutable.MUT, new TypeNode(VarType.INT), true);
+        loopFor.setVar(num, variableTable);
         bodyVariables(loopFor.body, variableTable, initialTables, fields);
     }
 
@@ -242,7 +234,13 @@ public class MethodTable {
     }
 
     private void letVariables(LetStatementNode let, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
-        int num = variableTable.add(let.name, let.mut, let.type);
+        int num;
+        if(let.expr!=null){
+            num = variableTable.add(let.name, let.mut, let.type, true);
+        }else{
+            num = variableTable.add(let.name, let.mut, let.type, false);
+        }
+
         let.setVar(num, variableTable);
 
         exprVariables(let.expr, variableTable, initialTables, fields);
