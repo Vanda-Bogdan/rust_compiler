@@ -2,12 +2,14 @@ package main.generation;
 
 import main.generation.utils.Utils;
 import main.nodes.expression.ExpressionNode;
+import main.nodes.function.FunctionNode;
 import main.nodes.stmt.StatementNode;
 import main.semantic.ClassTable;
 import main.semantic.Tables;
 import main.treeprint.Tree;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public class Generate {
 
@@ -26,12 +28,20 @@ public class Generate {
         fos.write(Utils.intTo2ByteArray(103));
     }
 
+    private void generateFunction(FunctionNode function){
+
+    }
+
     private byte[] generate(StatementNode stmt, ClassTable classTable){
 
         return null;
     }
 
-    private byte[] generate(ExpressionNode expr, ClassTable classTable){
+    private ArrayList<byte[]> generate(ExpressionNode expr, ClassTable classTable){
+        ArrayList<byte[]> bytes = new ArrayList<>();
+        switch (expr.type){
+
+        }
 
         return null;
     }
