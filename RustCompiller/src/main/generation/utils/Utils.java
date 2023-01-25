@@ -9,9 +9,10 @@ public class Utils {
 
     // ---------------------------Перевод численных значений в массив байт и обратно---------------------- //
     public static byte[] intTo2ByteArray(int value) {
-        return new byte[] {
-                (byte)(value >> 8),
-                (byte)value};
+        return new byte[]{
+                (byte) (value >> 8),
+                (byte) value
+        };
     }
 
     public static byte[] intTo4ByteArray(int value) {

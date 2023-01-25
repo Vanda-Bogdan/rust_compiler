@@ -1,6 +1,6 @@
 package main;
 
-import main.semantic.Tables;
+import main.generation.Generate;
 import main.treeprint.Tree;
 import treeCreate.TreeFromXml;
 
@@ -15,6 +15,8 @@ public class Main{
         tree.print();
         tree.createTables();
         tree.typesCheck();
+        Generate generation = new Generate();
+        generation.generate(tree);
 
     }
 
