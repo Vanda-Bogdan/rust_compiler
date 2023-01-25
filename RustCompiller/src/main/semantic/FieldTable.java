@@ -49,6 +49,11 @@ public class FieldTable {
 
     public void add(String name, FieldTableItem item){
         items.put(name, item);
+        if(item.isConst()){
+            amountConst++;
+        }else {
+            amountNotConst++;
+        }
     }
 
     public record FieldTableItem(TypeNode type, boolean isConst, ExpressionNode expr) {

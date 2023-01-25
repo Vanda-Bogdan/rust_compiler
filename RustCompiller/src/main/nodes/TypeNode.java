@@ -33,9 +33,21 @@ public class TypeNode {
         }
     }
 
-    public String getNameForTable(){
+    public String getConstNameForTable(){
         if(varType == VarType.ID){
             return name;
+        }
+        else if(varType != VarType.ARRAY){
+            return typeParse(varType);
+        }
+        else {
+            return "[" + typeArr.getArrayName();
+        }
+    }
+
+    public String getNameForTable(){
+        if(varType == VarType.ID){
+            return "L" + name + ";";
         }
         else if(varType != VarType.ARRAY){
             return typeParse(varType);

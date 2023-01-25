@@ -112,7 +112,7 @@ public class Tables {
             if(!currentTable.constantContains(Constant.UTF8, structItem.name)){
                 //Заполнение таблицы констант
                 int name = currentTable.constantAdd(Constant.UTF8, structItem.name);                  //имя
-                int type = currentTable.constantAdd(Constant.UTF8, structItem.type.getNameForTable());//тип
+                int type = currentTable.constantAdd(Constant.UTF8, structItem.type.getConstNameForTable());//тип
                 int N_T = currentTable.constantAdd(Constant.NAME_AND_TYPE, name, type);               //Name&Type
                 currentTable.constantAdd(Constant.FIELD_REF, classConst, N_T);                        //FieldRef
 
@@ -155,7 +155,7 @@ public class Tables {
                         if(const_!=null){
                             //Добавить const в таблицу констант данной структуры
                             int name = struct.constantAdd(Constant.UTF8, fieldName);
-                            int type = struct.constantAdd(Constant.UTF8, value.type().getNameForTable());
+                            int type = struct.constantAdd(Constant.UTF8, value.type().getConstNameForTable());
                             int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
                             int class_ = struct.getConstNumber(Constant.CLASS);
                             struct.constantAdd(Constant.METHOD_REF, class_, N_T);
@@ -179,7 +179,7 @@ public class Tables {
 
                         //Добавить const в таблицу констант данной структуры
                         int name = struct.constantAdd(Constant.UTF8, fieldName);
-                        int type = struct.constantAdd(Constant.UTF8, value.type().getNameForTable());
+                        int type = struct.constantAdd(Constant.UTF8, value.type().getConstNameForTable());
                         int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
                         int class_ = struct.getConstNumber(Constant.CLASS);
                         struct.constantAdd(Constant.METHOD_REF, class_, N_T);
@@ -232,7 +232,7 @@ public class Tables {
                             //func = impl.getFunction(funcName);
                             //Добавить метод в таблицу констант данной структуры
                             int name = struct.constantAdd(Constant.UTF8, funcNode.name);
-                            int type = struct.constantAdd(Constant.UTF8, funcNode.returnType.getNameForTable());
+                            int type = struct.constantAdd(Constant.UTF8, funcNode.funcTypeForTable());
                             int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
                             int class_ = struct.getConstNumber(Constant.CLASS);
                             struct.constantAdd(Constant.METHOD_REF, class_, N_T);
@@ -273,7 +273,7 @@ public class Tables {
                         }
                         //Добавить метод в таблицу констант данной структуры
                         int name = struct.constantAdd(Constant.UTF8, item.fun.name);
-                        int type = struct.constantAdd(Constant.UTF8, item.fun.returnType.getNameForTable());
+                        int type = struct.constantAdd(Constant.UTF8, item.fun.funcTypeForTable());
                         int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
                         int class_ = struct.getConstNumber(Constant.CLASS);
                         struct.constantAdd(Constant.METHOD_REF, class_, N_T);
@@ -313,7 +313,7 @@ public class Tables {
 
         //Добавить метод в таблицу констант данной структуры
         int name = main.constantAdd(Constant.UTF8, function.name);
-        int type = main.constantAdd(Constant.UTF8, function.returnType.getNameForTable());
+        int type = main.constantAdd(Constant.UTF8, function.funcTypeForTable());
         int N_T = main.constantAdd(Constant.NAME_AND_TYPE, name, type);
         int class_ = main.getConstNumber(Constant.CLASS);
         main.constantAdd(Constant.METHOD_REF, class_, N_T);
