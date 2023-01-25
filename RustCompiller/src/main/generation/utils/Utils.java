@@ -34,9 +34,10 @@ public class Utils {
         return ByteBuffer.wrap(arr).getFloat();
     }
 
-    // -----------------------------------Перевод таблицы констант в массив байт--------------------------------------//
-    public static byte[] constantTableToByteArray(ArrayList<ConstantTable.ConstantTableItem> tableItems) {
-        return null;
+    public static byte[] intTo1ByteArray(int value) {
+        return new byte[] {
+                (byte)value
+        };
     }
 
 }
