@@ -48,7 +48,7 @@ public class Tree {
     }
 
     //-----------------------Таблицы--------------------------
-    private Tables tables;
+    public Tables tables;
 
     public void createTables() {
         tables = new Tables();
