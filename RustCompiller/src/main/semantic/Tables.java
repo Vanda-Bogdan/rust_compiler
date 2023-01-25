@@ -105,7 +105,6 @@ public class Tables {
 
         createTable(structNode.name);
 
-        currentTable.constantAdd(Constant.UTF8, "Code");
         int className = currentTable.constantAdd(Constant.UTF8, structNode.name);
         int classConst = currentTable.constantAdd(Constant.CLASS, className);
         structNode.structList.list.forEach((structItem)->{

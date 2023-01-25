@@ -5,6 +5,11 @@ import java.util.Objects;
 
 public class ConstantTable {
 
+    public ConstantTable(){
+        add(Constant.UTF8, "Code");
+        add(Constant.UTF8, "<init>");
+    }
+
     public ArrayList<ConstantTableItem> items = new ArrayList<>();
 
     public int add(Constant constant, int num1) {
