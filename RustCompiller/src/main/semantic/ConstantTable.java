@@ -5,6 +5,9 @@ import main.nodes.TypeNode;
 import main.nodes.function.FunctionParamListNode;
 import main.nodes.function.FunctionParamNode;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -125,34 +128,38 @@ public class ConstantTable {
     }
 
     // -----------------------------------Перевод таблицы констант в массив байт--------------------------------------//
-    public ArrayList<byte[]> constantTableToByteArray() {
+    public byte[] constantTableToByteArray() throws IOException {
+
         ArrayList<byte[]> result = new ArrayList<>();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        DataOutputStream dout = new DataOutputStream(out);
+
         for (ConstantTableItem item : items) {
             switch (item.type()) {
                 case UTF8 -> {
-                    result.add(Utils.intTo1ByteArray(item.type.code));
-                    result.add(Utils.intTo2ByteArray(item.utf8().length()));
-                    result.add(item.utf8().getBytes());
+                    dout.write(item.type.code);
+                    dout.writeShort(item.utf8().length());
+                    dout.write(item.utf8().getBytes());
                 }
                 case INTEGER -> {
-                    result.add(Utils.intTo1ByteArray(item.type.code));
-                    result.add(Utils.intTo4ByteArray(item.firstVal));
+                    dout.write(item.type.code);
+                    dout.writeInt(item.firstVal);
                 }
                 case FLOAT -> {
-                    result.add(Utils.intTo1ByteArray(item.type.code));
+                    dout.write(item.type.code);
                 }
                 case STRING, CLASS -> {
-                    result.add(Utils.intTo1ByteArray(item.type.code));
-                    result.add(Utils.intTo2ByteArray(item.firstVal() + 1));
+                    dout.write(item.type.code);
+                    dout.writeShort(item.firstVal() + 1);
                 }
                 case NAME_AND_TYPE, FIELD_REF, METHOD_REF -> {
-                    result.add(Utils.intTo1ByteArray(item.type.code));
-                    result.add(Utils.intTo2ByteArray(item.firstVal() + 1));
-                    result.add(Utils.intTo2ByteArray(item.secondVal() + 1));
+                    dout.write(item.type.code);
+                    dout.writeShort(item.firstVal() + 1);
+                    dout.writeShort(item.secondVal() + 1);
                 }
             }
         }
-        return result;
+        return out.toByteArray();
     }
 
 
