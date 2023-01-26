@@ -77,7 +77,7 @@ public enum Command {
     return_(0xB1)
     ;
 
-    private final int commandCode;
+    public final int commandCode;
 
     Command(int commandCode) {
         this.commandCode = commandCode;

@@ -138,8 +138,7 @@ public class ConstantTable {
             switch (item.type()) {
                 case UTF8 -> {
                     dout.write(item.type.code);
-                    dout.writeShort(item.utf8().length());
-                    dout.write(item.utf8().getBytes());
+                    dout.writeUTF(item.utf8());
                 }
                 case INTEGER -> {
                     dout.write(item.type.code);

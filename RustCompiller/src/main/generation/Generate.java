@@ -1,5 +1,7 @@
 package main.generation;
 
+import com.sun.tools.jconsole.JConsoleContext;
+import main.generation.constants.Command;
 import main.generation.utils.Utils;
 import main.nodes.expression.ExpressionNode;
 import main.nodes.function.FunctionNode;
@@ -28,16 +30,16 @@ public class Generate {
         dout.writeShort(50); // мажорная версия
 
         // Generate class
-        //byte[] codGen = generateClass(mainTable);
+        byte[] codGen = generateClass(mainTable);
 
         // Constants count
-        dout.writeShort(mainTable.constantTable.items.size());
+        dout.writeShort(mainTable.constantTable.items.size() + 1);
 
         // Constants
         dout.write(mainTable.constantTable.constantTableToByteArray());
 
         // Code generation write to file
-        //dout.write(codGen);
+        dout.write(codGen);
 
         try(OutputStream outputStream = new FileOutputStream(mainName)) {
             out.writeTo(outputStream);
@@ -98,7 +100,7 @@ public class Generate {
         }
 
         // Methods count
-        dout.writeShort(classTable.methods().items.size() + 1);
+        dout.writeShort(classTable.methods().items.size());
 
         //------------------------------------Methods-----------------------------------
         for(Map.Entry<String, MethodTable.MethodTableItem> entry : classTable.methods().items.entrySet()){
@@ -120,12 +122,13 @@ public class Generate {
             dout.writeShort(classTable.constantTable.add(Constant.UTF8, ConstantTable.funcTypeForTable(methodTableItem.returnType(), methodTableItem.params())) + 1);
 
             // Codegen
-            //ArrayList<byte[]> code = new ArrayList<>();
-            //code.add(Utils.intTo1ByteArray(0xB1));
-
             ByteArrayOutputStream out2 = new ByteArrayOutputStream();
-            DataOutputStream dout2 = new DataOutputStream(out);
-            dout2.write(0xB1);
+            DataOutputStream dout2 = new DataOutputStream(out2);
+            dout2.write(Command.ldc_w.commandCode);
+            dout2.writeShort(classTable.constantAdd(Constant.STRING, classTable.constantAdd(Constant.UTF8, "Hello world!!!")) + 1);
+            dout2.write(Command.invokestatic.commandCode);
+            dout2.writeShort(classTable.constantTable.addMethodRef("RTL", "println", "(Ljava/lang/Object;)V") + 1);
+            dout2.write(Command.return_.commandCode);
 
             // Method attrs count (always 1)
             dout.writeShort(1);
@@ -135,7 +138,7 @@ public class Generate {
             dout.writeShort(classTable.constantTable.add(Constant.UTF8, "Code") + 1);
 
             // Length
-            dout.writeInt(0x0D);
+            dout.writeInt(out2.size() + 12);
 
             // Stack size (max)
             dout.writeShort(0xFF);
@@ -144,7 +147,7 @@ public class Generate {
             dout.writeShort(methodTableItem.variableTable().size());
 
             // Bytecode length
-            dout.writeInt(0x01);
+            dout.writeInt(out2.size());
 
             // Тут добавлять код к результату
             dout.write(out2.toByteArray());
@@ -155,9 +158,10 @@ public class Generate {
             // Code attrs count (always 0)
             dout.writeShort(0);
 
-            // Class attrs count
-            dout.writeShort(0);
         }
+
+        // Class attrs count
+        dout.writeShort(0);
 
         return out.toByteArray();
     }
