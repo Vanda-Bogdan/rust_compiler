@@ -1,6 +1,9 @@
 package main.semantic;
 
 import main.generation.utils.Utils;
+import main.nodes.TypeNode;
+import main.nodes.function.FunctionParamListNode;
+import main.nodes.function.FunctionParamNode;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -15,8 +18,13 @@ public class ConstantTable {
     public ArrayList<ConstantTableItem> items = new ArrayList<>();
 
     public int add(Constant constant, int num1) {
-        items.add(new ConstantTableItem(constant, num1));
-        return items.size() - 1;
+        if(contains(constant, num1)){
+            return getConstNumber(constant, num1);
+        }
+        else {
+            items.add(new ConstantTableItem(constant, num1));
+            return items.size() - 1;
+        }
     }
 
     public int add(Constant constant, int num1, int num2) {
@@ -68,6 +76,24 @@ public class ConstantTable {
         return -1;
     }
 
+    public int getConstNumber(Constant constant, int num1){
+        for (ConstantTableItem item: items) {
+            if(item.type==constant && item.firstVal==num1){
+                return items.indexOf(item);
+            }
+        }
+        return -1;
+    }
+
+    public int addClass(String name){
+        for (ConstantTableItem item: items) {
+            if(item.type==Constant.CLASS && Objects.equals(items.get(item.firstVal).utf8(), name)){
+                return items.indexOf(item);
+            }
+        }
+        return add(Constant.CLASS, add(Constant.UTF8, name));
+    }
+
     public record ConstantTableItem(Constant type, String utf8, int firstVal, int secondVal) {
 
         ConstantTableItem(Constant type, String utf8){
@@ -111,6 +137,18 @@ public class ConstantTable {
                 }
             }
         }
+        return result;
+    }
+
+
+    public static String funcTypeForTable(TypeNode returnType, FunctionParamListNode paramList){
+        String result = "(";
+        if(paramList!=null){
+            for(FunctionParamNode param : paramList.list){
+                result+=param.type.getNameForTable();
+            }
+        }
+        result+= ")" + returnType.getNameForTable();
         return result;
     }
 }

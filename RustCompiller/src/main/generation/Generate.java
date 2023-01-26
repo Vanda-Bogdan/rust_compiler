@@ -7,11 +7,13 @@ import main.nodes.function.FunctionType;
 import main.nodes.stmt.StatementNode;
 import main.semantic.ClassTable;
 import main.semantic.Constant;
+import main.semantic.ConstantTable;
 import main.semantic.Tables;
 import main.treeprint.Tree;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -25,8 +27,9 @@ public class Generate {
 
 
         File mainClass = new File(mainName);
+        FileWriter myWriter = new FileWriter(mainClass);
+        myWriter.write("");
         FileOutputStream fos = new FileOutputStream(mainName);
-
 
 
         // CAFEBABE
@@ -75,13 +78,13 @@ public class Generate {
         ArrayList<byte[]> result = new ArrayList<>();
 
         // Flags (PUBLIC + SUPER)
-        result.add(new byte[] { 0x00, 0x03 });  // TODO почему такие значения флагов?
+        result.add(new byte[] { 0x00, 0x03 });
 
         // Current class
-        result.add(Utils.intTo2ByteArray(classTable.constantTable.getConstNumber(Constant.UTF8, classTable.name) + 1));
+        result.add(Utils.intTo2ByteArray(classTable.constantTable.addClass(classTable.name)+ 1));
 
         // Parent class
-        result.add(Utils.intTo2ByteArray(classTable.constantTable.add(Constant.UTF8, "java/lang/Object") + 1));
+        result.add(Utils.intTo2ByteArray(classTable.constantTable.addClass("java/lang/Object") + 1));
 
         // Interfaces
         result.add(new byte[] { 0x00, 0x00 });
@@ -120,7 +123,7 @@ public class Generate {
         result.add(new byte[] { 0x00, 0x01 });
 
         // Name
-        result.add(Utils.intTo2ByteArray(classTable.constantTable.getConstNumber(Constant.UTF8, "<init>") + 1));
+        result.add(Utils.intTo2ByteArray(classTable.constantTable.add(Constant.UTF8, "<init>") + 1));
 
         // Descriptor
         result.add(Utils.intTo2ByteArray(classTable.constantTable.add(Constant.UTF8, "()V") + 1));
@@ -130,7 +133,7 @@ public class Generate {
 
         // Code attr
         // Name
-        result.add(Utils.intTo2ByteArray(classTable.constantTable.getConstNumber(Constant.UTF8, "Code") + 1));
+        result.add(Utils.intTo2ByteArray(classTable.constantTable.add(Constant.UTF8, "Code") + 1));
 
         // Length
         result.add(new byte[] { 0x00, 0x00, 0x00, 0x11 });
@@ -147,9 +150,9 @@ public class Generate {
         // Bytecode (Object constructor call)
         result.add(Utils.intTo1ByteArray(0x2A)); // aload_0
         result.add(Utils.intTo1ByteArray(0xB7)); // invokespecial
-        int nat = classTable.constantTable.add(Constant.NAME_AND_TYPE, classTable.constantTable.getConstNumber(Constant.UTF8, "<init>"),
-                classTable.constantTable.getConstNumber(Constant.UTF8, "()V"));
-        result.add(Utils.intTo2ByteArray(classTable.constantTable.add(Constant.METHOD_REF, classTable.constantTable.getConstNumber(Constant.UTF8, classTable.name), nat))); // MethodRef Obj Init
+        int nat = classTable.constantTable.add(Constant.NAME_AND_TYPE, classTable.constantTable.add(Constant.UTF8, "<init>"),
+                classTable.constantTable.add(Constant.UTF8, "()V"));
+        result.add(Utils.intTo2ByteArray(classTable.constantTable.add(Constant.METHOD_REF, classTable.constantTable.add(Constant.UTF8, classTable.name), nat) + 1)); // MethodRef Obj Init
         result.add(Utils.intTo1ByteArray(0xB1)); // return
         // Exceptions table length (always 0)
         result.add(new byte[] { 0x00, 0x00 });
@@ -171,10 +174,10 @@ public class Generate {
             }
 
             // Name
-            result.add(Utils.intTo2ByteArray(classTable.constantTable.getConstNumber(Constant.UTF8, key) + 1));
+            result.add(Utils.intTo2ByteArray(classTable.constantTable.add(Constant.UTF8, key) + 1));
 
             // Descriptor
-            result.add(Utils.intTo2ByteArray(classTable.constantTable.add(Constant.UTF8, value.returnType().getConstNameForTable()) + 1));
+            result.add(Utils.intTo2ByteArray(classTable.constantTable.add(Constant.UTF8, ConstantTable.funcTypeForTable(value.returnType(), value.params())) + 1));
 
             // Codegen
             ArrayList<byte[]> code = new ArrayList<>();
@@ -185,7 +188,7 @@ public class Generate {
 
             // Code attr
             // Name
-            result.add(Utils.intTo2ByteArray(classTable.constantTable.getConstNumber(Constant.UTF8, "Code") + 1));
+            result.add(Utils.intTo2ByteArray(classTable.constantTable.add(Constant.UTF8, "Code") + 1));
 
             // Length
             result.add(new byte[] { 0x00, 0x00, 0x00, 0x0D });

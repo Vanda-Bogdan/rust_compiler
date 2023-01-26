@@ -161,7 +161,8 @@ public class MethodTable {
 
         if(standardFunctionList.standardFunctionExists(expression.name)){
             expression.setStandartMethod(expression.name);
-        }else {
+        }
+        else {
             expression.setMethod(expression.name, this);
         }
 
