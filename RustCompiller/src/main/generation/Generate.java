@@ -27,16 +27,39 @@ public class Generate {
         File mainClass = new File(mainName);
         FileOutputStream fos = new FileOutputStream(mainName);
 
+
+
         // CAFEBABE
         fos.write(new byte[] { (byte)0xCA, (byte)0xFE, (byte)0xBA, (byte)0xBE });
 
         // Version
         fos.write(new byte[] { 0x00, 0x00, 0x00, 0x32 });
 
+        // Generate class
+        ArrayList<byte[]> codGen = generateClass(classTable);
+
         // Constants count
         fos.write(Utils.intTo2ByteArray(classTable.constantTable.items.size() + 1));
 
         // Constants
+        classTable.constantTable.constantTableToByteArray().forEach( (item) -> {
+            try {
+                fos.write(item);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        // Code generation write to file
+        codGen.forEach( (item) -> {
+            try {
+                fos.write(item);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        fos.close();
     }
 
     private void generateFunction(FunctionNode function){
@@ -155,6 +178,38 @@ public class Generate {
 
             // Codegen
             ArrayList<byte[]> code = new ArrayList<>();
+            code.add(Utils.intTo1ByteArray(0xB1));
+
+            // Method attrs count (always 1)
+            result.add(new byte[] { 0x00, 0x01 });
+
+            // Code attr
+            // Name
+            result.add(Utils.intTo2ByteArray(classTable.constantTable.getConstNumber(Constant.UTF8, "Code") + 1));
+
+            // Length
+            result.add(new byte[] { 0x00, 0x00, 0x00, 0x0D });
+
+            // Stack size (max)
+            result.add(new byte[] { (byte)0xFF, (byte)0xFF });
+
+            // Locals count (this)
+            result.add(new byte[] { 0x00, 0x01 });
+
+            // Bytecode length
+            result.add(new byte[] { 0x00, 0x00, 0x00, 0x01 });
+
+            // Тут добавлять код к результату
+            result.addAll(code);
+
+            // Exceptions table length (always 0)
+            result.add(new byte[] { 0x00, 0x00 });
+
+            // Code attrs count (always 0)
+            result.add(new byte[] { 0x00, 0x00 });
+
+            // Class attrs count
+            result.add(new byte[] { 0x00, 0x00 });
 
         });
 
@@ -169,4 +224,6 @@ public class Generate {
 
         return null;
     }
+
+
 }

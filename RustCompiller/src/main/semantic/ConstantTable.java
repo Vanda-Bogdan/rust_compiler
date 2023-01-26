@@ -102,12 +102,12 @@ public class ConstantTable {
                 }
                 case STRING, CLASS -> {
                     result.add(Utils.intTo1ByteArray(item.type.code));
-                    result.add(Utils.intTo2ByteArray(item.firstVal()));
+                    result.add(Utils.intTo2ByteArray(item.firstVal() + 1));
                 }
                 case NAME_AND_TYPE, FIELD_REF, METHOD_REF -> {
                     result.add(Utils.intTo1ByteArray(item.type.code));
-                    result.add(Utils.intTo2ByteArray(item.firstVal()));
-                    result.add(Utils.intTo2ByteArray(item.secondVal()));
+                    result.add(Utils.intTo2ByteArray(item.firstVal() + 1));
+                    result.add(Utils.intTo2ByteArray(item.secondVal() + 1));
                 }
             }
         }
