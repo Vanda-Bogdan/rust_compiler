@@ -28,8 +28,13 @@ public class ConstantTable {
     }
 
     public int add(Constant constant, int num1, int num2) {
-        items.add(new ConstantTableItem(constant, num1, num2));
-        return items.size() - 1;
+        if(contains(constant, num1, num2)){
+            return getConstNumber(constant, num1, num2);
+        }
+        else {
+            items.add(new ConstantTableItem(constant, num1, num2));
+            return items.size() - 1;
+        }
     }
 
     public int add(Constant constant, String utf8) {
@@ -53,10 +58,6 @@ public class ConstantTable {
     public boolean contains(Constant constant, int num1, int num2){
         return items.contains(new ConstantTableItem(constant, num1, num2));
     }
-
-    /*public int getConstNumber(Constant constant, String utf8) {
-        return items.indexOf(new ConstantTableItem(constant, utf8));
-    }*/
 
     public int getConstNumber(Constant constant){
         for (ConstantTableItem item: items) {
@@ -85,6 +86,15 @@ public class ConstantTable {
         return -1;
     }
 
+    public int getConstNumber(Constant constant, int num1, int num2){
+        for (ConstantTableItem item: items) {
+            if(item.type==constant && item.firstVal==num1 && item.secondVal==num2){
+                return items.indexOf(item);
+            }
+        }
+        return -1;
+    }
+
     public int addClass(String name){
         for (ConstantTableItem item: items) {
             if(item.type==Constant.CLASS && Objects.equals(items.get(item.firstVal).utf8(), name)){
@@ -92,6 +102,11 @@ public class ConstantTable {
             }
         }
         return add(Constant.CLASS, add(Constant.UTF8, name));
+    }
+
+    public int addMethodRef(String className, String name, String type){
+        int natNum = add(Constant.NAME_AND_TYPE, add(Constant.UTF8, name), add(Constant.UTF8, type));
+        return add(Constant.METHOD_REF, addClass(className), natNum);
     }
 
     public record ConstantTableItem(Constant type, String utf8, int firstVal, int secondVal) {

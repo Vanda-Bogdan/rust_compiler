@@ -78,7 +78,7 @@ public class Generate {
         ArrayList<byte[]> result = new ArrayList<>();
 
         // Flags (PUBLIC + SUPER)
-        result.add(new byte[] { 0x00, 0x03 });
+        result.add(new byte[] { 0x00, 0x21 });
 
         // Current class
         result.add(Utils.intTo2ByteArray(classTable.constantTable.addClass(classTable.name)+ 1));
@@ -150,9 +150,7 @@ public class Generate {
         // Bytecode (Object constructor call)
         result.add(Utils.intTo1ByteArray(0x2A)); // aload_0
         result.add(Utils.intTo1ByteArray(0xB7)); // invokespecial
-        int nat = classTable.constantTable.add(Constant.NAME_AND_TYPE, classTable.constantTable.add(Constant.UTF8, "<init>"),
-                classTable.constantTable.add(Constant.UTF8, "()V"));
-        result.add(Utils.intTo2ByteArray(classTable.constantTable.add(Constant.METHOD_REF, classTable.constantTable.add(Constant.UTF8, classTable.name), nat) + 1)); // MethodRef Obj Init
+        result.add(Utils.intTo2ByteArray(classTable.constantTable.addMethodRef(classTable.name, "<init>", "()V"))); // MethodRef Obj Init
         result.add(Utils.intTo1ByteArray(0xB1)); // return
         // Exceptions table length (always 0)
         result.add(new byte[] { 0x00, 0x00 });
