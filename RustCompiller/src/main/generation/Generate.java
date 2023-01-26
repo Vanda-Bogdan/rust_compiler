@@ -27,7 +27,7 @@ public class Generate {
         DataOutputStream dout = new DataOutputStream(out);
         dout.writeInt(0xCAFEBABE); //"magic"
         dout.writeShort(0); // минорная версия
-        dout.writeShort(50); // мажорная версия
+        dout.writeShort(60); // мажорная версия
 
         // Generate class
         byte[] codGen = generateClass(mainTable);
@@ -119,7 +119,7 @@ public class Generate {
             dout.writeShort(classTable.constantTable.add(Constant.UTF8, methodName) + 1);
 
             // Descriptor
-            dout.writeShort(classTable.constantTable.add(Constant.UTF8, ConstantTable.funcTypeForTable(methodTableItem.returnType(), methodTableItem.params())) + 1);
+            dout.writeShort(classTable.constantTable.add(Constant.UTF8, "([Ljava/lang/String;)V") + 1);
 
             // Codegen
             ByteArrayOutputStream out2 = new ByteArrayOutputStream();
@@ -144,7 +144,7 @@ public class Generate {
             dout.writeShort(0xFF);
 
             // Locals count (this)
-            dout.writeShort(methodTableItem.variableTable().size());
+            dout.writeShort(methodTableItem.variableTable().size()+1);
 
             // Bytecode length
             dout.writeInt(out2.size());
