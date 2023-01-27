@@ -8,7 +8,7 @@ int main()
     yyin = fopen("../2.txt", "r");
     //yylex();
     yyparse();
-    //program_print(prg);
+    program_print(prg);
     program_xml(prg);
 
     return 0;

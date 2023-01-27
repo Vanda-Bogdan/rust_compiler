@@ -3,6 +3,7 @@ package main.semantic;
 import main.nodes.Mutable;
 import main.nodes.TypeNode;
 import main.nodes.VarType;
+import main.nodes.expression.ExpressionNode;
 import main.nodes.function.FunctionParamListNode;
 import main.nodes.function.FunctionParamNode;
 import main.nodes.function.FunctionType;
@@ -39,7 +40,7 @@ public class StandardFunctionList {
         list.add(firstParam);
         list.add(secondParam);
         FunctionParamListNode params = new FunctionParamListNode(FunctionType.ASSOCIATED, list);
-        MethodTable.MethodTableItem methodTableItem = new MethodTable.MethodTableItem(new TypeNode(VarType.VOID), new VariableTable(), true, FunctionType.ASSOCIATED, params);
+        MethodTable.MethodTableItem methodTableItem = new MethodTable.MethodTableItem(new TypeNode(VarType.VOID), new VariableTable(), true, FunctionType.ASSOCIATED, params, new ExpressionNode());
 
         standardFunctionsList.put("println_i32", methodTableItem);
     }
@@ -49,7 +50,7 @@ public class StandardFunctionList {
         ArrayList<FunctionParamNode> list = new ArrayList<>();
         list.add(firstParam);
         FunctionParamListNode params = new FunctionParamListNode(FunctionType.ASSOCIATED, list);
-        MethodTable.MethodTableItem methodTableItem = new MethodTable.MethodTableItem(new TypeNode(VarType.VOID), new VariableTable(), true, FunctionType.ASSOCIATED, params);
+        MethodTable.MethodTableItem methodTableItem = new MethodTable.MethodTableItem(new TypeNode(VarType.VOID), new VariableTable(), true, FunctionType.ASSOCIATED, params, new ExpressionNode());
 
         standardFunctionsList.put("println", methodTableItem);
     }

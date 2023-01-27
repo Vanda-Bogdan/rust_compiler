@@ -8,6 +8,7 @@ import main.nodes.expression.ExpressionNode;
 import main.nodes.expression.ExpressionType;
 import main.nodes.function.FunctionNode;
 import main.nodes.function.FunctionParamListNode;
+import main.nodes.function.FunctionParamNode;
 import main.nodes.function.FunctionType;
 import main.nodes.letstmt.LetStatementNode;
 import main.nodes.stmt.StatementNode;
@@ -68,7 +69,7 @@ public class MethodTable {
 
         variableTables.forEach(variableTableFinal::merge);
         //-----------------Добавление метода в таблицу
-        items.put(funcNode.name, new MethodTableItem(funcNode.returnType, variableTableFinal, funcNode.body!=null, funcNode.paramList.type, funcNode.paramList));
+        items.put(funcNode.name, new MethodTableItem(funcNode.returnType, variableTableFinal, funcNode.body!=null, funcNode.paramList.type, funcNode.paramList, funcNode.body));
     }
 
     private void bodyVariables(ExpressionNode body, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
@@ -248,6 +249,17 @@ public class MethodTable {
 
     }
 
-    public record MethodTableItem(TypeNode returnType, VariableTable variableTable, boolean hasBody, FunctionType functionType, FunctionParamListNode params) {
+    public record MethodTableItem(TypeNode returnType, VariableTable variableTable, boolean hasBody, FunctionType functionType, FunctionParamListNode params, ExpressionNode body) {
+
+        public String funcTypeForTable(){
+            String result = "(";
+            if(params!=null){
+                for(FunctionParamNode param : params.list){
+                    result+=param.type.getNameForTable();
+                }
+            }
+            result+= ")" + returnType.getNameForTable();
+            return result;
+        }
     }
 }

@@ -6,6 +6,7 @@ import main.generation.utils.Utils;
 import main.nodes.expression.ExpressionNode;
 import main.nodes.function.FunctionNode;
 import main.nodes.function.FunctionType;
+import main.nodes.letstmt.LetStatementNode;
 import main.nodes.stmt.StatementNode;
 import main.semantic.*;
 import main.treeprint.Tree;
@@ -14,6 +15,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class Generate {
 
@@ -119,16 +121,14 @@ public class Generate {
             dout.writeShort(classTable.constantTable.add(Constant.UTF8, methodName) + 1);
 
             // Descriptor
-            dout.writeShort(classTable.constantTable.add(Constant.UTF8, "([Ljava/lang/String;)V") + 1);
+            if(Objects.equals(classTable.name, "Main") && Objects.equals(methodName, "main")){
+                dout.writeShort(classTable.constantTable.add(Constant.UTF8, "([Ljava/lang/String;)V") + 1);
+            }else {
+                dout.writeShort(classTable.constantTable.add(Constant.UTF8, methodTableItem.funcTypeForTable()) + 1);
+            }
 
             // Codegen
-            ByteArrayOutputStream out2 = new ByteArrayOutputStream();
-            DataOutputStream dout2 = new DataOutputStream(out2);
-            dout2.write(Command.ldc_w.commandCode);
-            dout2.writeShort(classTable.constantAdd(Constant.STRING, classTable.constantAdd(Constant.UTF8, "Hello world!!!")) + 1);
-            dout2.write(Command.invokestatic.commandCode);
-            dout2.writeShort(classTable.constantTable.addMethodRef("RTL", "println", "(Ljava/lang/Object;)V") + 1);
-            dout2.write(Command.return_.commandCode);
+            byte[] codeGen = generateFunction(methodTableItem.body(), classTable);
 
             // Method attrs count (always 1)
             dout.writeShort(1);
@@ -138,7 +138,7 @@ public class Generate {
             dout.writeShort(classTable.constantTable.add(Constant.UTF8, "Code") + 1);
 
             // Length
-            dout.writeInt(out2.size() + 12);
+            dout.writeInt(codeGen.length + 12);
 
             // Stack size (max)
             dout.writeShort(0xFF);
@@ -147,10 +147,10 @@ public class Generate {
             dout.writeShort(methodTableItem.variableTable().size()+1);
 
             // Bytecode length
-            dout.writeInt(out2.size());
+            dout.writeInt(codeGen.length);
 
             // Тут добавлять код к результату
-            dout.write(out2.toByteArray());
+            dout.write(codeGen);
 
             // Exceptions table length (always 0)
             dout.writeShort(0);
@@ -166,13 +166,78 @@ public class Generate {
         return out.toByteArray();
     }
 
-    private ArrayList<byte[]> generate(ExpressionNode expr, ClassTable classTable){
-        ArrayList<byte[]> bytes = new ArrayList<>();
-        switch (expr.type){
+    private byte[] generateFunction(ExpressionNode body, ClassTable classTable) throws IOException {
+        ByteArrayOutputStream codeGenOut = new ByteArrayOutputStream();
+        DataOutputStream codeGen = new DataOutputStream(codeGenOut);
 
+        if(body.stmtList!=null){
+            for (StatementNode stmt : body.stmtList.list){
+                codeGen.write(generateStmt(stmt, classTable));
+            }
         }
 
-        return null;
+        codeGen.write(Command.return_.commandCode);
+        return codeGenOut.toByteArray();
+    }
+
+    private byte[] generateExpr(ExpressionNode expr, ClassTable classTable) throws IOException {
+
+        ByteArrayOutputStream codeGenOut = new ByteArrayOutputStream();
+        DataOutputStream codeGen = new DataOutputStream(codeGenOut);
+
+        switch (expr.type){
+            case CALL -> {
+                MethodTable.MethodTableItem methodTableItem = expr.methodTableItem();
+                if(expr.isRTLMethod){
+                    switch (expr.name){
+                        case "println" ->{
+                            codeGen.writeShort(classTable.constantAdd(Constant.STRING, classTable.constantAdd(Constant.UTF8, expr.exprList.list.get(0).string)) + 1);
+                            codeGen.write(Command.invokestatic.commandCode);
+                            codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "println", "(Ljava/lang/Object;)V") + 1);
+                            codeGen.write(Command.return_.commandCode);
+                        }
+
+                        case "println_i32" -> {
+
+                        }
+                    }
+                }
+                else {
+                    codeGen.write(generateFunction(methodTableItem.body(), classTable));
+                }
+            }
+            //todo codeGen.write(expr);
+        }
+
+        //это захардкоденый println
+        /*codeGen.write(Command.ldc_w.commandCode);
+        codeGen.writeShort(classTable.constantAdd(Constant.STRING, classTable.constantAdd(Constant.UTF8, "Hello world!!!")) + 1);
+        codeGen.write(Command.invokestatic.commandCode);
+        codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "println", "(Ljava/lang/Object;)V") + 1);
+        codeGen.write(Command.return_.commandCode);*/
+
+        return codeGenOut.toByteArray();
+    }
+
+    private byte[] generateStmt(StatementNode stmt, ClassTable classTable) throws IOException {
+        ByteArrayOutputStream codeGenOut = new ByteArrayOutputStream();
+        DataOutputStream codeGen = new DataOutputStream(codeGenOut);
+
+        switch (stmt.type){
+            case LET -> codeGen.write(generateLet(stmt.letStmt,classTable));
+            case EXPRESSION -> codeGen.write(generateExpr(stmt.expr,classTable));
+        }
+
+        return codeGenOut.toByteArray();
+    }
+
+    private byte[] generateLet(LetStatementNode let, ClassTable classTable){
+        ByteArrayOutputStream codeGenOut = new ByteArrayOutputStream();
+        DataOutputStream codeGen = new DataOutputStream(codeGenOut);
+
+        //todo codeGen.write(let);
+
+        return codeGenOut.toByteArray();
     }
 
 

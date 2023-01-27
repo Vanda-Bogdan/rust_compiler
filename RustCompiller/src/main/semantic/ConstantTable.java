@@ -161,17 +161,5 @@ public class ConstantTable {
         return out.toByteArray();
     }
 
-
-    public static String funcTypeForTable(TypeNode returnType, FunctionParamListNode paramList){
-        String result = "(";
-        if(paramList!=null){
-            for(FunctionParamNode param : paramList.list){
-                result+=param.type.getNameForTable();
-            }
-        }
-        result+= ")" + returnType.getNameForTable();
-        return result;
-    }
-
 }
 

@@ -77,13 +77,15 @@ public class ExpressionNode {
     public String methodName;
     public String standardMethodName;
     private MethodTable methodTable;
-    private StandardFunctionList standardFunctionList = new StandardFunctionList();
+    private StandardFunctionList standardFunctionList;
+    public boolean isRTLMethod = false;
 
     public MethodTable.MethodTableItem methodTableItem(){
         if(methodName!=null){
             return methodTable.get(methodName);
         }
         else {
+            standardFunctionList = new StandardFunctionList();
             return standardFunctionList.method(standardMethodName);
         }
     }
@@ -95,6 +97,7 @@ public class ExpressionNode {
 
     public void setStandartMethod(String name){
         this.standardMethodName = name;
+        this.isRTLMethod = true;
     }
 
     public void setTypeFromVarOrField() {
