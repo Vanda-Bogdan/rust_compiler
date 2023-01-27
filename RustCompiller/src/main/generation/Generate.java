@@ -191,10 +191,10 @@ public class Generate {
                 if(expr.isRTLMethod){
                     switch (expr.name){
                         case "println" ->{
+                            codeGen.write(Command.ldc_w.commandCode);
                             codeGen.writeShort(classTable.constantAdd(Constant.STRING, classTable.constantAdd(Constant.UTF8, expr.exprList.list.get(0).string)) + 1);
                             codeGen.write(Command.invokestatic.commandCode);
                             codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "println", "(Ljava/lang/Object;)V") + 1);
-                            codeGen.write(Command.return_.commandCode);
                         }
 
                         case "println_i32" -> {
