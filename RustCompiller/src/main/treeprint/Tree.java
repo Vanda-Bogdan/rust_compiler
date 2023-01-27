@@ -865,7 +865,7 @@ public class Tree {
                             if (num > paramList.size() - 1) {
                                 throw new IllegalArgumentException("Лишний параметр (ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + ")");
                             } else if (!paramList.get(num).type.equals(param.countedType)) {
-                                throw new IllegalArgumentException("Несоответствие типа " + (num + 1) + " по счету параметра (name: " + paramList.get(num).name + ", ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + "). Ожидаемый тип: " + paramList.get(num).type.getName() + ", реальный: " + param.countedType.getName());
+                                throw new IllegalArgumentException("Несоответствие типа " + (num + 1) + "-го по счету параметра (name: " + paramList.get(num).name + ", ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + "). Ожидаемый тип: " + paramList.get(num).type.getName() + ", реальный: " + param.countedType.getName());
                             }
                             num++;
                         }
@@ -904,7 +904,7 @@ public class Tree {
                         if (num > paramList.size() - 1) {
                             throw new IllegalArgumentException("Лишний параметр (ID: " + param.id + ") вызова метода " + expr.name + "(ID: " + expr.id + ")");
                         } else if (!paramList.get(num).type.equals(param.countedType)) {
-                            throw new IllegalArgumentException("Несоответствие типа " + (num + 1) + " по счету параметра (name: " + paramList.get(num).name + ", ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + "). Ожидаемый тип: " + paramList.get(num).type.getName() + ", реальный: " + param.countedType.getName());
+                            throw new IllegalArgumentException("Несоответствие типа " + (num + 1) + "-го по счету параметра (name: " + paramList.get(num).name + ", ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + "). Ожидаемый тип: " + paramList.get(num).type.getName() + ", реальный: " + param.countedType.getName());
                         }
                         num++;
                     }
@@ -1057,7 +1057,7 @@ public class Tree {
                     expr.countedType = new TypeNode(VarType.FLOAT);
                 }
                 else {
-                    throw new IllegalArgumentException("Неверные типы выражений при выполнении арифметической операции (ID: " + expr.id + "). Типы " + expr.exprLeft.countedType.getName() + " и " + expr.exprRight.countedType.getName() + "несовместимы");
+                    throw new IllegalArgumentException("Неверные типы выражений при выполнении арифметической операции (ID: " + expr.id + "). Типы " + expr.exprLeft.countedType.getName() + " и " + expr.exprRight.countedType.getName() + " несовместимы");
                 }
 
                 expr.defineTypeOfExpr();

@@ -259,12 +259,20 @@ public class Generate {
                 codeGen.write(Command.ldc_w.commandCode);
                 codeGen.writeShort(classTable.constantAddString(expr.string) + 1);
             }
+            case BOOL_LIT -> {
+                if(expr.aBoolean) {
+                    codeGen.write(Command.iconst_1.commandCode);
+                }
+                else {
+                    codeGen.write(Command.iconst_0.commandCode);
+                }
+            }
             case ID -> {
                 if (expr.idType == ExpressionNode.IdType.LOCAL) {
                     switch (expr.countedType.varType) {
                         case VOID -> {
                         }
-                        case INT -> {
+                        case INT, BOOL -> {
                             codeGen.write(Command.iload.commandCode);
                             codeGen.write(expr.variableTableItem().ID());
                         }
@@ -276,9 +284,8 @@ public class Generate {
                             codeGen.write(Command.fload.commandCode);
                             codeGen.write(expr.variableTableItem().ID());
                         }
-                        case BOOL -> {
-                        }
                         case ARRAY -> {
+
                         }
                         case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + expr.id + ")");
                     }
@@ -294,12 +301,11 @@ public class Generate {
                 switch (expr.exprRight.countedType.varType) {
                     case VOID -> {
                     }
-                    case INT -> codeGen.write(Command.istore.commandCode);
+                    case INT, BOOL -> codeGen.write(Command.istore.commandCode);
                     case CHAR, STRING -> codeGen.write(Command.astore.commandCode);
                     case FLOAT -> codeGen.write(Command.fstore.commandCode);
-                    case BOOL -> {
-                    }
                     case ID -> {
+                        //todo присвоение классу
                     }
                     case ARRAY -> {
                     }
@@ -307,9 +313,7 @@ public class Generate {
                 }
 
                 switch (expr.exprLeft.idType){
-                    case LOCAL -> {
-                        codeGen.write(expr.exprLeft.variableTableItem().ID());
-                    }
+                    case LOCAL -> codeGen.write(expr.exprLeft.variableTableItem().ID());
                     case FIELD -> {
                         //todo putfield
                     }
@@ -341,11 +345,9 @@ public class Generate {
             switch (let.expr.countedType.varType) {
                 case VOID -> {
                 }
-                case INT -> codeGen.write(Command.istore.commandCode);
+                case INT, BOOL -> codeGen.write(Command.istore.commandCode);
                 case CHAR, STRING -> codeGen.write(Command.astore.commandCode);
                 case FLOAT -> codeGen.write(Command.fstore.commandCode);
-                case BOOL -> {
-                }
                 case ID -> {
                 }
                 case ARRAY -> {
