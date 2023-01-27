@@ -50,16 +50,9 @@ public class Tables {
         ClassTable main = createTable("Main");
         int className = main.constantAdd(Constant.UTF8, "Main");
         main.constantAdd(Constant.CLASS, className);
-        mainActionsBefore(main);
 
         stmtListTrait(tree.prg.stmtList);
         stmtListClasses(tree.prg.stmtList);
-    }
-
-    public void mainActionsBefore(ClassTable main){
-        //todo добавить стандартные функции типа println
-        //main.addToMethodTable("println", new MethodTable.MethodTableItem(new TypeNode(VarType.VOID), new VariableTable(), true, FunctionType.ASSOCIATED, new FunctionParamListNode()));
-        //addStandardFunction("println", new TypeNode(VarType.VOID));
     }
 
     //----------------------------------------Сбор всех трейтов-----------------------------------------

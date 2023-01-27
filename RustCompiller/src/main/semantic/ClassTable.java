@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClassTable {
@@ -19,7 +20,14 @@ public class ClassTable {
     public ClassTable(String name, Tables tables) {
         this.name = name;
         this.tables = tables;
-        this.methodTable = new MethodTable(name);
+        if(Objects.equals(name, "Main")){
+            this.methodTable = new MethodTable(name);
+        }
+        else {
+            ClassTable main = tables.tableByName("Main");
+            this.methodTable = new MethodTable(name, main.fields(), main.methods());
+        }
+
     }
 
     //------------------------------------------Constant Table-------------------------------------------------------
