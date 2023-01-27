@@ -265,7 +265,7 @@ public class Generate {
                 }
                 case INT -> {
                     codeGen.write(Command.istore.commandCode);
-                    codeGen.write(let.expr.variableTableItem().ID());
+                    codeGen.write(let.variableTableItem().ID());
                 }
                 case CHAR -> {
                 }
