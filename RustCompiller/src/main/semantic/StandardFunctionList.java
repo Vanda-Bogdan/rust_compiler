@@ -17,6 +17,7 @@ public class StandardFunctionList {
         printlnCreate();
         printlnI32Create();
         printlnF64Create();
+        printlnCharCreate();
     }
 
     //--------------------------- Список стандартных функций ----------------------
@@ -56,6 +57,18 @@ public class StandardFunctionList {
         MethodTable.MethodTableItem methodTableItem = new MethodTable.MethodTableItem(new TypeNode(VarType.VOID), new VariableTable(), true, FunctionType.ASSOCIATED, params, new ExpressionNode());
 
         standardFunctionsList.put("println_f64", methodTableItem);
+    }
+
+    private void printlnCharCreate(){
+        FunctionParamNode firstParam = new FunctionParamNode("format_string", Mutable.NOT_MUT, new TypeNode(VarType.STRING));
+        FunctionParamNode secondParam = new FunctionParamNode("char_value", Mutable.NOT_MUT, new TypeNode(VarType.CHAR));
+        ArrayList<FunctionParamNode> list = new ArrayList<>();
+        list.add(firstParam);
+        list.add(secondParam);
+        FunctionParamListNode params = new FunctionParamListNode(FunctionType.ASSOCIATED, list);
+        MethodTable.MethodTableItem methodTableItem = new MethodTable.MethodTableItem(new TypeNode(VarType.VOID), new VariableTable(), true, FunctionType.ASSOCIATED, params, new ExpressionNode());
+
+        standardFunctionsList.put("println_char", methodTableItem);
     }
 
     private void printlnCreate(){

@@ -191,24 +191,39 @@ public class Generate {
                 if(expr.isRTLMethod){
                     switch (expr.name){
                         case "println" ->{
-                            codeGen.write(Command.ldc_w.commandCode);
-                            codeGen.writeShort(classTable.constantAdd(Constant.STRING, classTable.constantAdd(Constant.UTF8, expr.exprList.list.get(0).string)) + 1);
+                            codeGen.write(generateExpr(expr.exprList.list.get(0), classTable));
                             codeGen.write(Command.invokestatic.commandCode);
                             codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "println", "(Ljava/lang/Object;)V") + 1);
                         }
                         case "println_i32" -> {
+                            if (expr.exprList.list.get(0).string == null) {
+                                throw new IllegalArgumentException("Ожидался string literal");
+                            }
                             codeGen.write(Command.ldc_w.commandCode);
-                            codeGen.writeShort(classTable.constantAdd(Constant.STRING, classTable.constantAdd(Constant.UTF8, expr.exprList.list.get(0).string)) + 1);
+                            codeGen.writeShort(classTable.constantAddString(expr.exprList.list.get(0).string) + 1);
                             codeGen.write(generateExpr(expr.exprList.list.get(1), classTable));
                             codeGen.write(Command.invokestatic.commandCode);
                             codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "println_i32", "(Ljava/lang/String;I)V") + 1);
                         }
                         case "println_f64" -> {
+                            if (expr.exprList.list.get(0).string == null) {
+                                throw new IllegalArgumentException("Ожидался string literal");
+                            }
                             codeGen.write(Command.ldc_w.commandCode);
-                            codeGen.writeShort(classTable.constantAdd(Constant.STRING, classTable.constantAdd(Constant.UTF8, expr.exprList.list.get(0).string)) + 1);
+                            codeGen.writeShort(classTable.constantAddString(expr.exprList.list.get(0).string) + 1);
                             codeGen.write(generateExpr(expr.exprList.list.get(1), classTable));
                             codeGen.write(Command.invokestatic.commandCode);
                             codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "println_f64", "(Ljava/lang/String;F)V") + 1);
+                        }
+                        case "println_char" -> {
+                            if (expr.exprList.list.get(0).string == null) {
+                                throw new IllegalArgumentException("Ожидался string literal");
+                            }
+                            codeGen.write(Command.ldc_w.commandCode);
+                            codeGen.writeShort(classTable.constantAddString(expr.exprList.list.get(0).string) + 1);
+                            codeGen.write(generateExpr(expr.exprList.list.get(1), classTable));
+                            codeGen.write(Command.invokestatic.commandCode);
+                            codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "println_char", "(Ljava/lang/String;Ljava/lang/String;)V") + 1);
                         }
                         case "readln" -> {
                         }
@@ -230,6 +245,14 @@ public class Generate {
                 codeGen.write(Command.ldc_w.commandCode);
                 codeGen.writeShort(classTable.constantAdd(expr.aFloat) + 1);
             }
+            case CHAR_LIT -> {
+                codeGen.write(Command.ldc.commandCode);
+                codeGen.write(classTable.constantAddString(String.valueOf(expr.aChar)) + 1);
+            }
+            case STRING_LIT -> {
+                codeGen.write(Command.ldc_w.commandCode);
+                codeGen.writeShort(classTable.constantAddString(expr.string) + 1);
+            }
             case ID -> {
                 if (expr.idType == ExpressionNode.IdType.LOCAL) {
                     switch (expr.countedType.varType) {
@@ -237,13 +260,15 @@ public class Generate {
                         }
                         case INT -> {
                             codeGen.write(Command.iload.commandCode);
+                            codeGen.write(expr.variableTableItem().ID());
                         }
-                        case CHAR -> {
-                        }
-                        case STRING -> {
+                        case CHAR, STRING -> {
+                            codeGen.write(Command.aload.commandCode);
+                            codeGen.write(expr.variableTableItem().ID());
                         }
                         case FLOAT -> {
                             codeGen.write(Command.fload.commandCode);
+                            codeGen.write(expr.variableTableItem().ID());
                         }
                         case BOOL -> {
                         }
@@ -252,7 +277,6 @@ public class Generate {
                         case UNDEFINED -> {
                         }
                     }
-                    codeGen.write(expr.variableTableItem().ID());
                 }
                 else {
                     codeGen.write(Command.aload.commandCode);
@@ -289,9 +313,9 @@ public class Generate {
                     codeGen.write(Command.istore.commandCode);
                     codeGen.write(let.variableTableItem().ID());
                 }
-                case CHAR -> {
-                }
-                case STRING -> {
+                case CHAR, STRING -> {
+                    codeGen.write(Command.astore.commandCode);
+                    codeGen.write(let.variableTableItem().ID());
                 }
                 case FLOAT -> {
                     codeGen.write(Command.fstore.commandCode);

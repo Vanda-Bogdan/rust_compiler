@@ -135,6 +135,10 @@ public class ConstantTable {
         return add(Constant.METHOD_REF, addClass(className), natNum);
     }
 
+    public int addString(String str) {
+        return add(Constant.STRING, add(Constant.UTF8, str));
+    }
+
     public record ConstantTableItem(Constant type, String utf8, int firstVal, int secondVal, float floatValue) {
 
         ConstantTableItem(Constant type, String utf8){
