@@ -226,10 +226,16 @@ public class Generate {
                             codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "println_char", "(Ljava/lang/String;Ljava/lang/String;)V") + 1);
                         }
                         case "readln" -> {
+                            codeGen.write(Command.invokestatic.commandCode);
+                            codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "readln", "()Ljava/lang/String;") + 1);
                         }
                         case "readln_i32" -> {
+                            codeGen.write(Command.invokestatic.commandCode);
+                            codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "readln_i32", "()I") + 1);
                         }
                         case "readln_f64" -> {
+                            codeGen.write(Command.invokestatic.commandCode);
+                            codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "readln_f64", "()F") + 1);
                         }
                     }
                 }

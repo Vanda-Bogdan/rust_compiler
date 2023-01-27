@@ -25,4 +25,18 @@ public class RTL {
         System.out.println(str.replace("{}", String.valueOf(ch)));
     }
 
+    public static String readln(){
+        java.util.Scanner in = new java.util.Scanner(System.in);
+        return in.nextLine();
+    }
+
+    public static int readln_i32(){
+        java.util.Scanner in = new java.util.Scanner(System.in);
+        return in.nextInt();
+    }
+
+    public static float readln_f64(){
+        java.util.Scanner in = new java.util.Scanner(System.in);
+        return in.nextFloat();
+    }
 }

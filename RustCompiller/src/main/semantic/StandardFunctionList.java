@@ -18,6 +18,10 @@ public class StandardFunctionList {
         printlnI32Create();
         printlnF64Create();
         printlnCharCreate();
+
+        readlnCreate();
+        readlnI32Create();
+        readlnF64Create();
     }
 
     //--------------------------- Список стандартных функций ----------------------
@@ -79,5 +83,26 @@ public class StandardFunctionList {
         MethodTable.MethodTableItem methodTableItem = new MethodTable.MethodTableItem(new TypeNode(VarType.VOID), new VariableTable(), true, FunctionType.ASSOCIATED, params, new ExpressionNode());
 
         standardFunctionsList.put("println", methodTableItem);
+    }
+
+    private void readlnCreate(){
+        FunctionParamListNode params = new FunctionParamListNode(FunctionType.ASSOCIATED, new ArrayList<FunctionParamNode>());
+        MethodTable.MethodTableItem methodTableItem = new MethodTable.MethodTableItem(new TypeNode(VarType.STRING), new VariableTable(), true, FunctionType.ASSOCIATED, params, new ExpressionNode());
+
+        standardFunctionsList.put("readln", methodTableItem);
+    }
+
+    private void readlnI32Create(){
+        FunctionParamListNode params = new FunctionParamListNode(FunctionType.ASSOCIATED, new ArrayList<FunctionParamNode>());
+        MethodTable.MethodTableItem methodTableItem = new MethodTable.MethodTableItem(new TypeNode(VarType.INT), new VariableTable(), true, FunctionType.ASSOCIATED, params, new ExpressionNode());
+
+        standardFunctionsList.put("readln_i32", methodTableItem);
+    }
+
+    private void readlnF64Create(){
+        FunctionParamListNode params = new FunctionParamListNode(FunctionType.ASSOCIATED, new ArrayList<FunctionParamNode>());
+        MethodTable.MethodTableItem methodTableItem = new MethodTable.MethodTableItem(new TypeNode(VarType.FLOAT), new VariableTable(), true, FunctionType.ASSOCIATED, params, new ExpressionNode());
+
+        standardFunctionsList.put("readln_f64", methodTableItem);
     }
 }
