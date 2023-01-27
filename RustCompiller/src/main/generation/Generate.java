@@ -206,8 +206,7 @@ public class Generate {
                         case "println_f64" -> {
                             codeGen.write(Command.ldc_w.commandCode);
                             codeGen.writeShort(classTable.constantAdd(Constant.STRING, classTable.constantAdd(Constant.UTF8, expr.exprList.list.get(0).string)) + 1);
-                            codeGen.write(Command.ldc_w.commandCode);
-                            codeGen.writeShort(classTable.constantAdd(expr.exprList.list.get(1).aFloat) + 1);
+                            codeGen.write(generateExpr(expr.exprList.list.get(1), classTable));
                             codeGen.write(Command.invokestatic.commandCode);
                             codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "println_f64", "(Ljava/lang/String;F)V") + 1);
                         }
@@ -227,9 +226,32 @@ public class Generate {
                 codeGen.write(Command.ldc_w.commandCode);
                 codeGen.writeShort(classTable.constantAdd(Constant.INTEGER, expr.anInt) + 1);
             }
+            case FLOAT_LIT -> {
+                codeGen.write(Command.ldc_w.commandCode);
+                codeGen.writeShort(classTable.constantAdd(expr.aFloat) + 1);
+            }
             case ID -> {
                 if (expr.idType == ExpressionNode.IdType.LOCAL) {
-                    codeGen.write(Command.iload.commandCode);
+                    switch (expr.countedType.varType) {
+                        case VOID -> {
+                        }
+                        case INT -> {
+                            codeGen.write(Command.iload.commandCode);
+                        }
+                        case CHAR -> {
+                        }
+                        case STRING -> {
+                        }
+                        case FLOAT -> {
+                            codeGen.write(Command.fload.commandCode);
+                        }
+                        case BOOL -> {
+                        }
+                        case ARRAY -> {
+                        }
+                        case UNDEFINED -> {
+                        }
+                    }
                     codeGen.write(expr.variableTableItem().ID());
                 }
                 else {
@@ -272,6 +294,8 @@ public class Generate {
                 case STRING -> {
                 }
                 case FLOAT -> {
+                    codeGen.write(Command.fstore.commandCode);
+                    codeGen.write(let.variableTableItem().ID());
                 }
                 case BOOL -> {
                 }

@@ -16,9 +16,11 @@ public enum Command {
     ldc_w(0x13),
 
     iload(0x15),
+    fload(0x17),
     aload(0x19),
 
     istore(0x36),
+    fstore(0x38),
     astore(0x3A),
 
     pop(0x57),
@@ -73,6 +75,7 @@ public enum Command {
     invokestatic(0xB8),
 
     ireturn(0xAC),
+    freturn(0xAE),
     areturn(0xB0),
     return_(0xB1)
     ;
