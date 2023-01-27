@@ -45,6 +45,8 @@ public class ExpressionNode {
     public TypeNode countedType;
 
     //------Ссылка на элемент таблицы------
+    public IdType idType;
+
     // *Если это локальная переменная
     private int varID;
     private VariableTable variableTable;
@@ -55,6 +57,7 @@ public class ExpressionNode {
     public void setVar(int ID, VariableTable table){
         varID = ID;
         variableTable = table;
+        idType = IdType.LOCAL;
     }
 
     public void setInitializated(){
@@ -71,6 +74,7 @@ public class ExpressionNode {
     public void setField(String name, FieldTable table){
         fieldName = name;
         fieldTable = table;
+        idType = IdType.FIELD;
     }
 
     // *Если это вызов метода
@@ -266,5 +270,9 @@ public class ExpressionNode {
     @Override
     public int hashCode() {
         return Objects.hash(anInt);
+    }
+
+    public enum IdType {
+        LOCAL, FIELD
     }
 }

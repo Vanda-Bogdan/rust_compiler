@@ -196,9 +196,26 @@ public class Generate {
                             codeGen.write(Command.invokestatic.commandCode);
                             codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "println", "(Ljava/lang/Object;)V") + 1);
                         }
-
                         case "println_i32" -> {
-
+                            codeGen.write(Command.ldc_w.commandCode);
+                            codeGen.writeShort(classTable.constantAdd(Constant.STRING, classTable.constantAdd(Constant.UTF8, expr.exprList.list.get(0).string)) + 1);
+                            codeGen.write(generateExpr(expr.exprList.list.get(1), classTable));
+                            codeGen.write(Command.invokestatic.commandCode);
+                            codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "println_i32", "(Ljava/lang/String;I)V") + 1);
+                        }
+                        case "println_f64" -> {
+                            codeGen.write(Command.ldc_w.commandCode);
+                            codeGen.writeShort(classTable.constantAdd(Constant.STRING, classTable.constantAdd(Constant.UTF8, expr.exprList.list.get(0).string)) + 1);
+                            codeGen.write(Command.ldc_w.commandCode);
+                            codeGen.writeShort(classTable.constantAdd(expr.exprList.list.get(1).aFloat) + 1);
+                            codeGen.write(Command.invokestatic.commandCode);
+                            codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "println_f64", "(Ljava/lang/String;F)V") + 1);
+                        }
+                        case "readln" -> {
+                        }
+                        case "readln_i32" -> {
+                        }
+                        case "readln_f64" -> {
                         }
                     }
                 }
@@ -206,15 +223,21 @@ public class Generate {
                     codeGen.write(generateFunction(methodTableItem.body(), classTable));
                 }
             }
-            //todo codeGen.write(expr);
+            case INT_LIT -> {
+                codeGen.write(Command.ldc_w.commandCode);
+                codeGen.writeShort(classTable.constantAdd(Constant.INTEGER, expr.anInt) + 1);
+            }
+            case ID -> {
+                if (expr.idType == ExpressionNode.IdType.LOCAL) {
+                    codeGen.write(Command.iload.commandCode);
+                    codeGen.write(expr.variableTableItem().ID());
+                }
+                else {
+                    codeGen.write(Command.aload.commandCode);
+                    // TODO поля класса, что сними блять делать
+                }
+            }
         }
-
-        //это захардкоденый println
-        /*codeGen.write(Command.ldc_w.commandCode);
-        codeGen.writeShort(classTable.constantAdd(Constant.STRING, classTable.constantAdd(Constant.UTF8, "Hello world!!!")) + 1);
-        codeGen.write(Command.invokestatic.commandCode);
-        codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "println", "(Ljava/lang/Object;)V") + 1);
-        codeGen.write(Command.return_.commandCode);*/
 
         return codeGenOut.toByteArray();
     }
@@ -231,11 +254,35 @@ public class Generate {
         return codeGenOut.toByteArray();
     }
 
-    private byte[] generateLet(LetStatementNode let, ClassTable classTable){
+    private byte[] generateLet(LetStatementNode let, ClassTable classTable) throws IOException {
         ByteArrayOutputStream codeGenOut = new ByteArrayOutputStream();
         DataOutputStream codeGen = new DataOutputStream(codeGenOut);
 
-        //todo codeGen.write(let);
+        if (let.expr != null) {
+            codeGen.write(generateExpr(let.expr, classTable));
+            switch (let.expr.countedType.varType) {
+                case VOID -> {
+                }
+                case INT -> {
+                    codeGen.write(Command.istore.commandCode);
+                    codeGen.write(let.expr.variableTableItem().ID());
+                }
+                case CHAR -> {
+                }
+                case STRING -> {
+                }
+                case FLOAT -> {
+                }
+                case BOOL -> {
+                }
+                case ID -> {
+                }
+                case ARRAY -> {
+                }
+                case UNDEFINED -> {
+                }
+            }
+        }
 
         return codeGenOut.toByteArray();
     }

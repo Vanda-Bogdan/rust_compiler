@@ -33,6 +33,18 @@ public class ClassTable {
         return constantTable.add(constant, num1);
     }
 
+    public int constantAdd(float value) {
+        return constantTable.add(value);
+    }
+
+    public int constantAddClass(String str) {
+        return constantTable.addClass(str);
+    }
+
+    public int constantAddMethodRef(String className, String name, String type) {
+        return constantTable.addMethodRef(className, name, type);
+    }
+
     public int constantAdd(Constant constant, int num1, int num2){
         return constantTable.add(constant, num1, num2);
     }

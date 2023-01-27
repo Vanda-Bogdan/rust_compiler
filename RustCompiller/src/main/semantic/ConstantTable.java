@@ -50,6 +50,16 @@ public class ConstantTable {
         }
     }
 
+    public int add(float value) {
+        if (contains(value)) {
+            return getConstNumber(value);
+        }
+        else {
+            items.add(new ConstantTableItem(value));
+            return items.size() - 1;
+        }
+    }
+
     public boolean contains(Constant constant, String utf8){
         return items.contains(new ConstantTableItem(constant, utf8));
     }
@@ -60,6 +70,10 @@ public class ConstantTable {
 
     public boolean contains(Constant constant, int num1, int num2){
         return items.contains(new ConstantTableItem(constant, num1, num2));
+    }
+
+    public boolean contains(float value) {
+        return items.contains(new ConstantTableItem(value));
     }
 
     public int getConstNumber(Constant constant){
@@ -98,6 +112,15 @@ public class ConstantTable {
         return -1;
     }
 
+    public int getConstNumber(float value) {
+        for (ConstantTableItem item: items) {
+            if(item.type==Constant.FLOAT && item.floatValue==value){
+                return items.indexOf(item);
+            }
+        }
+        return -1;
+    }
+
     public int addClass(String name){
         for (ConstantTableItem item: items) {
             if(item.type==Constant.CLASS && Objects.equals(items.get(item.firstVal).utf8(), name)){
@@ -112,19 +135,21 @@ public class ConstantTable {
         return add(Constant.METHOD_REF, addClass(className), natNum);
     }
 
-    public record ConstantTableItem(Constant type, String utf8, int firstVal, int secondVal) {
+    public record ConstantTableItem(Constant type, String utf8, int firstVal, int secondVal, float floatValue) {
 
         ConstantTableItem(Constant type, String utf8){
-            this(type, utf8, -1, -1);
+            this(type, utf8, -1, -1, -1f);
         }
 
         ConstantTableItem(Constant type, int num1){
-            this(type, "", num1, -1);
+            this(type, "", num1, -1, -1f);
         }
 
         ConstantTableItem(Constant type, int num1, int num2){
-            this(type, "", num1, num2);
+            this(type, "", num1, num2, -1f);
         }
+
+        ConstantTableItem(float value) { this(Constant.FLOAT, "", -1, -1, value); }
     }
 
     // -----------------------------------Перевод таблицы констант в массив байт--------------------------------------//
@@ -142,10 +167,11 @@ public class ConstantTable {
                 }
                 case INTEGER -> {
                     dout.write(item.type.code);
-                    dout.writeInt(item.firstVal);
+                    dout.writeInt(item.firstVal());
                 }
                 case FLOAT -> {
                     dout.write(item.type.code);
+                    dout.writeFloat(item.floatValue());
                 }
                 case STRING, CLASS -> {
                     dout.write(item.type.code);
