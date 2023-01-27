@@ -22,6 +22,14 @@ public class MethodTable {
 
     public MethodTable(String className){
         this.className = className;
+        this.isMain = true;
+    }
+
+    public MethodTable(String className, FieldTable mainFields, MethodTable mainMethods){
+        this.className = className;
+        this.mainFields = mainFields;
+        this.mainMethods = mainMethods;
+        this.isMain = false;
     }
 
     public HashMap<String, MethodTableItem> items = new HashMap<>();
@@ -44,6 +52,9 @@ public class MethodTable {
 
     private Tables tables;
     private String className;
+    private FieldTable mainFields;
+    private MethodTable mainMethods;
+    private boolean isMain;
     private StandardFunctionList standardFunctionList = new StandardFunctionList();
 
     public void add(FunctionNode funcNode, FieldTable fields, Tables tables){
@@ -128,6 +139,11 @@ public class MethodTable {
     }
 
     private void selfVariables(ExpressionNode expression, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
+
+        if(isMain){
+            throw new IllegalArgumentException("У класса Main не может быть self (ID " + expression.id + ")");
+        }
+
         //проверить переменную в локальной таблице
         VariableTable.VariableTableItem varItem = variableTable.getLast("self");
         if(varItem!=null){
@@ -144,7 +160,7 @@ public class MethodTable {
             }
         }
 
-        throw new IllegalArgumentException("Необъявленная переменная self");
+        throw new IllegalArgumentException("Необъявленная переменная self (ID " + expression.id + ")");
     }
 
     private void classMethodVariables(ExpressionNode expression, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
@@ -160,11 +176,29 @@ public class MethodTable {
 
     private void methodVariables(ExpressionNode expression, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
 
+        //Проверить метод в стандартных функциях
         if(standardFunctionList.standardFunctionExists(expression.name)){
             expression.setStandartMethod(expression.name);
         }
         else {
-            expression.setMethod(expression.name, this);
+        //Иначе проверить метод в Main
+            MethodTableItem mainItem;
+            if(isMain){
+                mainItem = this.getMethod(expression.name);
+            }else {
+                mainItem = mainMethods.getMethod(expression.name);
+            }
+            if(mainItem!=null){
+                if(isMain){
+                    expression.setMethod(expression.name, this);
+                }
+                else {
+                    expression.setMethod(expression.name, mainMethods);
+                }
+            }
+            else {
+                throw new IllegalArgumentException("Вызов неизвестной функции " + expression.name + " (ID: " + expression.id + ")");
+            }
         }
 
         exprListVariables(expression.exprList, variableTable, initialTables, fields);
@@ -205,6 +239,12 @@ public class MethodTable {
         //проверить переменную в таблице полей
         if(fields!=null && fields.contains(ident.name)){
             ident.setField(ident.name, fields);
+            return;
+        }
+
+        //проверить в таблице полей Main
+        if(mainFields!=null && mainFields.contains(ident.name)){
+            ident.setField(ident.name, mainFields);
             return;
         }
 
