@@ -280,13 +280,39 @@ public class Generate {
                         }
                         case ARRAY -> {
                         }
-                        case UNDEFINED -> {
-                        }
+                        case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + expr.id + ")");
                     }
                 }
                 else {
                     codeGen.write(Command.aload.commandCode);
-                    // TODO поля класса, что сними блять делать
+                    // TODO поля класса, что сними блять делать?
+                }
+            }
+            case ASGN -> {
+                codeGen.write(generateExpr(expr.exprRight, classTable));
+
+                switch (expr.exprRight.countedType.varType) {
+                    case VOID -> {
+                    }
+                    case INT -> codeGen.write(Command.istore.commandCode);
+                    case CHAR, STRING -> codeGen.write(Command.astore.commandCode);
+                    case FLOAT -> codeGen.write(Command.fstore.commandCode);
+                    case BOOL -> {
+                    }
+                    case ID -> {
+                    }
+                    case ARRAY -> {
+                    }
+                    case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + expr.exprRight.id + ")");
+                }
+
+                switch (expr.exprLeft.idType){
+                    case LOCAL -> {
+                        codeGen.write(expr.exprLeft.variableTableItem().ID());
+                    }
+                    case FIELD -> {
+                        //todo putfield
+                    }
                 }
             }
         }
@@ -315,27 +341,18 @@ public class Generate {
             switch (let.expr.countedType.varType) {
                 case VOID -> {
                 }
-                case INT -> {
-                    codeGen.write(Command.istore.commandCode);
-                    codeGen.write(let.variableTableItem().ID());
-                }
-                case CHAR, STRING -> {
-                    codeGen.write(Command.astore.commandCode);
-                    codeGen.write(let.variableTableItem().ID());
-                }
-                case FLOAT -> {
-                    codeGen.write(Command.fstore.commandCode);
-                    codeGen.write(let.variableTableItem().ID());
-                }
+                case INT -> codeGen.write(Command.istore.commandCode);
+                case CHAR, STRING -> codeGen.write(Command.astore.commandCode);
+                case FLOAT -> codeGen.write(Command.fstore.commandCode);
                 case BOOL -> {
                 }
                 case ID -> {
                 }
                 case ARRAY -> {
                 }
-                case UNDEFINED -> {
-                }
+                case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + let.expr.exprRight.id + ")");
             }
+            codeGen.write(let.variableTableItem().ID());
         }
 
         return codeGenOut.toByteArray();
