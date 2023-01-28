@@ -4,6 +4,7 @@ import com.sun.tools.jconsole.JConsoleContext;
 import main.generation.constants.CodeOfDefaultsTypes;
 import main.generation.constants.Command;
 import main.generation.utils.Utils;
+import main.nodes.VarType;
 import main.nodes.expression.ExpressionNode;
 import main.nodes.function.FunctionNode;
 import main.nodes.function.FunctionType;
@@ -244,6 +245,42 @@ public class Generate {
                     codeGen.write(generateFunction(methodTableItem.body(), classTable));
                 }
             }
+            case PLUS -> {
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
+                codeGen.write(generateExpr(expr.exprRight, classTable));
+                if (expr.countedType.varType == VarType.INT) {
+                    codeGen.write(Command.iadd.commandCode);
+                } else if (expr.countedType.varType == VarType.FLOAT) {
+                    codeGen.write(Command.fadd.commandCode);
+                }
+            }
+            case MINUS -> {
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
+                codeGen.write(generateExpr(expr.exprRight, classTable));
+                if (expr.countedType.varType == VarType.INT) {
+                    codeGen.write(Command.isub.commandCode);
+                } else if (expr.countedType.varType == VarType.FLOAT) {
+                    codeGen.write(Command.fsub.commandCode);
+                }
+            }
+            case MUL -> {
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
+                codeGen.write(generateExpr(expr.exprRight, classTable));
+                if (expr.countedType.varType == VarType.INT) {
+                    codeGen.write(Command.imul.commandCode);
+                } else if (expr.countedType.varType == VarType.FLOAT) {
+                    codeGen.write(Command.fmul.commandCode);
+                }
+            }
+            case DIV -> {
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
+                codeGen.write(generateExpr(expr.exprRight, classTable));
+                if (expr.countedType.varType == VarType.INT) {
+                    codeGen.write(Command.idiv.commandCode);
+                } else if (expr.countedType.varType == VarType.FLOAT) {
+                    codeGen.write(Command.fdiv.commandCode);
+                }
+            }
             case INT_LIT -> {
                 codeGen.write(Command.ldc_w.commandCode);
                 codeGen.writeShort(classTable.constantAdd(Constant.INTEGER, expr.anInt) + 1);
@@ -277,6 +314,12 @@ public class Generate {
                     case INT -> {
                         codeGen.write(Command.newarray.commandCode);
                         codeGen.write(CodeOfDefaultsTypes.T_INT.codeOfDefaultsTypes);
+                        /*for(int i=0; i<expr.exprList.list.size(); i++){
+                            codeGen.write(Command.dup.commandCode);
+                            codeGen.write(Command.sipush.commandCode);
+                            codeGen.writeShort(i);
+                            codeGen.write(generateExpr(expr.exprList.list.get(i), classTable));
+                        }*/
                     }
                     case BOOL -> {
 

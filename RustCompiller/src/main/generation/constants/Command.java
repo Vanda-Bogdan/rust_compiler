@@ -29,9 +29,13 @@ public enum Command {
     dup2(0x5C),
 
     iadd(0x60),
-    imul(0x64),
-    isub(0x68),
+    fadd(0x62),
+    imul(0x68),
+    fmul(0x6A),
+    isub(0x64),
+    fsub(0x66),
     idiv(0x6C),
+    fdiv(0x6E),
     iinc(0x84),
 
     if_icmpeq(0x9F),
