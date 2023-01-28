@@ -1,6 +1,7 @@
 package main.generation;
 
 import com.sun.tools.jconsole.JConsoleContext;
+import main.generation.constants.CodeOfDefaultsTypes;
 import main.generation.constants.Command;
 import main.generation.utils.Utils;
 import main.nodes.expression.ExpressionNode;
@@ -267,6 +268,34 @@ public class Generate {
                     codeGen.write(Command.iconst_0.commandCode);
                 }
             }
+            case ARRAY -> {
+                codeGen.write(Command.sipush.commandCode);
+                codeGen.writeShort(expr.countedType.exprArr.anInt);
+                switch (expr.countedType.typeArr.varType){
+                    case VOID -> {
+                    }
+                    case INT -> {
+                        codeGen.write(Command.newarray.commandCode);
+                        codeGen.write(CodeOfDefaultsTypes.T_INT.codeOfDefaultsTypes);
+                    }
+                    case BOOL -> {
+
+                    }
+                    case STRING -> {
+
+                    }
+                    case CHAR -> {
+
+                    }
+                    case FLOAT -> {
+
+                    }
+                    case ARRAY -> {
+
+                    }
+                    case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + expr.id + ")");
+                }
+            }
             case ID -> {
                 if (expr.idType == ExpressionNode.IdType.LOCAL) {
                     switch (expr.countedType.varType) {
@@ -319,6 +348,50 @@ public class Generate {
                     }
                 }
             }
+            case INDEX -> {
+                codeGen.write(Command.iload.commandCode);
+                codeGen.write(expr.exprLeft.variableTableItem().ID());
+
+                codeGen.write(generateExpr(expr.exprRight, classTable));
+
+                switch (expr.exprRight.countedType.varType){
+                    case VOID -> {
+                    }
+                    case INT -> codeGen.write(Command.iaload.commandCode);
+                    case BOOL -> {
+
+                    }
+                    case CHAR, STRING -> {
+
+                    }
+                    case FLOAT -> {
+
+                    }
+                    case ARRAY -> {
+
+                    }
+                    case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + expr.exprRight.id + ")");
+                }
+            }
+            case INDEX_ASGN -> {
+                switch (expr.exprRight.countedType.varType){
+                    case VOID -> {
+                    }
+                    case INT, BOOL -> {
+
+                    }
+                    case CHAR, STRING -> {
+
+                    }
+                    case FLOAT -> {
+
+                    }
+                    case ARRAY -> {
+
+                    }
+                    case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + expr.exprRight.id + ")");
+                }
+            }
         }
 
         return codeGenOut.toByteArray();
@@ -346,11 +419,9 @@ public class Generate {
                 case VOID -> {
                 }
                 case INT, BOOL -> codeGen.write(Command.istore.commandCode);
-                case CHAR, STRING -> codeGen.write(Command.astore.commandCode);
+                case CHAR, STRING, ARRAY -> codeGen.write(Command.astore.commandCode);
                 case FLOAT -> codeGen.write(Command.fstore.commandCode);
                 case ID -> {
-                }
-                case ARRAY -> {
                 }
                 case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + let.expr.exprRight.id + ")");
             }

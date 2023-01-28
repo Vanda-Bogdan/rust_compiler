@@ -11,7 +11,7 @@ public enum CodeOfDefaultsTypes {
     T_LONG(11)
     ;
 
-    private int codeOfDefaultsTypes;
+    public final int codeOfDefaultsTypes;
 
     CodeOfDefaultsTypes(int codeOfDefaultsTypes) {
         this.codeOfDefaultsTypes = codeOfDefaultsTypes;
