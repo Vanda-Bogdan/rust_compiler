@@ -242,8 +242,15 @@ public class Generate {
                     }
                 }
                 else {
-                    codeGen.write(generateFunction(methodTableItem.body(), classTable));
+                    for (ExpressionNode item : expr.exprList.list) {
+                        codeGen.write(generateExpr(item, classTable));
+                    }
+                    codeGen.write(Command.invokestatic.commandCode);
+                    codeGen.writeShort(classTable.constantAddMethodRef(classTable.name, expr.methodName, expr.methodTableItem().funcTypeForTable()) + 1);
                 }
+            }
+            case STATIC_METHOD -> {
+
             }
             case PLUS -> {
                 codeGen.write(generateExpr(expr.exprLeft, classTable));
@@ -306,37 +313,33 @@ public class Generate {
                 }
             }
             case ARRAY -> {
-                codeGen.write(Command.sipush.commandCode);
-                codeGen.writeShort(expr.countedType.exprArr.anInt);
-                switch (expr.countedType.typeArr.varType){
-                    case VOID -> {
-                    }
+                codeGen.write(Command.new_.commandCode);
+                codeGen.writeShort(classTable.constantAddClass("RTLArray") + 1);
+                codeGen.write(Command.dup.commandCode);
+                codeGen.write(Command.invokespecial.commandCode);
+                codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "<init>", "()V") + 1);
+                switch (expr.countedType.typeArr.varType) {
                     case INT -> {
-                        codeGen.write(Command.newarray.commandCode);
-                        codeGen.write(CodeOfDefaultsTypes.T_INT.codeOfDefaultsTypes);
-                        /*for(int i=0; i<expr.exprList.list.size(); i++){
-                            codeGen.write(Command.dup.commandCode);
-                            codeGen.write(Command.sipush.commandCode);
-                            codeGen.writeShort(i);
-                            codeGen.write(generateExpr(expr.exprList.list.get(i), classTable));
-                        }*/
-                    }
-                    case BOOL -> {
-
-                    }
-                    case STRING -> {
-
-                    }
-                    case CHAR -> {
-
+                        for (ExpressionNode item : expr.exprList.list) {
+                            codeGen.write(generateExpr(item, classTable));
+                            codeGen.write(Command.invokevirtual.commandCode);
+                            codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "initInt", "(I)LRTLArray;") + 1);
+                        }
                     }
                     case FLOAT -> {
-
+                        for (ExpressionNode item : expr.exprList.list) {
+                            codeGen.write(generateExpr(item, classTable));
+                            codeGen.write(Command.invokevirtual.commandCode);
+                            codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "initFloat", "(F)LRTLArray;") + 1);
+                        }
                     }
-                    case ARRAY -> {
-
+                    case STRING, ARRAY, CHAR -> {
+                        for (ExpressionNode item : expr.exprList.list) {
+                            codeGen.write(generateExpr(item, classTable));
+                            codeGen.write(Command.invokevirtual.commandCode);
+                            codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "initObject", "(Ljava/lang/Object;)LRTLArray;") + 1);
+                        }
                     }
-                    case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + expr.id + ")");
                 }
             }
             case ID -> {
@@ -348,16 +351,13 @@ public class Generate {
                             codeGen.write(Command.iload.commandCode);
                             codeGen.write(expr.variableTableItem().ID());
                         }
-                        case CHAR, STRING -> {
+                        case CHAR, STRING, ARRAY -> {
                             codeGen.write(Command.aload.commandCode);
                             codeGen.write(expr.variableTableItem().ID());
                         }
                         case FLOAT -> {
                             codeGen.write(Command.fload.commandCode);
                             codeGen.write(expr.variableTableItem().ID());
-                        }
-                        case ARRAY -> {
-
                         }
                         case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + expr.id + ")");
                     }
@@ -374,12 +374,10 @@ public class Generate {
                     case VOID -> {
                     }
                     case INT, BOOL -> codeGen.write(Command.istore.commandCode);
-                    case CHAR, STRING -> codeGen.write(Command.astore.commandCode);
+                    case CHAR, STRING, ARRAY -> codeGen.write(Command.astore.commandCode);
                     case FLOAT -> codeGen.write(Command.fstore.commandCode);
                     case ID -> {
                         //todo присвоение классу
-                    }
-                    case ARRAY -> {
                     }
                     case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + expr.exprRight.id + ")");
                 }
@@ -392,45 +390,45 @@ public class Generate {
                 }
             }
             case INDEX -> {
-                codeGen.write(Command.iload.commandCode);
-                codeGen.write(expr.exprLeft.variableTableItem().ID());
-
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
                 codeGen.write(generateExpr(expr.exprRight, classTable));
-
-                switch (expr.exprRight.countedType.varType){
-                    case VOID -> {
-                    }
-                    case INT -> codeGen.write(Command.iaload.commandCode);
-                    case BOOL -> {
-
-                    }
-                    case CHAR, STRING -> {
-
+                codeGen.write(Command.invokevirtual.commandCode);
+                switch (expr.exprLeft.countedType.typeArr.varType){
+                    case INT -> {
+                        codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "getInt", "(I)I") + 1);
                     }
                     case FLOAT -> {
-
+                        codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "getFloat", "(I)F") + 1);
+                    }
+                    case STRING, CHAR -> {
+                        codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "getObject", "(I)Ljava/lang/Object;") + 1);
+                        codeGen.write(Command.checkcast.commandCode);
+                        codeGen.writeShort(classTable.constantAddClass("java/lang/String") + 1);
                     }
                     case ARRAY -> {
-
+                        codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "getObject", "(I)Ljava/lang/Object;") + 1);
+                        codeGen.write(Command.checkcast.commandCode);
+                        codeGen.writeShort(classTable.constantAddClass("RTLArray") + 1);
                     }
                     case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + expr.exprRight.id + ")");
                 }
             }
             case INDEX_ASGN -> {
-                switch (expr.exprRight.countedType.varType){
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
+                codeGen.write(generateExpr(expr.body, classTable));
+                codeGen.write(generateExpr(expr.exprRight, classTable));
+                codeGen.write(Command.invokevirtual.commandCode);
+                switch (expr.exprLeft.countedType.typeArr.varType){
                     case VOID -> {
                     }
                     case INT, BOOL -> {
-
-                    }
-                    case CHAR, STRING -> {
-
+                        codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "setInt", "(II)V") + 1);
                     }
                     case FLOAT -> {
-
+                        codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "setFloat", "(IF)V") + 1);
                     }
-                    case ARRAY -> {
-
+                    case CHAR, STRING, ARRAY -> {
+                        codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "setObject", "(ILjava/lang/Object;)V") + 1);
                     }
                     case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + expr.exprRight.id + ")");
                 }
@@ -473,6 +471,4 @@ public class Generate {
 
         return codeGenOut.toByteArray();
     }
-
-
 }
