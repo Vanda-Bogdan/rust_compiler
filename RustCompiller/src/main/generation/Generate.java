@@ -466,6 +466,32 @@ public class Generate {
                     }
                 }
             }
+            case OR -> {
+                byte[] right = generateExpr(expr.exprRight, classTable);
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
+                codeGen.write(Command.ifne.commandCode);
+                codeGen.writeShort(right.length + 6);
+                codeGen.write(right);
+                codeGen.write(Command.ifeq.commandCode);
+                codeGen.writeShort(7);
+                codeGen.write(Command.iconst_1.commandCode);
+                codeGen.write(Command.goto_.commandCode);
+                codeGen.writeShort(4);
+                codeGen.write(Command.iconst_0.commandCode);
+            }
+            case AND -> {
+                byte[] right = generateExpr(expr.exprRight, classTable);
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
+                codeGen.write(Command.ifeq.commandCode);
+                codeGen.writeShort(right.length + 6);
+                codeGen.write(right);
+                codeGen.write(Command.ifne.commandCode);
+                codeGen.writeShort(7);
+                codeGen.write(Command.iconst_0.commandCode);
+                codeGen.write(Command.goto_.commandCode);
+                codeGen.writeShort(4);
+                codeGen.write(Command.iconst_1.commandCode);
+            }
             case INT_LIT -> {
                 codeGen.write(Command.ldc_w.commandCode);
                 codeGen.writeShort(classTable.constantAdd(Constant.INTEGER, expr.anInt) + 1);
@@ -609,6 +635,24 @@ public class Generate {
                         codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "setObject", "(ILjava/lang/Object;)V") + 1);
                     }
                     case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + expr.exprRight.id + ")");
+                }
+            }
+            case RETURN -> {
+                if (expr.exprLeft == null) {
+                    codeGen.write(Command.return_.commandCode);
+                } else {
+                    codeGen.write(generateExpr(expr.exprLeft, classTable));
+                    switch (expr.exprLeft.countedType.varType) {
+                        case INT, BOOL -> {
+                            codeGen.write(Command.ireturn.commandCode);
+                        }
+                        case FLOAT -> {
+                            codeGen.write(Command.freturn.commandCode);
+                        }
+                        case STRING, CHAR, ARRAY, ID -> {
+                            codeGen.write(Command.areturn.commandCode);
+                        }
+                    }
                 }
             }
         }
