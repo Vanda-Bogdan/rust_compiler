@@ -1069,7 +1069,7 @@ public class Tree {
                 checkInitialization(expr.exprRight);
                 TypeNode leftType = expr.exprLeft.countedType;
                 if (leftType.equals(expr.exprRight.countedType)) {
-                    if(leftType.varType != INT && leftType.varType!= FLOAT && leftType.varType != BOOL){//todo не все можно сравнить, например классы
+                    if(leftType.varType != INT && leftType.varType!= FLOAT && leftType.varType != BOOL && leftType.varType != STRING && leftType.varType != CHAR){//todo не все можно сравнить, например классы
                         throw new IllegalArgumentException("Тип " + leftType.getName() + " не поддается сравнению (ID: " + expr.id + ")");
                     }
                     expr.defineTypeOfExpr();

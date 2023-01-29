@@ -5,7 +5,7 @@ public enum Command {
     iconst_0(0x3),
     iconst_1(0x4),
     iconst_2(0x5),
-    iconst_3(0x7),
+    iconst_3(0x6),
     iconst_4(0x7),
     iconst_5(0x8),
 
@@ -45,9 +45,12 @@ public enum Command {
     if_icmpgt(0xA3),
     if_icmpge(0xA2),
 
+    fcmpg(0x96),
+    fcmpl(0x95),
+
     ifeq(0x99),
     ifne(0x9A),
-    iflt(0x55),
+    iflt(0x9B),
     ifle(0x9E),
     ifgt(0x9D),
     ifge(0x9C),

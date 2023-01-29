@@ -18,6 +18,7 @@ public class StandardFunctionList {
         printlnI32Create();
         printlnF64Create();
         printlnCharCreate();
+        printlnBoolCreate();
 
         readlnCreate();
         readlnI32Create();
@@ -73,6 +74,18 @@ public class StandardFunctionList {
         MethodTable.MethodTableItem methodTableItem = new MethodTable.MethodTableItem(new TypeNode(VarType.VOID), new VariableTable(), true, FunctionType.ASSOCIATED, params, new ExpressionNode());
 
         standardFunctionsList.put("println_char", methodTableItem);
+    }
+
+    private void printlnBoolCreate(){
+        FunctionParamNode firstParam = new FunctionParamNode("format_string", Mutable.NOT_MUT, new TypeNode(VarType.STRING));
+        FunctionParamNode secondParam = new FunctionParamNode("bool_value", Mutable.NOT_MUT, new TypeNode(VarType.BOOL));
+        ArrayList<FunctionParamNode> list = new ArrayList<>();
+        list.add(firstParam);
+        list.add(secondParam);
+        FunctionParamListNode params = new FunctionParamListNode(FunctionType.ASSOCIATED, list);
+        MethodTable.MethodTableItem methodTableItem = new MethodTable.MethodTableItem(new TypeNode(VarType.VOID), new VariableTable(), true, FunctionType.ASSOCIATED, params, new ExpressionNode());
+
+        standardFunctionsList.put("println_bool", methodTableItem);
     }
 
     private void printlnCreate(){

@@ -25,6 +25,13 @@ public class RTL {
         System.out.println(str.replace("{}", String.valueOf(ch)));
     }
 
+    public static void println_bool(String str, int b) {
+        if (!str.contains("{}")) {
+            throw new IllegalArgumentException("Форматная строка вывода не содержит {}");
+        }
+        System.out.println(str.replace("{}", String.valueOf(b == 1)));
+    }
+
     public static String readln(){
         java.util.Scanner in = new java.util.Scanner(System.in);
         return in.nextLine();
@@ -38,5 +45,54 @@ public class RTL {
     public static float readln_f64(){
         java.util.Scanner in = new java.util.Scanner(System.in);
         return in.nextFloat();
+    }
+
+    public static int stringEqual(String left, String right, int code) {
+        int result = 0;
+        switch (code) {
+            case 0 -> { // ==
+                if (left == right) {
+                    result = 1;
+                } else {
+                    result = 0;
+                }
+            }
+            case 1 -> { // !=
+                if (left != right) {
+                    result = 1;
+                } else {
+                    result = 0;
+                }
+            }
+            case 2 -> { // >
+                if (left.compareTo(right) > 0) {
+                    result = 1;
+                } else {
+                    result = 0;
+                }
+            }
+            case 3 -> { // <
+                if (left.compareTo(right) < 0) {
+                    result = 1;
+                } else {
+                    result = 0;
+                }
+            }
+            case 4 -> { // >=
+                if (left.compareTo(right) >= 0) {
+                    result = 1;
+                } else {
+                    result = 0;
+                }
+            }
+            case 5 -> { // <=
+                if (left.compareTo(right) <= 0) {
+                    result = 1;
+                } else {
+                    result = 0;
+                }
+            }
+        }
+        return result;
     }
 }

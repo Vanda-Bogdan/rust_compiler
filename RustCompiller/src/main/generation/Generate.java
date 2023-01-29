@@ -227,6 +227,16 @@ public class Generate {
                             codeGen.write(Command.invokestatic.commandCode);
                             codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "println_char", "(Ljava/lang/String;Ljava/lang/String;)V") + 1);
                         }
+                        case "println_bool" -> {
+                            if (expr.exprList.list.get(0).string == null) {
+                                throw new IllegalArgumentException("Ожидался string literal");
+                            }
+                            codeGen.write(Command.ldc_w.commandCode);
+                            codeGen.writeShort(classTable.constantAddString(expr.exprList.list.get(0).string) + 1);
+                            codeGen.write(generateExpr(expr.exprList.list.get(1), classTable));
+                            codeGen.write(Command.invokestatic.commandCode);
+                            codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "println_bool", "(Ljava/lang/String;I)V") + 1);
+                        }
                         case "readln" -> {
                             codeGen.write(Command.invokestatic.commandCode);
                             codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "readln", "()Ljava/lang/String;") + 1);
@@ -286,6 +296,174 @@ public class Generate {
                     codeGen.write(Command.idiv.commandCode);
                 } else if (expr.countedType.varType == VarType.FLOAT) {
                     codeGen.write(Command.fdiv.commandCode);
+                }
+            }
+            case EQUAL -> {
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
+                codeGen.write(generateExpr(expr.exprRight, classTable));
+                switch (expr.exprLeft.countedType.varType) {
+                    case INT, BOOL -> {
+                        codeGen.write(Command.if_icmpne.commandCode);
+                        codeGen.writeShort(7);
+                        codeGen.write(Command.iconst_1.commandCode);
+                        codeGen.write(Command.goto_.commandCode);
+                        codeGen.writeShort(4);
+                        codeGen.write(Command.iconst_0.commandCode);
+                    }
+                    case FLOAT -> {
+                        codeGen.write(Command.fcmpg.commandCode);
+                        codeGen.write(Command.ifne.commandCode);
+                        codeGen.writeShort(7);
+                        codeGen.write(Command.iconst_1.commandCode);
+                        codeGen.write(Command.goto_.commandCode);
+                        codeGen.writeShort(4);
+                        codeGen.write(Command.iconst_0.commandCode);
+                    }
+                    case CHAR, STRING -> {
+                        codeGen.write(Command.iconst_0.commandCode);
+                        codeGen.write(Command.invokestatic.commandCode);
+                        codeGen.writeShort(classTable.constantAddMethodRef("RTL", "stringEqual", "(Ljava/lang/String;Ljava/lang/String;I)I") + 1);
+                    }
+                }
+            }
+            case NOT_EQUAL -> {
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
+                codeGen.write(generateExpr(expr.exprRight, classTable));
+                switch (expr.exprLeft.countedType.varType) {
+                    case INT, BOOL -> {
+                        codeGen.write(Command.if_icmpeq.commandCode);
+                        codeGen.writeShort(7);
+                        codeGen.write(Command.iconst_1.commandCode);
+                        codeGen.write(Command.goto_.commandCode);
+                        codeGen.writeShort(4);
+                        codeGen.write(Command.iconst_0.commandCode);
+                    }
+                    case FLOAT -> {
+                        codeGen.write(Command.fcmpg.commandCode);
+                        codeGen.write(Command.ifeq.commandCode);
+                        codeGen.writeShort(7);
+                        codeGen.write(Command.iconst_1.commandCode);
+                        codeGen.write(Command.goto_.commandCode);
+                        codeGen.writeShort(4);
+                        codeGen.write(Command.iconst_0.commandCode);
+                    }
+                    case CHAR, STRING -> {
+                        codeGen.write(Command.iconst_1.commandCode);
+                        codeGen.write(Command.invokestatic.commandCode);
+                        codeGen.writeShort(classTable.constantAddMethodRef("RTL", "stringEqual", "(Ljava/lang/String;Ljava/lang/String;I)I") + 1);
+                    }
+                }
+            }
+            case GREATER -> {
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
+                codeGen.write(generateExpr(expr.exprRight, classTable));
+                switch (expr.exprLeft.countedType.varType) {
+                    case INT, BOOL -> {
+                        codeGen.write(Command.if_icmple.commandCode);
+                        codeGen.writeShort(7);
+                        codeGen.write(Command.iconst_1.commandCode);
+                        codeGen.write(Command.goto_.commandCode);
+                        codeGen.writeShort(4);
+                        codeGen.write(Command.iconst_0.commandCode);
+                    }
+                    case FLOAT -> {
+                        codeGen.write(Command.fcmpg.commandCode);
+                        codeGen.write(Command.ifle.commandCode);
+                        codeGen.writeShort(7);
+                        codeGen.write(Command.iconst_1.commandCode);
+                        codeGen.write(Command.goto_.commandCode);
+                        codeGen.writeShort(4);
+                        codeGen.write(Command.iconst_0.commandCode);
+                    }
+                    case CHAR, STRING -> {
+                        codeGen.write(Command.iconst_2.commandCode);
+                        codeGen.write(Command.invokestatic.commandCode);
+                        codeGen.writeShort(classTable.constantAddMethodRef("RTL", "stringEqual", "(Ljava/lang/String;Ljava/lang/String;I)I") + 1);
+                    }
+                }
+            }
+            case LESS -> {
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
+                codeGen.write(generateExpr(expr.exprRight, classTable));
+                switch (expr.exprLeft.countedType.varType) {
+                    case INT, BOOL -> {
+                        codeGen.write(Command.if_icmpge.commandCode);
+                        codeGen.writeShort(7);
+                        codeGen.write(Command.iconst_1.commandCode);
+                        codeGen.write(Command.goto_.commandCode);
+                        codeGen.writeShort(4);
+                        codeGen.write(Command.iconst_0.commandCode);
+                    }
+                    case FLOAT -> {
+                        codeGen.write(Command.fcmpg.commandCode);
+                        codeGen.write(Command.ifge.commandCode);
+                        codeGen.writeShort(7);
+                        codeGen.write(Command.iconst_1.commandCode);
+                        codeGen.write(Command.goto_.commandCode);
+                        codeGen.writeShort(4);
+                        codeGen.write(Command.iconst_0.commandCode);
+                    }
+                    case CHAR, STRING -> {
+                        codeGen.write(Command.iconst_3.commandCode);
+                        codeGen.write(Command.invokestatic.commandCode);
+                        codeGen.writeShort(classTable.constantAddMethodRef("RTL", "stringEqual", "(Ljava/lang/String;Ljava/lang/String;I)I") + 1);
+                    }
+                }
+            }
+            case GREATER_EQUAL -> {
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
+                codeGen.write(generateExpr(expr.exprRight, classTable));
+                switch (expr.exprLeft.countedType.varType) {
+                    case INT, BOOL -> {
+                        codeGen.write(Command.if_icmplt.commandCode);
+                        codeGen.writeShort(7);
+                        codeGen.write(Command.iconst_1.commandCode);
+                        codeGen.write(Command.goto_.commandCode);
+                        codeGen.writeShort(4);
+                        codeGen.write(Command.iconst_0.commandCode);
+                    }
+                    case FLOAT -> {
+                        codeGen.write(Command.fcmpg.commandCode);
+                        codeGen.write(Command.iflt.commandCode);
+                        codeGen.writeShort(7);
+                        codeGen.write(Command.iconst_1.commandCode);
+                        codeGen.write(Command.goto_.commandCode);
+                        codeGen.writeShort(4);
+                        codeGen.write(Command.iconst_0.commandCode);
+                    }
+                    case CHAR, STRING -> {
+                        codeGen.write(Command.iconst_4.commandCode);
+                        codeGen.write(Command.invokestatic.commandCode);
+                        codeGen.writeShort(classTable.constantAddMethodRef("RTL", "stringEqual", "(Ljava/lang/String;Ljava/lang/String;I)I") + 1);
+                    }
+                }
+            }
+            case LESS_EQUAL -> {
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
+                codeGen.write(generateExpr(expr.exprRight, classTable));
+                switch (expr.exprLeft.countedType.varType) {
+                    case INT, BOOL -> {
+                        codeGen.write(Command.if_icmpgt.commandCode);
+                        codeGen.writeShort(7);
+                        codeGen.write(Command.iconst_1.commandCode);
+                        codeGen.write(Command.goto_.commandCode);
+                        codeGen.writeShort(4);
+                        codeGen.write(Command.iconst_0.commandCode);
+                    }
+                    case FLOAT -> {
+                        codeGen.write(Command.fcmpg.commandCode);
+                        codeGen.write(Command.ifgt.commandCode);
+                        codeGen.writeShort(7);
+                        codeGen.write(Command.iconst_1.commandCode);
+                        codeGen.write(Command.goto_.commandCode);
+                        codeGen.writeShort(4);
+                        codeGen.write(Command.iconst_0.commandCode);
+                    }
+                    case CHAR, STRING -> {
+                        codeGen.write(Command.iconst_5.commandCode);
+                        codeGen.write(Command.invokestatic.commandCode);
+                        codeGen.writeShort(classTable.constantAddMethodRef("RTL", "stringEqual", "(Ljava/lang/String;Ljava/lang/String;I)I") + 1);
+                    }
                 }
             }
             case INT_LIT -> {
