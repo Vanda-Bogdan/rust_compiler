@@ -594,6 +594,33 @@ public class Generate {
                     }
                 }
             }
+            case IF -> {
+                if (expr.exprLeft != null) {
+                    codeGen.write(generateExpr(expr.exprLeft, classTable));
+                    codeGen.write(Command.ifeq.commandCode);
+                    byte[] body = generateExpr(expr.body, classTable);
+                    if (expr.elseBody != null) {
+                        codeGen.writeShort(body.length + 6);
+                    } else {
+                        codeGen.writeShort(body.length + 3);
+                    }
+                    codeGen.write(body);
+                }
+                if (expr.elseBody != null) {
+                    byte[] elseBody = generateExpr(expr.elseBody, classTable);
+                    codeGen.write(Command.goto_.commandCode);
+                    codeGen.writeShort(elseBody.length + 3);
+                    codeGen.write(elseBody);
+                }
+
+            }
+            case BLOCK -> {
+                if (expr.stmtList != null) {
+                    for (StatementNode item : expr.stmtList.list) {
+                        codeGen.write(generateStmt(item, classTable));
+                    }
+                }
+            }
             case INDEX -> {
                 codeGen.write(generateExpr(expr.exprLeft, classTable));
                 codeGen.write(generateExpr(expr.exprRight, classTable));
