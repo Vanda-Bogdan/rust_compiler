@@ -687,7 +687,7 @@ public class Generate {
                 case FLOAT -> codeGen.write(Command.fstore.commandCode);
                 case ID -> {
                 }
-                case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + let.expr.exprRight.id + ")");
+                //case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + let.expr.exprRight.id + ")");
             }
             codeGen.write(let.variableTableItem().ID());
         }

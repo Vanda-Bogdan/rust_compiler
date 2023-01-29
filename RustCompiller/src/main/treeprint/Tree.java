@@ -835,6 +835,9 @@ public class Tree {
     private void letTypes(LetStatementNode let) {
         if (let.expr != null) {
             exprTypes(let.expr);
+            if(let.expr.countedType.varType==UNDEFINED){
+                throw new IllegalArgumentException("При инициализации " + let.name + " используется выражение неопределенного типа (ID: " + let.expr.id + ")");
+            }
             if (let.type.varType == UNDEFINED || let.type.equals(let.expr.countedType)) {
                 let.setVarType(let.expr.countedType);
             } else {
@@ -990,6 +993,12 @@ public class Tree {
                 exprTypes(expr.body);
                 if(expr.elseBody!=null){
                     exprTypes(expr.elseBody);
+                    if(expr.body.countedType.varType!=UNDEFINED && expr.body.countedType.equals(expr.elseBody.countedType)){
+                        expr.countedType = expr.body.countedType;
+                    }
+                    else {
+                        expr.countedType = new TypeNode(UNDEFINED);
+                    }
                 }
 
                 expr.defineTypeOfExpr();
@@ -1256,7 +1265,19 @@ public class Tree {
                 expr.defineTypeOfExpr();
             }
 
-            case BLOCK -> expr.stmtList.list.forEach(this::stmtTypes);
+            case BLOCK -> {
+                if(expr.stmtList!=null){
+                    expr.stmtList.list.forEach(this::stmtTypes);
+                    StatementNode lastStmt = expr.stmtList.list.get(expr.stmtList.list.size()-1);
+                    if(lastStmt.type==StatementType.EXPRESSION){
+                        expr.countedType = lastStmt.expr.countedType;
+                    }
+                }
+                else {
+                    expr.countedType = new TypeNode(UNDEFINED);
+                }
+
+            }
             //todo continue?
             default -> expr.defineTypeOfExpr();
         }

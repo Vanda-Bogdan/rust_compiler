@@ -151,14 +151,6 @@ public class ExpressionNode {
             case ID -> setTypeFromVarOrField();
             case SELF -> setTypeFromVar();
             case FIELD_ACCESS, FIELD_ACCESS_NEW -> setTypeFromField();
-            case IF -> {
-                if (exprLeft.aBoolean) {
-                    countedType = body.countedType;
-                }
-                else if (elseBody != null) {
-                    countedType = elseBody.countedType;
-                }
-            }
             case LOOP -> countedType = this.defineTypeOfLoopBody();
             case LOOP_WHILE, LOOP_FOR, CONTINUE -> countedType = new TypeNode(VOID);
             case BLOCK -> countedType = defineTypeOfBlock(stmtList);

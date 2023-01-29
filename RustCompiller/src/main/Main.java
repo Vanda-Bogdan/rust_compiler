@@ -5,6 +5,7 @@ import main.treeprint.Tree;
 import treeCreate.TreeFromXml;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 public class Main{
 
@@ -17,6 +18,7 @@ public class Main{
         tree.typesCheck();
         Generate generation = new Generate();
         generation.generate(tree);
+
 
     }
 
