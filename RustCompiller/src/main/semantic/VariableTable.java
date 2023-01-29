@@ -8,21 +8,18 @@ import java.util.*;
 
 public class VariableTable {
 
-    private int ID = 0;
     private ArrayList <VariableTableItem> items = new ArrayList<>();
 
     public int size(){
         return items.size();
     }
 
-    public int add(String name, Mutable isMut, TypeNode type, boolean isInitialized) {
+    public void add(int ID, String name, Mutable isMut, TypeNode type, boolean isInitialized) {
         items.add(new VariableTableItem(ID, name, isMut, type, isInitialized));
-        return ID++;
     }
 
-    public int add(String name, Mutable isMut) {
+    public void add(int ID, String name, Mutable isMut) {
         items.add(new VariableTableItem(ID, name, isMut, new TypeNode(VarType.UNDEFINED), false));
-        return ID++;
     }
 
     public void resetType(int ID, TypeNode newType){
@@ -70,7 +67,7 @@ public class VariableTable {
 
     public void merge(VariableTable other){
         for (VariableTableItem item: other.items) {
-            add(item.name(), item.isMut(), item.type(), item.isInitialized());
+            add(item.ID(), item.name(), item.isMut(), item.type(), item.isInitialized());
         }
     }
 

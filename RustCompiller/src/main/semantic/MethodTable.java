@@ -56,21 +56,28 @@ public class MethodTable {
     private MethodTable mainMethods;
     private boolean isMain;
     private StandardFunctionList standardFunctionList = new StandardFunctionList();
+    private int globalID = 0;
+    private VariableTable variableTableFinal;
 
     public void add(FunctionNode funcNode, FieldTable fields, Tables tables){
+        globalID = 0;
         this.tables = tables;
         variableTables.clear();
         VariableTable variableTable = new VariableTable();
-        VariableTable variableTableFinal = new VariableTable();
+        variableTableFinal = new VariableTable();
         currentMethod = funcNode.name;
         //--------Заполнение таблицы локальных переменных
         //self
         if(funcNode.paramList.type != FunctionType.ASSOCIATED){
-            variableTable.add("self", Mutable.NOT_MUT, new TypeNode(className), true);
+            variableTable.add(globalID, "self", Mutable.NOT_MUT, new TypeNode(className), true);
+            globalID++;
         }
 
         //параметры
-        funcNode.paramList.list.forEach((item)-> variableTable.add(item.name, item.mut, item.type, true));
+        funcNode.paramList.list.forEach((item)-> {
+            variableTable.add(globalID, item.name, item.mut, item.type, true);
+            globalID++;
+        });
 
         //переменные в теле
         variableTables.add(variableTable);
@@ -153,7 +160,7 @@ public class MethodTable {
         //проверить переменную в локальной таблице
         VariableTable.VariableTableItem varItem = variableTable.getLast("self");
         if(varItem!=null){
-            expression.setVar(varItem.ID(), variableTable);
+            expression.setVar(varItem.ID(), variableTableFinal);
             return;
         }
 
@@ -161,7 +168,7 @@ public class MethodTable {
         for (VariableTable item : initialTables) {
             varItem = item.getLast("self");
             if(varItem!=null){
-                expression.setVar(varItem.ID(), item);
+                expression.setVar(varItem.ID(), variableTableFinal);
                 return;
             }
         }
@@ -229,7 +236,7 @@ public class MethodTable {
         //проверить переменную в локальной таблице
         VariableTable.VariableTableItem varItem = variableTable.getLast(ident.name);
         if(varItem!=null){
-            ident.setVar(varItem.ID(), variableTable);
+            ident.setVar(varItem.ID(), variableTableFinal);
             return;
         }
 
@@ -237,7 +244,7 @@ public class MethodTable {
         for (VariableTable item : initialTables) {
             varItem = item.getLast(ident.name);
             if(varItem!=null){
-                ident.setVar(varItem.ID(), item);
+                ident.setVar(varItem.ID(), variableTableFinal);
                 return;
             }
         }
@@ -271,8 +278,9 @@ public class MethodTable {
 
     private void loopForVariables(ExpressionNode loopFor, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
 
-        int num = variableTable.add(loopFor.name, Mutable.MUT, new TypeNode(VarType.INT), true);
-        loopFor.setVar(num, variableTable);
+        variableTable.add(globalID, loopFor.name, Mutable.MUT, new TypeNode(VarType.INT), true);
+        loopFor.setVar(globalID, variableTableFinal);
+        globalID++;
         bodyVariables(loopFor.body, variableTable, initialTables, fields);
     }
 
@@ -287,12 +295,13 @@ public class MethodTable {
 
         int num;
         if(let.expr!=null){
-            num = variableTable.add(let.name, let.mut, let.type, true);
+            variableTable.add(globalID, let.name, let.mut, let.type, true);
         }else{
-            num = variableTable.add(let.name, let.mut, let.type, false);
+            variableTable.add(globalID, let.name, let.mut, let.type, false);
         }
 
-        let.setVar(num, variableTable);
+        let.setVar(globalID, variableTableFinal);
+        globalID++;
     }
 
     public record MethodTableItem(TypeNode returnType, VariableTable variableTable, boolean hasBody, FunctionType functionType, FunctionParamListNode params, ExpressionNode body) {
