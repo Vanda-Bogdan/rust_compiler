@@ -315,8 +315,13 @@ public class TreeFromXml {
         letStatementNode.mut = Mutable.valueOf(((Element)letStmt).getAttribute("mutability"));
 
         letStatementNode.type = typeBuild(((Element)letStmt).getElementsByTagName("type_node").item(0));
-        if(((Element)letStmt).getElementsByTagName("expr").getLength()>0){
+
+        /*if(((Element)letStmt).getElementsByTagName("expr").getLength()>0){
             letStatementNode.expr = exprBuild(((Element)letStmt).getElementsByTagName("expr").item(0));
+        }*/
+
+        if(letStmt.getFirstChild().getNextSibling()!=null){
+            letStatementNode.expr = exprBuild(letStmt.getFirstChild().getNextSibling());
         }
 
         return letStatementNode;
