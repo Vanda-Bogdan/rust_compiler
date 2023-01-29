@@ -124,19 +124,19 @@ public class MethodTable {
             case ID -> idVariables(expression, variableTable, initialTables, fields);
             case SELF -> selfVariables(expression, variableTable, initialTables, fields);
             case PLUS, MINUS, DIV, MUL, EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL, OR, AND, ASGN, RANGE, RANGE_IN, ARRAY_AUTO_FILL-> {
-                exprVariables(expression.exprLeft, variableTable, initialTables, fields);
                 exprVariables(expression.exprRight, variableTable, initialTables, fields);
+                exprVariables(expression.exprLeft, variableTable, initialTables, fields);
             }
             case INDEX -> {
-                exprVariables(expression.exprLeft, variableTable, initialTables, fields);
                 exprVariables(expression.exprRight, variableTable, initialTables, fields);
+                exprVariables(expression.exprLeft, variableTable, initialTables, fields);
                 expression.setVar(expression.exprLeft.varID, expression.exprLeft.variableTable);
                 expression.name = expression.exprLeft.name;
             }
             case FIELD_ASGN, INDEX_ASGN -> {
-                exprVariables(expression.exprLeft, variableTable, initialTables, fields);
-                exprVariables(expression.body, variableTable, initialTables, fields);
                 exprVariables(expression.exprRight, variableTable, initialTables, fields);
+                exprVariables(expression.body, variableTable, initialTables, fields);
+                exprVariables(expression.exprLeft, variableTable, initialTables, fields);
             }
             case FIELD_ACCESS_NEW -> {
 

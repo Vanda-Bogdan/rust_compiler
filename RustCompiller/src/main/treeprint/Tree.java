@@ -1145,6 +1145,7 @@ public class Tree {
                 expr.defineTypeOfExpr();
                 exprTypes(expr.exprLeft);
                 exprTypes(expr.body);
+                //todo проверка break;
             }
             case LOOP -> {
                 // Массив break

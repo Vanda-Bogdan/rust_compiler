@@ -256,7 +256,6 @@ public class Generate {
                         codeGen.write(generateExpr(item, classTable));
                     }
                     codeGen.write(Command.invokestatic.commandCode);
-                    String asd = expr.methodTableItem().funcTypeForTable();
                     codeGen.writeShort(classTable.constantAddMethodRef(classTable.name, expr.methodName, expr.methodTableItem().funcTypeForTable()) + 1);
                 }
             }
@@ -683,6 +682,93 @@ public class Generate {
                     }
                 }
             }
+            case LOOP_FOR -> {
+                ByteArrayOutputStream beforeIfOut = new ByteArrayOutputStream();
+                DataOutputStream beforeIf = new DataOutputStream(beforeIfOut);
+
+                ByteArrayOutputStream afterIfOut = new ByteArrayOutputStream();
+                DataOutputStream afterIf = new DataOutputStream(afterIfOut);
+
+                codeGen.write(generateExpr(expr.exprLeft.exprLeft, classTable));
+                codeGen.write(Command.istore.commandCode);
+                codeGen.write(expr.variableTableItem().ID());
+
+                beforeIf.write(Command.iload.commandCode);
+                beforeIf.write(expr.variableTableItem().ID());
+                beforeIf.write(generateExpr(expr.exprLeft.exprRight, classTable));
+
+                beforeIf.write(Command.if_icmpge.commandCode);
+
+                byte[] cycleBody = generateExpr(expr.body, classTable);
+
+                afterIf.write(Command.iinc.commandCode);
+                afterIf.write(expr.variableTableItem().ID());
+                afterIf.write(1);
+
+                afterIf.write(Command.goto_.commandCode);
+                int offerGoto = cycleBody.length + 9;
+                int offerIf = cycleBody.length + 11;
+
+                codeGen.write(beforeIfOut.toByteArray());
+                codeGen.writeShort(offerGoto);
+                codeGen.write(cycleBody);
+                codeGen.write(afterIfOut.toByteArray());
+                codeGen.writeShort(-offerIf);
+
+            }
+
+            case LOOP_WHILE -> {
+                ByteArrayOutputStream beforeBodyOut = new ByteArrayOutputStream();
+                DataOutputStream beforeBody = new DataOutputStream(beforeBodyOut);
+
+                beforeBody.write(generateExpr(expr.exprLeft, classTable));
+                beforeBody.write(Command.ifeq.commandCode);
+
+                byte[] body = generateExpr(expr.body, classTable);
+
+                byte goto_ = (byte)(Command.goto_.commandCode);
+
+                int toExpr = (beforeBodyOut.toByteArray().length + body.length + 2);
+                int toEnd = (6 + body.length);
+
+                codeGen.write(beforeBodyOut.toByteArray());
+                codeGen.writeShort(toEnd);
+                codeGen.write(body);
+                codeGen.write(goto_);
+                codeGen.writeShort(-toExpr);
+            }
+
+            case LOOP -> {
+                ByteArrayOutputStream bodyOut = new ByteArrayOutputStream();
+                DataOutputStream body = new DataOutputStream(bodyOut);
+
+
+                body.write(generateExpr(expr.body, classTable));
+
+                byte[] body_ = bodyOut.toByteArray();
+
+                for (int i = 0; i < body_.length - 1; i ++) {
+                    if(Utils.intFromByteArray(new byte[]{body_[i], body_[i+1]}) == 0){
+                        int toEnd = body_.length - i + 4;
+                        byte[] toWrite = Utils.intTo2ByteArray(toEnd);
+                        body_[i] = toWrite[0];
+                        body_[i+1] = toWrite[1];
+                    }
+                }
+
+                codeGen.write(body_);
+                codeGen.write(Command.goto_.commandCode);
+                codeGen.writeShort(-body_.length);
+            }
+
+            case BREAK -> {
+                if(expr.exprLeft!=null){
+                    codeGen.write(generateExpr(expr.exprLeft, classTable));
+                }
+                codeGen.write(Command.goto_.commandCode);
+                codeGen.writeShort(0);
+            }
+
         }
 
         return codeGenOut.toByteArray();
