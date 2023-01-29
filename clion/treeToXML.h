@@ -4,7 +4,7 @@
 #include "nodes.h"
 
 FILE *xml;
-char * filenameXML = "treeXML.xml";
+char * filenameXML = "D:\\Study\\rust_compiler\\RustCompiller\\treeXML.xml";
 char name_buffer[50];
 
 void stmt_list_xml(struct stmt_list_node *stmt_list);
@@ -651,6 +651,9 @@ void type_xml(struct type_node *type_node){
 
     if(type_node->type==array_){
         type_xml(type_node->typeArr);
+    }
+    if(type_node->exprArr!=NULL){
+        expr_xml(type_node->exprArr);
     }
     fprintf(xml, "</type_node>");
 }

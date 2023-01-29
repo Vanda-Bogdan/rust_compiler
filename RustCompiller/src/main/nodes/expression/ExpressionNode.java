@@ -48,8 +48,8 @@ public class ExpressionNode {
     public IdType idType;
 
     // *Если это локальная переменная
-    private int varID;
-    private VariableTable variableTable;
+    public int varID;
+    public VariableTable variableTable;
     public VariableTable.VariableTableItem variableTableItem(){
         return variableTable.getByID(varID);
     }

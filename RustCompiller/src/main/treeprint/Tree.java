@@ -105,6 +105,8 @@ public class Tree {
         }
         if (typeNode.varType == ARRAY) {
             connectionPrint(typeNode.id, typeNode.typeArr.id);
+            connectionPrint(typeNode.id, typeNode.exprArr.id);
+            expressionPrint(typeNode.exprArr);
             typePrint(typeNode.typeArr);
         }
     }
@@ -1197,6 +1199,9 @@ public class Tree {
                 expr.defineTypeOfExpr();
             }
             case INDEX_ASGN -> {
+                if(expr.exprLeft.variableTableItem()!=null && expr.exprLeft.variableTableItem().isMut()==Mutable.NOT_MUT) {
+                    throw new IllegalArgumentException("Невозможно присвоение элементу неизменяемого массива " + expr.exprLeft.name + " (ID: " + expr.exprLeft.id + ")");
+                }
                 exprTypes(expr.body);
                 checkMutabilityAsgn(expr.exprLeft);
                 if(expr.body.countedType.varType!=INT){

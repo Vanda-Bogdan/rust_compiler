@@ -163,9 +163,8 @@ public class TreeFromXml {
         if(((Element)function_).getElementsByTagName("func_params").getLength()>0){
             functionNode.paramList = functionParamsBuild(((Element)function_).getElementsByTagName("func_params").item(0));
         }
-        if(((Element)function_).getElementsByTagName("expr").getLength()>0){
-            functionNode.body = exprBuild(((Element)function_).getElementsByTagName("expr").item(0));
-        }
+
+        functionNode.body = exprBuild(((Element)function_).getLastChild());
 
         return functionNode;
     }
@@ -251,6 +250,7 @@ public class TreeFromXml {
         }
         if(typeNode.varType==VarType.ARRAY){
             typeNode.typeArr = typeBuild(type.getFirstChild());
+            typeNode.exprArr = exprBuild(type.getFirstChild().getNextSibling());
         }
 
         return typeNode;

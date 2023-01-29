@@ -256,6 +256,7 @@ public class Generate {
                         codeGen.write(generateExpr(item, classTable));
                     }
                     codeGen.write(Command.invokestatic.commandCode);
+                    String asd = expr.methodTableItem().funcTypeForTable();
                     codeGen.writeShort(classTable.constantAddMethodRef(classTable.name, expr.methodName, expr.methodTableItem().funcTypeForTable()) + 1);
                 }
             }

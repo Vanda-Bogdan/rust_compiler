@@ -116,9 +116,15 @@ public class MethodTable {
             case LOOP_WHILE -> loopWhileVariables(expression, variableTable, initialTables, fields);
             case ID -> idVariables(expression, variableTable, initialTables, fields);
             case SELF -> selfVariables(expression, variableTable, initialTables, fields);
-            case PLUS, MINUS, DIV, MUL, EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL, OR, AND, ASGN, RANGE, RANGE_IN, ARRAY_AUTO_FILL, INDEX -> {
+            case PLUS, MINUS, DIV, MUL, EQUAL, NOT_EQUAL, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL, OR, AND, ASGN, RANGE, RANGE_IN, ARRAY_AUTO_FILL-> {
                 exprVariables(expression.exprLeft, variableTable, initialTables, fields);
                 exprVariables(expression.exprRight, variableTable, initialTables, fields);
+            }
+            case INDEX -> {
+                exprVariables(expression.exprLeft, variableTable, initialTables, fields);
+                exprVariables(expression.exprRight, variableTable, initialTables, fields);
+                expression.setVar(expression.exprLeft.varID, expression.exprLeft.variableTable);
+                expression.name = expression.exprLeft.name;
             }
             case FIELD_ASGN, INDEX_ASGN -> {
                 exprVariables(expression.exprLeft, variableTable, initialTables, fields);
@@ -276,6 +282,9 @@ public class MethodTable {
     }
 
     private void letVariables(LetStatementNode let, VariableTable variableTable, ArrayList<VariableTable> initialTables, FieldTable fields){
+
+        exprVariables(let.expr, variableTable, initialTables, fields);
+
         int num;
         if(let.expr!=null){
             num = variableTable.add(let.name, let.mut, let.type, true);
@@ -284,9 +293,6 @@ public class MethodTable {
         }
 
         let.setVar(num, variableTable);
-
-        exprVariables(let.expr, variableTable, initialTables, fields);
-
     }
 
     public record MethodTableItem(TypeNode returnType, VariableTable variableTable, boolean hasBody, FunctionType functionType, FunctionParamListNode params, ExpressionNode body) {

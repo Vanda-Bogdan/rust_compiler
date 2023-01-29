@@ -48,6 +48,8 @@ public class TypeNode {
     public String getNameForTable(){
         if(varType == VarType.ID){
             return "L" + name + ";";
+        }else if(varType == VarType.STRING){
+            return "Ljava/lang/String;";
         }
         else if(varType != VarType.ARRAY){
             return typeParse(varType);
@@ -62,7 +64,12 @@ public class TypeNode {
             return "L" + name + ";";
         }
         else if(varType != VarType.ARRAY){
-            return "L" + varType.toString() + ";";
+            if(varType == VarType.STRING){
+                return "Ljava/lang/String;";
+            }
+            else {
+                return "L" + varType.toString() + ";";
+            }
         }
         else {
             return "[" + typeArr.getArrayName();
