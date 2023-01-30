@@ -69,7 +69,13 @@ public class MethodTable {
         //--------Заполнение таблицы локальных переменных
         //self
         if(funcNode.paramList.type != FunctionType.ASSOCIATED){
-            variableTable.add(globalID, "self", Mutable.NOT_MUT, new TypeNode(className), true);
+            if(funcNode.paramList.type == FunctionType.METHOD_MUT_SELF){
+                variableTable.add(globalID, "self", Mutable.MUT, new TypeNode(className), true);
+            }
+            else {
+                variableTable.add(globalID, "self", Mutable.NOT_MUT, new TypeNode(className), true);
+            }
+
             globalID++;
         }
 

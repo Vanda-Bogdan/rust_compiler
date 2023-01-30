@@ -80,7 +80,7 @@ public class ExpressionNode {
     // *Если это вызов метода
     public String methodName;
     public String standardMethodName;
-    private MethodTable methodTable;
+    public MethodTable methodTable;
     private StandardFunctionList standardFunctionList;
     public boolean isRTLMethod = false;
 

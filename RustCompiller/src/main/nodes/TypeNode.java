@@ -37,6 +37,9 @@ public class TypeNode {
         if(varType == VarType.ID){
             return name;
         }
+        else if(varType == VarType.STRING){
+            return "Ljava/lang/String;";
+        }
         else if(varType != VarType.ARRAY){
             return typeParse(varType);
         }
