@@ -44,6 +44,8 @@ public class ExpressionNode {
     //для расчета типов expr
     public TypeNode countedType;
 
+    public boolean isReturn = false;
+
     //------Ссылка на элемент таблицы------
     public IdType idType;
 

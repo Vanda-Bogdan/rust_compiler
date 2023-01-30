@@ -315,8 +315,10 @@ public class Generate {
                     }
                 }
                 else {
-                    for (ExpressionNode item : expr.exprList.list) {
-                        codeGen.write(generateExpr(item, classTable));
+                    if(expr.exprList!=null){
+                        for (ExpressionNode item : expr.exprList.list) {
+                            codeGen.write(generateExpr(item, classTable));
+                        }
                     }
                     codeGen.write(Command.invokestatic.commandCode);
                     codeGen.writeShort(classTable.constantAddMethodRef(classTable.name, expr.methodName, expr.methodTableItem().funcTypeForTable()) + 1);
@@ -940,7 +942,14 @@ public class Generate {
                 codeGen.write(Command.goto_.commandCode);
                 codeGen.writeShort(1);
             }
+        }
 
+        if(expr.isReturn){
+            switch (expr.countedType.varType){
+                case INT, BOOL -> codeGen.write(Command.ireturn.commandCode);
+                case FLOAT -> codeGen.write(Command.freturn.commandCode);
+                case STRING, CHAR, ARRAY, ID -> codeGen.write(Command.areturn.commandCode);
+            }
         }
 
         return codeGenOut.toByteArray();

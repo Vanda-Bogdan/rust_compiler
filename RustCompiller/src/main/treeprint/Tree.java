@@ -1472,7 +1472,10 @@ public class Tree {
                 }
             }
             StatementNode lastStmt = body.stmtList.list.get(body.stmtList.list.size()-1);
-            return lastStmt.type == StatementType.EXPRESSION && lastStmt.expr.countedType!=null && lastStmt.expr.countedType.equals(function.returnType);
+            if(lastStmt.type == StatementType.EXPRESSION && lastStmt.expr.countedType!=null && lastStmt.expr.countedType.equals(function.returnType)){
+                lastStmt.expr.isReturn = true;
+                return true;
+            }
         }
         return false;
     }
