@@ -579,6 +579,21 @@ public class Generate {
                 codeGen.writeShort(4);
                 codeGen.write(Command.iconst_1.commandCode);
             }
+            case NEG -> {
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
+                codeGen.write(Command.iconst_1.commandCode);
+                codeGen.write(Command.ixor.commandCode);
+            }
+            case U_MINUS -> {
+                if (expr.exprLeft.countedType.varType == VarType.INT) {
+                    codeGen.write(generateExpr(expr.exprLeft, classTable));
+                    codeGen.write(Command.ineg.commandCode);
+                } else if (expr.exprLeft.countedType.varType == VarType.FLOAT) {
+                    codeGen.write(generateExpr(expr.exprLeft, classTable));
+                    codeGen.write(Command.fneg.commandCode);
+                }
+
+            }
             case INT_LIT -> {
                 codeGen.write(Command.ldc_w.commandCode);
                 codeGen.writeShort(classTable.constantAdd(Constant.INTEGER, expr.anInt) + 1);
@@ -609,27 +624,56 @@ public class Generate {
                 codeGen.write(Command.dup.commandCode);
                 codeGen.write(Command.invokespecial.commandCode);
                 codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "<init>", "()V") + 1);
+                if (expr.exprList != null) {
+                    switch (expr.countedType.typeArr.varType) {
+                        case INT -> {
+                            for (ExpressionNode item : expr.exprList.list) {
+                                codeGen.write(generateExpr(item, classTable));
+                                codeGen.write(Command.invokevirtual.commandCode);
+                                codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "initInt", "(I)LRTLArray;") + 1);
+                            }
+                        }
+                        case FLOAT -> {
+                            for (ExpressionNode item : expr.exprList.list) {
+                                codeGen.write(generateExpr(item, classTable));
+                                codeGen.write(Command.invokevirtual.commandCode);
+                                codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "initFloat", "(F)LRTLArray;") + 1);
+                            }
+                        }
+                        case STRING, ARRAY, CHAR -> {
+                            for (ExpressionNode item : expr.exprList.list) {
+                                codeGen.write(generateExpr(item, classTable));
+                                codeGen.write(Command.invokevirtual.commandCode);
+                                codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "initObject", "(Ljava/lang/Object;)LRTLArray;") + 1);
+                            }
+                        }
+                    }
+                }
+            }
+            case ARRAY_AUTO_FILL -> {
+                codeGen.write(Command.new_.commandCode);
+                codeGen.writeShort(classTable.constantAddClass("RTLArray") + 1);
+                codeGen.write(Command.dup.commandCode);
+                codeGen.write(Command.invokespecial.commandCode);
+                codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "<init>", "()V") + 1);
                 switch (expr.countedType.typeArr.varType) {
                     case INT -> {
-                        for (ExpressionNode item : expr.exprList.list) {
-                            codeGen.write(generateExpr(item, classTable));
-                            codeGen.write(Command.invokevirtual.commandCode);
-                            codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "initInt", "(I)LRTLArray;") + 1);
-                        }
+                        codeGen.write(generateExpr(expr.exprLeft, classTable));
+                        codeGen.write(generateExpr(expr.exprRight, classTable));
+                        codeGen.write(Command.invokevirtual.commandCode);
+                        codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "intAutoFill", "(II)LRTLArray;") + 1);
                     }
                     case FLOAT -> {
-                        for (ExpressionNode item : expr.exprList.list) {
-                            codeGen.write(generateExpr(item, classTable));
-                            codeGen.write(Command.invokevirtual.commandCode);
-                            codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "initFloat", "(F)LRTLArray;") + 1);
-                        }
+                        codeGen.write(generateExpr(expr.exprLeft, classTable));
+                        codeGen.write(generateExpr(expr.exprRight, classTable));
+                        codeGen.write(Command.invokevirtual.commandCode);
+                        codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "floatAutoFill", "(FI)LRTLArray;") + 1);
                     }
                     case STRING, ARRAY, CHAR -> {
-                        for (ExpressionNode item : expr.exprList.list) {
-                            codeGen.write(generateExpr(item, classTable));
-                            codeGen.write(Command.invokevirtual.commandCode);
-                            codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "initObject", "(Ljava/lang/Object;)LRTLArray;") + 1);
-                        }
+                        codeGen.write(generateExpr(expr.exprLeft, classTable));
+                        codeGen.write(generateExpr(expr.exprRight, classTable));
+                        codeGen.write(Command.invokevirtual.commandCode);
+                        codeGen.writeShort(classTable.constantAddMethodRef("RTLArray", "objectAutoFill", "(Ljava/lang/Object;I)LRTLArray;") + 1);
                     }
                 }
             }

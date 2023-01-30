@@ -47,4 +47,24 @@ public class RTLArray {
         return arrayList.size();
     }
 
+    public RTLArray intAutoFill(int value, int count) {
+        for (int i = 0; i < count; i++) {
+            arrayList.add(value);
+        }
+        return this;
+    }
+
+    public RTLArray floatAutoFill(float value, int count) {
+        for (int i = 0; i < count; i++) {
+            arrayList.add(value);
+        }
+        return this;
+    }
+
+    public RTLArray objectAutoFill(Object value, int count) {
+        for (int i = 0; i < count; i++) {
+            arrayList.add(value);
+        }
+        return this;
+    }
 }

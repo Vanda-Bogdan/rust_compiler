@@ -37,6 +37,8 @@ public enum Command {
     idiv(0x6C),
     fdiv(0x6E),
     iinc(0x84),
+    ineg(0x74),
+    fneg(0x76),
 
     if_icmpeq(0x9F),
     if_icmpne(0xA0),
@@ -59,6 +61,8 @@ public enum Command {
     if_acmpne(0xA6),
 
     goto_(0xA7),
+
+    ixor(0x82),
 
     tableswitch(0xAA),
     lookupswitch(0xAB),
