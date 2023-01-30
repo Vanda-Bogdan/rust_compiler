@@ -670,15 +670,9 @@ public class Generate {
                 } else {
                     codeGen.write(generateExpr(expr.exprLeft, classTable));
                     switch (expr.exprLeft.countedType.varType) {
-                        case INT, BOOL -> {
-                            codeGen.write(Command.ireturn.commandCode);
-                        }
-                        case FLOAT -> {
-                            codeGen.write(Command.freturn.commandCode);
-                        }
-                        case STRING, CHAR, ARRAY, ID -> {
-                            codeGen.write(Command.areturn.commandCode);
-                        }
+                        case INT, BOOL -> codeGen.write(Command.ireturn.commandCode);
+                        case FLOAT -> codeGen.write(Command.freturn.commandCode);
+                        case STRING, CHAR, ARRAY, ID -> codeGen.write(Command.areturn.commandCode);
                     }
                 }
             }
@@ -689,6 +683,9 @@ public class Generate {
                 ByteArrayOutputStream afterIfOut = new ByteArrayOutputStream();
                 DataOutputStream afterIf = new DataOutputStream(afterIfOut);
 
+                ByteArrayOutputStream finalOut = new ByteArrayOutputStream();
+                DataOutputStream final_ = new DataOutputStream(finalOut);
+
                 codeGen.write(generateExpr(expr.exprLeft.exprLeft, classTable));
                 codeGen.write(Command.istore.commandCode);
                 codeGen.write(expr.variableTableItem().ID());
@@ -697,7 +694,10 @@ public class Generate {
                 beforeIf.write(expr.variableTableItem().ID());
                 beforeIf.write(generateExpr(expr.exprLeft.exprRight, classTable));
 
-                beforeIf.write(Command.if_icmpge.commandCode);
+                switch (expr.exprLeft.type){
+                    case RANGE -> beforeIf.write(Command.if_icmpge.commandCode);
+                    case RANGE_IN -> beforeIf.write(Command.if_icmpgt.commandCode);
+                }
 
                 byte[] cycleBody = generateExpr(expr.body, classTable);
 
@@ -709,17 +709,41 @@ public class Generate {
                 int offerGoto = cycleBody.length + 9;
                 int offerIf = cycleBody.length + 11;
 
-                codeGen.write(beforeIfOut.toByteArray());
-                codeGen.writeShort(offerGoto);
-                codeGen.write(cycleBody);
-                codeGen.write(afterIfOut.toByteArray());
-                codeGen.writeShort(-offerIf);
+                final_.write(beforeIfOut.toByteArray());
+                final_.writeShort(offerGoto);
+                final_.write(cycleBody);
+                final_.write(afterIfOut.toByteArray());
+                final_.writeShort(-offerIf);
 
+                byte[] final__ = finalOut.toByteArray();
+
+                for (int i = 1; i < final__.length - 1; i++) {
+                    if(Utils.intFromByteArray(new byte[]{final__[i-1]}) == Command.goto_.commandCode){
+                        int byte_ = Utils.intFromByteArray(new byte[]{final__[i], final__[i+1]});
+                        if(byte_ == 0){//break
+                            int toEnd = final__.length - i + 1;
+                            byte[] toWrite = Utils.intTo2ByteArray(toEnd);
+                            final__[i] = toWrite[0];
+                            final__[i+1] = toWrite[1];
+                        }
+                        else if (byte_ == 1){//continue
+                            int toInc = final__.length - i - 5;
+                            byte[] toWrite = Utils.intTo2ByteArray(toInc);
+                            final__[i] = toWrite[0];
+                            final__[i+1] = toWrite[1];
+                        }
+                    }
+                }
+
+                codeGen.write(final__);
             }
 
             case LOOP_WHILE -> {
                 ByteArrayOutputStream beforeBodyOut = new ByteArrayOutputStream();
                 DataOutputStream beforeBody = new DataOutputStream(beforeBodyOut);
+
+                ByteArrayOutputStream finalOut = new ByteArrayOutputStream();
+                DataOutputStream final_ = new DataOutputStream(finalOut);
 
                 beforeBody.write(generateExpr(expr.exprLeft, classTable));
                 beforeBody.write(Command.ifeq.commandCode);
@@ -731,28 +755,58 @@ public class Generate {
                 int toExpr = (beforeBodyOut.toByteArray().length + body.length + 2);
                 int toEnd = (6 + body.length);
 
-                codeGen.write(beforeBodyOut.toByteArray());
-                codeGen.writeShort(toEnd);
-                codeGen.write(body);
-                codeGen.write(goto_);
-                codeGen.writeShort(-toExpr);
+                final_.write(beforeBodyOut.toByteArray());
+                final_.writeShort(toEnd);
+                final_.write(body);
+                final_.write(goto_);
+                final_.writeShort(-toExpr);
+
+                byte[] final__ = finalOut.toByteArray();
+
+                for (int i = 1; i < final__.length - 1; i++) {
+                    if(Utils.intFromByteArray(new byte[]{final__[i-1]}) == Command.goto_.commandCode){
+                        int byte_ = Utils.intFromByteArray(new byte[]{final__[i], final__[i+1]});
+                        if(byte_ == 0){//break
+                            int toEndBreak = final__.length - i + 1;
+                            byte[] toWrite = Utils.intTo2ByteArray(toEndBreak);
+                            final__[i] = toWrite[0];
+                            final__[i+1] = toWrite[1];
+                        }
+                        else if (byte_ == 1){//continue
+                            int toInc = final__.length - i - 2;
+                            byte[] toWrite = Utils.intTo2ByteArray(toInc);
+                            final__[i] = toWrite[0];
+                            final__[i+1] = toWrite[1];
+                        }
+                    }
+                }
+
+                codeGen.write(final__);
             }
 
             case LOOP -> {
                 ByteArrayOutputStream bodyOut = new ByteArrayOutputStream();
                 DataOutputStream body = new DataOutputStream(bodyOut);
 
-
                 body.write(generateExpr(expr.body, classTable));
 
                 byte[] body_ = bodyOut.toByteArray();
 
-                for (int i = 0; i < body_.length - 1; i ++) {
-                    if(Utils.intFromByteArray(new byte[]{body_[i], body_[i+1]}) == 0){
-                        int toEnd = body_.length - i + 4;
-                        byte[] toWrite = Utils.intTo2ByteArray(toEnd);
-                        body_[i] = toWrite[0];
-                        body_[i+1] = toWrite[1];
+                for (int i = 1; i < body_.length - 1; i++) {
+                    if(Utils.intFromByteArray(new byte[]{body_[i-1]}) == Command.goto_.commandCode){
+                        int byte_ = Utils.intFromByteArray(new byte[]{body_[i], body_[i+1]});
+                        if(byte_ == 0){//break
+                            int toEnd = body_.length - i + 4;
+                            byte[] toWrite = Utils.intTo2ByteArray(toEnd);
+                            body_[i] = toWrite[0];
+                            body_[i+1] = toWrite[1];
+                        }
+                        else if (byte_ == 1){//continue
+                            int toStart = 1 - i;
+                            byte[] toWrite = Utils.intTo2ByteArray(toStart);
+                            body_[i] = toWrite[0];
+                            body_[i+1] = toWrite[1];
+                        }
                     }
                 }
 
@@ -767,6 +821,10 @@ public class Generate {
                 }
                 codeGen.write(Command.goto_.commandCode);
                 codeGen.writeShort(0);
+            }
+            case CONTINUE -> {
+                codeGen.write(Command.goto_.commandCode);
+                codeGen.writeShort(1);
             }
 
         }
