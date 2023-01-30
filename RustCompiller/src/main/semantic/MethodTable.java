@@ -316,10 +316,10 @@ public class MethodTable {
             String result = "(";
             if(params!=null){
                 for(FunctionParamNode param : params.list){
-                    result+=param.type.getNameForTable();
+                    result+=param.type.getDescriptorForTable();
                 }
             }
-            result+= ")" + returnType.getNameForTable();
+            result+= ")" + returnType.getDescriptorForTable();
             return result;
         }
     }

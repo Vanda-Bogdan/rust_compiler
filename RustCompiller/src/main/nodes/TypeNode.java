@@ -33,9 +33,9 @@ public class TypeNode {
         }
     }
 
-    public String getConstNameForTable(){
+    public String getDescriptorForTable(){
         if(varType == VarType.ID){
-            return name;
+            return "L" + name + ";";
         }
         else if(varType == VarType.STRING){
             return "Ljava/lang/String;";
@@ -50,9 +50,9 @@ public class TypeNode {
 
     public String getNameForTable(){
         if(varType == VarType.ID){
-            return "L" + name + ";";
+            return name;
         }else if(varType == VarType.STRING){
-            return "Ljava/lang/String;";
+            return "java/lang/String";
         }
         else if(varType != VarType.ARRAY){
             return typeParse(varType);

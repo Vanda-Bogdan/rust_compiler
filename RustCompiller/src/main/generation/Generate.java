@@ -90,8 +90,8 @@ public class Generate {
             dout.writeShort(classTable.constantTable.add(Constant.UTF8, fieldName) + 1);
 
             // Descriptor
-            String a = fieldTableItem.type().getConstNameForTable();
-            dout.writeShort(classTable.constantTable.add(Constant.UTF8, fieldTableItem.type().getConstNameForTable()) + 1);
+            String a = fieldTableItem.type().getDescriptorForTable();
+            dout.writeShort(classTable.constantTable.add(Constant.UTF8, fieldTableItem.type().getDescriptorForTable()) + 1);
 
             // Field attributes count
             dout.writeShort(0);
@@ -131,7 +131,7 @@ public class Generate {
                 }
                 doutConstructor.write(c);
                 doutConstructor.write(Command.putfield.commandCode);
-                doutConstructor.writeShort(classTable.addFieldRef(classTable.name, item.getKey(), item.getValue().type().getConstNameForTable()) + 1);
+                doutConstructor.writeShort(classTable.addFieldRef(classTable.name, item.getKey(), item.getValue().type().getDescriptorForTable()) + 1);
                 c++;
             }
             doutConstructor.write(Command.return_.commandCode);
@@ -184,7 +184,6 @@ public class Generate {
 
             // Name
             dout.writeShort(classTable.constantTable.add(Constant.UTF8, methodName) + 1);
-
             // Descriptor
             if(Objects.equals(classTable.name, "Main") && Objects.equals(methodName, "main")){
                 dout.writeShort(classTable.constantTable.add(Constant.UTF8, "([Ljava/lang/String;)V") + 1);
@@ -340,13 +339,13 @@ public class Generate {
             case FIELD_ACCESS -> {
                 codeGen.write(generateExpr(expr.exprLeft, classTable));
                 codeGen.write(Command.getfield.commandCode);
-                codeGen.writeShort(classTable.addFieldRef(expr.className(), expr.name, expr.countedType.getNameForTable()) + 1);
+                codeGen.writeShort(classTable.addFieldRef(expr.className(), expr.name, expr.countedType.getDescriptorForTable()) + 1);
             }
             case FIELD_ASGN -> {
                 codeGen.write(generateExpr(expr.exprLeft, classTable));
                 codeGen.write(generateExpr(expr.exprRight, classTable));
                 codeGen.write(Command.putfield.commandCode);
-                codeGen.writeShort(classTable.addFieldRef(expr.body.className(), expr.body.name, expr.body.fieldTableItem().type().getNameForTable()) + 1);
+                codeGen.writeShort(classTable.addFieldRef(expr.body.className(), expr.body.name, expr.body.fieldTableItem().type().getDescriptorForTable()) + 1);
             }
             case METHOD -> {
                 codeGen.write(generateExpr(expr.exprLeft, classTable));

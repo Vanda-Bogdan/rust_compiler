@@ -105,7 +105,7 @@ public class Tables {
                 if (!currentTable.constantContains(Constant.UTF8, structItem.name)) {
                     //Заполнение таблицы констант
                     int name = currentTable.constantAdd(Constant.UTF8, structItem.name);                  //имя
-                    int type = currentTable.constantAdd(Constant.UTF8, structItem.type.getConstNameForTable());//тип
+                    int type = currentTable.constantAdd(Constant.UTF8, structItem.type.getDescriptorForTable());//тип
                     int N_T = currentTable.constantAdd(Constant.NAME_AND_TYPE, name, type);               //Name&Type
                     currentTable.constantAdd(Constant.FIELD_REF, classConst, N_T);                        //FieldRef
 
@@ -149,7 +149,7 @@ public class Tables {
                         if(const_!=null){
                             //Добавить const в таблицу констант данной структуры
                             int name = struct.constantAdd(Constant.UTF8, fieldName);
-                            int type = struct.constantAdd(Constant.UTF8, value.type().getConstNameForTable());
+                            int type = struct.constantAdd(Constant.UTF8, value.type().getDescriptorForTable());
                             int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
                             int class_ = struct.getConstNumber(Constant.CLASS);
                             struct.constantAdd(Constant.METHOD_REF, class_, N_T);
@@ -173,7 +173,7 @@ public class Tables {
 
                         //Добавить const в таблицу констант данной структуры
                         int name = struct.constantAdd(Constant.UTF8, fieldName);
-                        int type = struct.constantAdd(Constant.UTF8, value.type().getConstNameForTable());
+                        int type = struct.constantAdd(Constant.UTF8, value.type().getDescriptorForTable());
                         int N_T = struct.constantAdd(Constant.NAME_AND_TYPE, name, type);
                         int class_ = struct.getConstNumber(Constant.CLASS);
                         struct.constantAdd(Constant.METHOD_REF, class_, N_T);

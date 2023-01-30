@@ -165,9 +165,9 @@ public class ClassTable {
 
         for (Map.Entry<String, FieldTable.FieldTableItem> item : fields().items.entrySet()) {
             if (!item.getValue().isConst()) {
-                typeDesc.append(item.getValue().type().getNameForTable());
+                typeDesc.append(item.getValue().type().getDescriptorForTable());
             }
-            addFieldRef(name, item.getKey(), item.getValue().type().getConstNameForTable());
+            addFieldRef(name, item.getKey(), item.getValue().type().getDescriptorForTable());
         }
 
         return "(" + typeDesc + ")V";
