@@ -293,6 +293,7 @@ public class MethodTable {
         variableTable.add(globalID, loopFor.name, Mutable.MUT, new TypeNode(VarType.INT), true);
         loopFor.setVar(globalID, variableTableFinal);
         globalID++;
+        exprVariables(loopFor.exprLeft, variableTable, initialTables, fields);
         bodyVariables(loopFor.body, variableTable, initialTables, fields);
     }
 

@@ -1347,6 +1347,7 @@ public class Tree {
                 if(insideLoop==0){
                     throw new IllegalArgumentException("Непредвиденный continue вне цикла (ID: " + expr.id + ")");
                 }
+                expr.defineTypeOfExpr();
             }
             default -> expr.defineTypeOfExpr();
         }

@@ -922,7 +922,7 @@ public class Generate {
 
                 afterIf.write(Command.goto_.commandCode);
                 int offerGoto = cycleBody.length + 9;
-                int offerIf = cycleBody.length + 11;
+                int offerIf = cycleBody.length + beforeIfOut.toByteArray().length + 5;
 
                 final_.write(beforeIfOut.toByteArray());
                 final_.writeShort(offerGoto);
