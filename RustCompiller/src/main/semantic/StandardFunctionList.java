@@ -20,6 +20,12 @@ public class StandardFunctionList {
         printlnCharCreate();
         printlnBoolCreate();
 
+        printCreate();
+        printI32Create();
+        printF64Create();
+        printCharCreate();
+        printBoolCreate();
+
         readlnCreate();
         readlnI32Create();
         readlnF64Create();
@@ -38,6 +44,64 @@ public class StandardFunctionList {
 
     public MethodTable.MethodTableItem method(String name){
         return standardFunctionsList.get(name);
+    }
+
+    private void printI32Create(){
+        FunctionParamNode firstParam = new FunctionParamNode("format_string", Mutable.NOT_MUT, new TypeNode(VarType.STRING));
+        FunctionParamNode secondParam = new FunctionParamNode("int_value", Mutable.NOT_MUT, new TypeNode(VarType.INT));
+        ArrayList<FunctionParamNode> list = new ArrayList<>();
+        list.add(firstParam);
+        list.add(secondParam);
+        FunctionParamListNode params = new FunctionParamListNode(FunctionType.ASSOCIATED, list);
+        MethodTable.MethodTableItem methodTableItem = new MethodTable.MethodTableItem(new TypeNode(VarType.VOID), new VariableTable(), true, FunctionType.ASSOCIATED, params, new ExpressionNode());
+
+        standardFunctionsList.put("print_i32", methodTableItem);
+    }
+
+    private void printF64Create(){
+        FunctionParamNode firstParam = new FunctionParamNode("format_string", Mutable.NOT_MUT, new TypeNode(VarType.STRING));
+        FunctionParamNode secondParam = new FunctionParamNode("float_value", Mutable.NOT_MUT, new TypeNode(VarType.FLOAT));
+        ArrayList<FunctionParamNode> list = new ArrayList<>();
+        list.add(firstParam);
+        list.add(secondParam);
+        FunctionParamListNode params = new FunctionParamListNode(FunctionType.ASSOCIATED, list);
+        MethodTable.MethodTableItem methodTableItem = new MethodTable.MethodTableItem(new TypeNode(VarType.VOID), new VariableTable(), true, FunctionType.ASSOCIATED, params, new ExpressionNode());
+
+        standardFunctionsList.put("print_f64", methodTableItem);
+    }
+
+    private void printCharCreate(){
+        FunctionParamNode firstParam = new FunctionParamNode("format_string", Mutable.NOT_MUT, new TypeNode(VarType.STRING));
+        FunctionParamNode secondParam = new FunctionParamNode("char_value", Mutable.NOT_MUT, new TypeNode(VarType.CHAR));
+        ArrayList<FunctionParamNode> list = new ArrayList<>();
+        list.add(firstParam);
+        list.add(secondParam);
+        FunctionParamListNode params = new FunctionParamListNode(FunctionType.ASSOCIATED, list);
+        MethodTable.MethodTableItem methodTableItem = new MethodTable.MethodTableItem(new TypeNode(VarType.VOID), new VariableTable(), true, FunctionType.ASSOCIATED, params, new ExpressionNode());
+
+        standardFunctionsList.put("print_char", methodTableItem);
+    }
+
+    private void printBoolCreate(){
+        FunctionParamNode firstParam = new FunctionParamNode("format_string", Mutable.NOT_MUT, new TypeNode(VarType.STRING));
+        FunctionParamNode secondParam = new FunctionParamNode("bool_value", Mutable.NOT_MUT, new TypeNode(VarType.BOOL));
+        ArrayList<FunctionParamNode> list = new ArrayList<>();
+        list.add(firstParam);
+        list.add(secondParam);
+        FunctionParamListNode params = new FunctionParamListNode(FunctionType.ASSOCIATED, list);
+        MethodTable.MethodTableItem methodTableItem = new MethodTable.MethodTableItem(new TypeNode(VarType.VOID), new VariableTable(), true, FunctionType.ASSOCIATED, params, new ExpressionNode());
+
+        standardFunctionsList.put("print_bool", methodTableItem);
+    }
+
+    private void printCreate(){
+        FunctionParamNode firstParam = new FunctionParamNode("format_string", Mutable.NOT_MUT, new TypeNode(VarType.STRING));
+        ArrayList<FunctionParamNode> list = new ArrayList<>();
+        list.add(firstParam);
+        FunctionParamListNode params = new FunctionParamListNode(FunctionType.ASSOCIATED, list);
+        MethodTable.MethodTableItem methodTableItem = new MethodTable.MethodTableItem(new TypeNode(VarType.VOID), new VariableTable(), true, FunctionType.ASSOCIATED, params, new ExpressionNode());
+
+        standardFunctionsList.put("print", methodTableItem);
     }
 
     private void printlnI32Create(){

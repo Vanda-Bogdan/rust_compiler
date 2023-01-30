@@ -299,6 +299,51 @@ public class Generate {
                             codeGen.write(Command.invokestatic.commandCode);
                             codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "println_bool", "(Ljava/lang/String;I)V") + 1);
                         }
+                        case "print" ->{
+                            codeGen.write(generateExpr(expr.exprList.list.get(0), classTable));
+                            codeGen.write(Command.invokestatic.commandCode);
+                            codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "print", "(Ljava/lang/Object;)V") + 1);
+                        }
+                        case "print_i32" -> {
+                            if (expr.exprList.list.get(0).string == null) {
+                                throw new IllegalArgumentException("Ожидался string literal");
+                            }
+                            codeGen.write(Command.ldc_w.commandCode);
+                            codeGen.writeShort(classTable.constantAddString(expr.exprList.list.get(0).string) + 1);
+                            codeGen.write(generateExpr(expr.exprList.list.get(1), classTable));
+                            codeGen.write(Command.invokestatic.commandCode);
+                            codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "print_i32", "(Ljava/lang/String;I)V") + 1);
+                        }
+                        case "print_f64" -> {
+                            if (expr.exprList.list.get(0).string == null) {
+                                throw new IllegalArgumentException("Ожидался string literal");
+                            }
+                            codeGen.write(Command.ldc_w.commandCode);
+                            codeGen.writeShort(classTable.constantAddString(expr.exprList.list.get(0).string) + 1);
+                            codeGen.write(generateExpr(expr.exprList.list.get(1), classTable));
+                            codeGen.write(Command.invokestatic.commandCode);
+                            codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "print_f64", "(Ljava/lang/String;F)V") + 1);
+                        }
+                        case "print_char" -> {
+                            if (expr.exprList.list.get(0).string == null) {
+                                throw new IllegalArgumentException("Ожидался string literal");
+                            }
+                            codeGen.write(Command.ldc_w.commandCode);
+                            codeGen.writeShort(classTable.constantAddString(expr.exprList.list.get(0).string) + 1);
+                            codeGen.write(generateExpr(expr.exprList.list.get(1), classTable));
+                            codeGen.write(Command.invokestatic.commandCode);
+                            codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "print_char", "(Ljava/lang/String;Ljava/lang/String;)V") + 1);
+                        }
+                        case "print_bool" -> {
+                            if (expr.exprList.list.get(0).string == null) {
+                                throw new IllegalArgumentException("Ожидался string literal");
+                            }
+                            codeGen.write(Command.ldc_w.commandCode);
+                            codeGen.writeShort(classTable.constantAddString(expr.exprList.list.get(0).string) + 1);
+                            codeGen.write(generateExpr(expr.exprList.list.get(1), classTable));
+                            codeGen.write(Command.invokestatic.commandCode);
+                            codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "print_bool", "(Ljava/lang/String;I)V") + 1);
+                        }
                         case "readln" -> {
                             codeGen.write(Command.invokestatic.commandCode);
                             codeGen.writeShort(classTable.constantTable.addMethodRef("RTL", "readln", "()Ljava/lang/String;") + 1);

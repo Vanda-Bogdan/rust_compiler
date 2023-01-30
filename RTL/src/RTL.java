@@ -32,6 +32,38 @@ public class RTL {
         System.out.println(str.replace("{}", String.valueOf(b == 1)));
     }
 
+    public static void print(Object out) {
+        System.out.print(out);
+    }
+
+    public static void print_i32(String str, int value) {
+        if (!str.contains("{}")) {
+            throw new IllegalArgumentException("Форматная строка вывода не содержит {}");
+        }
+        System.out.print(str.replace("{}", String.valueOf(value)));
+    }
+
+    public static void print_f64(String str, float value) {
+        if (!str.contains("{}")) {
+            throw new IllegalArgumentException("Форматная строка вывода не содержит {}");
+        }
+        System.out.print(str.replace("{}", String.valueOf(value)));
+    }
+
+    public static void print_char(String str, String ch) {
+        if (!str.contains("{}")) {
+            throw new IllegalArgumentException("Форматная строка вывода не содержит {}");
+        }
+        System.out.print(str.replace("{}", String.valueOf(ch)));
+    }
+
+    public static void print_bool(String str, int b) {
+        if (!str.contains("{}")) {
+            throw new IllegalArgumentException("Форматная строка вывода не содержит {}");
+        }
+        System.out.print(str.replace("{}", String.valueOf(b == 1)));
+    }
+
     public static String readln(){
         java.util.Scanner in = new java.util.Scanner(System.in);
         return in.nextLine();
