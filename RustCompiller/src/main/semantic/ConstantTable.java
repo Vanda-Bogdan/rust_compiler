@@ -135,6 +135,11 @@ public class ConstantTable {
         return add(Constant.METHOD_REF, addClass(className), natNum);
     }
 
+    public int addFieldRef(String className, String name, String type) {
+        int natNum = add(Constant.NAME_AND_TYPE, add(Constant.UTF8, name), add(Constant.UTF8, type));
+        return add(Constant.FIELD_REF, addClass(className), natNum);
+    }
+
     public int addString(String str) {
         return add(Constant.STRING, add(Constant.UTF8, str));
     }

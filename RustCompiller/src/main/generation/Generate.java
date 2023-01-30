@@ -22,31 +22,30 @@ import java.util.Objects;
 public class Generate {
 
     public void generate(Tree tree) throws IOException {
-        Tables tables = tree.tables;
-        ClassTable mainTable = tables.tableByName("Main");
 
-        String mainName = "Main.class";
+        for (ClassTable item : tree.tables.tables.values()) {
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        DataOutputStream dout = new DataOutputStream(out);
-        dout.writeInt(0xCAFEBABE); //"magic"
-        dout.writeShort(0); // минорная версия
-        dout.writeShort(60); // мажорная версия
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            DataOutputStream dout = new DataOutputStream(out);
+            dout.writeInt(0xCAFEBABE); //"magic"
+            dout.writeShort(0); // минорная версия
+            dout.writeShort(60); // мажорная версия
 
-        // Generate class
-        byte[] codGen = generateClass(mainTable);
+            // Generate class
+            byte[] codGen = generateClass(item);
 
-        // Constants count
-        dout.writeShort(mainTable.constantTable.items.size() + 1);
+            // Constants count
+            dout.writeShort(item.constantTable.items.size() + 1);
 
-        // Constants
-        dout.write(mainTable.constantTable.constantTableToByteArray());
+            // Constants
+            dout.write(item.constantTable.constantTableToByteArray());
 
-        // Code generation write to file
-        dout.write(codGen);
+            // Code generation write to file
+            dout.write(codGen);
 
-        try(OutputStream outputStream = new FileOutputStream(mainName)) {
-            out.writeTo(outputStream);
+            try (OutputStream outputStream = new FileOutputStream(item.name + ".class")) {
+                out.writeTo(outputStream);
+            }
         }
     }
 
@@ -103,8 +102,85 @@ public class Generate {
             dout.writeShort(0);
         }
 
-        // Methods count
-        dout.writeShort(classTable.methods().items.size());
+        if (classTable.name != "Main") {
+            // добавляем конструктор
+
+            // Methods count
+            dout.writeShort(classTable.methods().items.size() + 1);
+
+            // Flag (Public)
+            dout.writeShort(1);
+
+            // Name
+            dout.writeShort(classTable.constantAdd(Constant.UTF8, "<init>") + 1);
+
+            // Descriptor
+//            StringBuilder typeDesc = new StringBuilder();
+//
+//            for (Map.Entry<String, FieldTable.FieldTableItem> item : classTable.fields().items.entrySet()) {
+//                if (!item.getValue().isConst()) {
+//                    typeDesc.append(item.getValue().type().getNameForTable());
+//                }
+//                classTable.addFieldRef(classTable.name, item.getKey(), item.getValue().type().getConstNameForTable());
+//            }
+            dout.writeShort(classTable.constantAdd(Constant.UTF8, "()V") + 1);
+
+            // Codegen
+            ByteArrayOutputStream outConstructor = new ByteArrayOutputStream();
+            DataOutputStream doutConstructor = new DataOutputStream(outConstructor);
+//
+//            doutConstructor.write(Command.aload.commandCode);
+//            doutConstructor.write(0);
+//            doutConstructor.write(Command.invokespecial.commandCode);
+//            doutConstructor.writeShort(classTable.constantAddMethodRef("java/lang/Object", "<init>", "()V") + 1);
+//            int c = 1;
+//            for (Map.Entry<String, FieldTable.FieldTableItem> item : classTable.fields().items.entrySet()) {
+//                doutConstructor.write(Command.aload.commandCode);
+//                doutConstructor.write(0);
+//                switch (item.getValue().type().varType) {
+//                    case INT, BOOL -> doutConstructor.write(Command.iload.commandCode);
+//                    case FLOAT -> doutConstructor.write(Command.fload.commandCode);
+//                    case STRING, CHAR, ARRAY, ID -> doutConstructor.write(Command.aload.commandCode);
+//                }
+//                doutConstructor.write(c);
+//                doutConstructor.write(Command.putfield.commandCode);
+//                doutConstructor.writeShort(classTable.addFieldRef(classTable.name, item.getKey(), item.getValue().type().getConstNameForTable()) + 1);
+//                c++;
+//            }
+            doutConstructor.write(Command.return_.commandCode);
+
+            // Method attrs count (always 1)
+            dout.writeShort(1);
+
+            // Code attr
+            // Name
+            dout.writeShort(classTable.constantTable.add(Constant.UTF8, "Code") + 1);
+
+            // Length
+            dout.writeInt(outConstructor.toByteArray().length + 12);
+
+            // Stack size (max)
+            dout.writeShort(0xFF);
+
+            // Locals count (this)
+            dout.writeShort(0);
+
+            // Bytecode length
+            dout.writeInt(outConstructor.toByteArray().length);
+
+            // Тут добавлять код к результату
+            dout.write(outConstructor.toByteArray());
+
+            // Exceptions table length (always 0)
+            dout.writeShort(0);
+
+            // Code attrs count (always 0)
+            dout.writeShort(0);
+        }
+        else {
+            // Methods count
+            dout.writeShort(classTable.methods().items.size());
+        }
 
         //------------------------------------Methods-----------------------------------
         for(Map.Entry<String, MethodTable.MethodTableItem> entry : classTable.methods().items.entrySet()){

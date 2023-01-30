@@ -9,10 +9,11 @@ import main.nodes.struct.StructItemNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class FieldTable {
 
-    public HashMap<String, FieldTableItem> items = new HashMap<>();
+    public LinkedHashMap<String, FieldTableItem> items = new LinkedHashMap<>();
 
     public FieldTableItem get(String name){
         return items.get(name);

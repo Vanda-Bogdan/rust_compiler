@@ -53,6 +53,10 @@ public class ClassTable {
         return constantTable.addMethodRef(className, name, type);
     }
 
+    public int addFieldRef(String className, String name, String type) {
+        return constantTable.addFieldRef(className, name, type);
+    }
+
     public int constantAddString(String str) { return constantTable.addString(str); }
 
     public int constantAdd(Constant constant, int num1, int num2){

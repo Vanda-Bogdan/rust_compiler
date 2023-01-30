@@ -27,7 +27,7 @@ public class Tables {
 
     private ClassTable currentTable = null;
 
-    private HashMap<String, ClassTable> tables = new HashMap<String, ClassTable>();
+    public HashMap<String, ClassTable> tables = new HashMap<String, ClassTable>();
 
     private TraitTable traitTable = new TraitTable();
 
@@ -100,20 +100,22 @@ public class Tables {
 
         int className = currentTable.constantAdd(Constant.UTF8, structNode.name);
         int classConst = currentTable.constantAdd(Constant.CLASS, className);
-        structNode.structList.list.forEach((structItem)->{
-            if(!currentTable.constantContains(Constant.UTF8, structItem.name)){
-                //Заполнение таблицы констант
-                int name = currentTable.constantAdd(Constant.UTF8, structItem.name);                  //имя
-                int type = currentTable.constantAdd(Constant.UTF8, structItem.type.getConstNameForTable());//тип
-                int N_T = currentTable.constantAdd(Constant.NAME_AND_TYPE, name, type);               //Name&Type
-                currentTable.constantAdd(Constant.FIELD_REF, classConst, N_T);                        //FieldRef
+        if (structNode.structList != null) {
+            structNode.structList.list.forEach((structItem) -> {
+                if (!currentTable.constantContains(Constant.UTF8, structItem.name)) {
+                    //Заполнение таблицы констант
+                    int name = currentTable.constantAdd(Constant.UTF8, structItem.name);                  //имя
+                    int type = currentTable.constantAdd(Constant.UTF8, structItem.type.getConstNameForTable());//тип
+                    int N_T = currentTable.constantAdd(Constant.NAME_AND_TYPE, name, type);               //Name&Type
+                    currentTable.constantAdd(Constant.FIELD_REF, classConst, N_T);                        //FieldRef
 
-                //Заполнение таблицы полей
-                currentTable.addToFieldTable(structItem);
-            }else {
-                throw new IllegalArgumentException("Поле" + structItem.name + " структуры " + structNode.name + " уже определено");
-            }
-        });
+                    //Заполнение таблицы полей
+                    currentTable.addToFieldTable(structItem);
+                } else {
+                    throw new IllegalArgumentException("Поле" + structItem.name + " структуры " + structNode.name + " уже определено");
+                }
+            });
+        }
     }
 
     private void implClasses(ImplNode impl){
