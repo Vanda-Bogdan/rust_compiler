@@ -1018,6 +1018,9 @@ public class Tree {
                 if (classTable == null) {
                     throw new IllegalArgumentException("Неизвестный класс " + expr.exprLeft.countedType.name + "(ID: " + expr.exprLeft.id + ")");
                 }
+                if(!classTable.containsField(expr.name)){
+                    throw new IllegalArgumentException("Доступ к неизвестному полю " + expr.name + " класса " + classTable.name + " (ID: " + expr.id + ")");
+                }
                 expr.setField(expr.name, classTable.fields());
                 expr.setTypeFromField();
             }
@@ -1031,6 +1034,9 @@ public class Tree {
                 ClassTable classTable = tables.tableByName(expr.exprLeft.countedType.name);
                 if (classTable == null) {
                     throw new IllegalArgumentException("Неизвестный класс " + expr.exprLeft.countedType.name + " (ID: " + expr.exprLeft.id + ")");
+                }
+                if(!classTable.containsField(expr.exprRight.name)){
+                    throw new IllegalArgumentException("Доступ к неизвестному полю " + expr.body.name + " класса " + classTable.name + " (ID: " + expr.body.id + ")");
                 }
 
                 expr.body.setField(expr.body.name, classTable.fields());
