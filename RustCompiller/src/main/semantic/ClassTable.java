@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -157,5 +158,18 @@ public class ClassTable {
                 }
         );
         writer.close();
+    }
+
+    public String getConstructorDescriptor() {
+        StringBuilder typeDesc = new StringBuilder();
+
+        for (Map.Entry<String, FieldTable.FieldTableItem> item : fields().items.entrySet()) {
+            if (!item.getValue().isConst()) {
+                typeDesc.append(item.getValue().type().getNameForTable());
+            }
+            addFieldRef(name, item.getKey(), item.getValue().type().getConstNameForTable());
+        }
+
+        return "(" + typeDesc + ")V";
     }
 }

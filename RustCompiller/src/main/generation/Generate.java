@@ -1,29 +1,31 @@
 package main.generation;
 
-import com.sun.tools.jconsole.JConsoleContext;
-import main.generation.constants.CodeOfDefaultsTypes;
 import main.generation.constants.Command;
 import main.generation.utils.Utils;
 import main.nodes.VarType;
 import main.nodes.expression.ExpressionNode;
-import main.nodes.function.FunctionNode;
 import main.nodes.function.FunctionType;
 import main.nodes.letstmt.LetStatementNode;
 import main.nodes.stmt.StatementNode;
-import main.semantic.*;
+import main.semantic.ClassTable;
+import main.semantic.Constant;
+import main.semantic.FieldTable;
+import main.semantic.MethodTable;
 import main.treeprint.Tree;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 public class Generate {
 
+    public Tree tree = null;
+
     public void generate(Tree tree) throws IOException {
 
-        for (ClassTable item : tree.tables.tables.values()) {
+        this.tree = tree;
+
+        for (ClassTable item : this.tree.tables.tables.values()) {
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             DataOutputStream dout = new DataOutputStream(out);
@@ -47,15 +49,6 @@ public class Generate {
                 out.writeTo(outputStream);
             }
         }
-    }
-
-    private void generateFunction(FunctionNode function){
-
-    }
-
-    private byte[] generate(StatementNode stmt, ClassTable classTable){
-
-        return null;
     }
 
     private byte[] generateClass(ClassTable classTable) throws IOException {
@@ -115,15 +108,7 @@ public class Generate {
             dout.writeShort(classTable.constantAdd(Constant.UTF8, "<init>") + 1);
 
             // Descriptor
-            StringBuilder typeDesc = new StringBuilder();
-
-            for (Map.Entry<String, FieldTable.FieldTableItem> item : classTable.fields().items.entrySet()) {
-                if (!item.getValue().isConst()) {
-                    typeDesc.append(item.getValue().type().getNameForTable());
-                }
-                classTable.addFieldRef(classTable.name, item.getKey(), item.getValue().type().getConstNameForTable());
-            }
-            dout.writeShort(classTable.constantAdd(Constant.UTF8, "(" + typeDesc + ")V") + 1);
+            dout.writeShort(classTable.constantAdd(Constant.UTF8, classTable.getConstructorDescriptor()) + 1);
 
             // Codegen
             ByteArrayOutputStream outConstructor = new ByteArrayOutputStream();
@@ -337,6 +322,19 @@ public class Generate {
             }
             case STATIC_METHOD -> {
 
+            }
+            case STRUCT -> {
+                codeGen.write(Command.new_.commandCode);
+                codeGen.writeShort(classTable.constantAddClass(expr.name));
+                codeGen.write(Command.dup.commandCode);
+                for (ExpressionNode arg : expr.exprList.list) {
+                    codeGen.write(generateExpr(arg, classTable));
+                }
+                codeGen.write(Command.invokespecial.commandCode);
+                codeGen.writeShort(classTable.constantAddMethodRef(expr.name, "<init>", tree.tables.tableByName(expr.name).getConstructorDescriptor()) + 1);
+            }
+            case STRUCT_FIELD -> {
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
             }
             case PLUS -> {
                 codeGen.write(generateExpr(expr.exprLeft, classTable));
@@ -631,7 +629,7 @@ public class Generate {
                             codeGen.write(Command.iload.commandCode);
                             codeGen.write(expr.variableTableItem().ID());
                         }
-                        case CHAR, STRING, ARRAY -> {
+                        case CHAR, STRING, ARRAY, ID -> {
                             codeGen.write(Command.aload.commandCode);
                             codeGen.write(expr.variableTableItem().ID());
                         }
@@ -930,10 +928,8 @@ public class Generate {
                 case VOID -> {
                 }
                 case INT, BOOL -> codeGen.write(Command.istore.commandCode);
-                case CHAR, STRING, ARRAY -> codeGen.write(Command.astore.commandCode);
+                case CHAR, STRING, ARRAY, ID -> codeGen.write(Command.astore.commandCode);
                 case FLOAT -> codeGen.write(Command.fstore.commandCode);
-                case ID -> {
-                }
                 //case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + let.expr.exprRight.id + ")");
             }
             codeGen.write(let.variableTableItem().ID());
