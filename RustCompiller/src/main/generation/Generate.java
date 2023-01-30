@@ -76,7 +76,7 @@ public class Generate {
         dout.writeShort(0);
 
         // Fields count
-        dout.writeShort(0);
+        dout.writeShort(classTable.fields().items.size());
 
 
         // Fields table
@@ -115,38 +115,38 @@ public class Generate {
             dout.writeShort(classTable.constantAdd(Constant.UTF8, "<init>") + 1);
 
             // Descriptor
-//            StringBuilder typeDesc = new StringBuilder();
-//
-//            for (Map.Entry<String, FieldTable.FieldTableItem> item : classTable.fields().items.entrySet()) {
-//                if (!item.getValue().isConst()) {
-//                    typeDesc.append(item.getValue().type().getNameForTable());
-//                }
-//                classTable.addFieldRef(classTable.name, item.getKey(), item.getValue().type().getConstNameForTable());
-//            }
-            dout.writeShort(classTable.constantAdd(Constant.UTF8, "()V") + 1);
+            StringBuilder typeDesc = new StringBuilder();
+
+            for (Map.Entry<String, FieldTable.FieldTableItem> item : classTable.fields().items.entrySet()) {
+                if (!item.getValue().isConst()) {
+                    typeDesc.append(item.getValue().type().getNameForTable());
+                }
+                classTable.addFieldRef(classTable.name, item.getKey(), item.getValue().type().getConstNameForTable());
+            }
+            dout.writeShort(classTable.constantAdd(Constant.UTF8, "(" + typeDesc + ")V") + 1);
 
             // Codegen
             ByteArrayOutputStream outConstructor = new ByteArrayOutputStream();
             DataOutputStream doutConstructor = new DataOutputStream(outConstructor);
-//
-//            doutConstructor.write(Command.aload.commandCode);
-//            doutConstructor.write(0);
-//            doutConstructor.write(Command.invokespecial.commandCode);
-//            doutConstructor.writeShort(classTable.constantAddMethodRef("java/lang/Object", "<init>", "()V") + 1);
-//            int c = 1;
-//            for (Map.Entry<String, FieldTable.FieldTableItem> item : classTable.fields().items.entrySet()) {
-//                doutConstructor.write(Command.aload.commandCode);
-//                doutConstructor.write(0);
-//                switch (item.getValue().type().varType) {
-//                    case INT, BOOL -> doutConstructor.write(Command.iload.commandCode);
-//                    case FLOAT -> doutConstructor.write(Command.fload.commandCode);
-//                    case STRING, CHAR, ARRAY, ID -> doutConstructor.write(Command.aload.commandCode);
-//                }
-//                doutConstructor.write(c);
-//                doutConstructor.write(Command.putfield.commandCode);
-//                doutConstructor.writeShort(classTable.addFieldRef(classTable.name, item.getKey(), item.getValue().type().getConstNameForTable()) + 1);
-//                c++;
-//            }
+
+            doutConstructor.write(Command.aload.commandCode);
+            doutConstructor.write(0);
+            doutConstructor.write(Command.invokespecial.commandCode);
+            doutConstructor.writeShort(classTable.constantAddMethodRef("java/lang/Object", "<init>", "()V") + 1);
+            int c = 1;
+            for (Map.Entry<String, FieldTable.FieldTableItem> item : classTable.fields().items.entrySet()) {
+                doutConstructor.write(Command.aload.commandCode);
+                doutConstructor.write(0);
+                switch (item.getValue().type().varType) {
+                    case INT, BOOL -> doutConstructor.write(Command.iload.commandCode);
+                    case FLOAT -> doutConstructor.write(Command.fload.commandCode);
+                    case STRING, CHAR, ARRAY, ID -> doutConstructor.write(Command.aload.commandCode);
+                }
+                doutConstructor.write(c);
+                doutConstructor.write(Command.putfield.commandCode);
+                doutConstructor.writeShort(classTable.addFieldRef(classTable.name, item.getKey(), item.getValue().type().getConstNameForTable()) + 1);
+                c++;
+            }
             doutConstructor.write(Command.return_.commandCode);
 
             // Method attrs count (always 1)
@@ -163,7 +163,7 @@ public class Generate {
             dout.writeShort(0xFF);
 
             // Locals count (this)
-            dout.writeShort(0);
+            dout.writeShort(c);
 
             // Bytecode length
             dout.writeInt(outConstructor.toByteArray().length);
