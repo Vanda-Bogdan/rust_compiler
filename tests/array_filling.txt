@@ -1,0 +1,38 @@
+fn fill(mut arr : [[i32 ; 7]; 7], row : i32, column : i32, value : i32){
+       let mut buffer = arr[row][column];
+       arr[row][column] = value;
+       if(row <= 5 && arr[row+1][column] == buffer){
+            fill(arr, row+1, column, value);
+       };
+       if(column <= 5 && arr[row][column+1] == buffer){
+            fill(arr, row, column+1, value);
+       };
+       if( row >= 1 && arr[row-1][column] == buffer){
+            fill(arr, row-1, column, value);
+       };
+       if( column >= 1 && arr[row][column-1] == buffer){
+            fill(arr, row, column-1, value);
+       };
+}
+
+
+fn main () {
+
+    let mut arr = [
+        [1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 1, 0, 0, 1],
+        [1, 0, 0, 1, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1],
+    ];
+
+    fill(arr, 2, 2, 7);
+
+    for(i in 0..7){
+        for(j in 0..7){
+            println_i32("{}", arr[i][j]);
+        };
+    };
+}
