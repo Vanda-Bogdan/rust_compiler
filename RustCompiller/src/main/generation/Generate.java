@@ -90,7 +90,8 @@ public class Generate {
             dout.writeShort(classTable.constantTable.add(Constant.UTF8, fieldName) + 1);
 
             // Descriptor
-            dout.writeShort(classTable.constantTable.add(Constant.UTF8, fieldTableItem.type().getConstNameForTable()) + 1);
+            String a = fieldTableItem.type().getDescriptorForTable();
+            dout.writeShort(classTable.constantTable.add(Constant.UTF8, fieldTableItem.type().getDescriptorForTable()) + 1);
 
             // Field attributes count
             dout.writeShort(0);
@@ -130,7 +131,7 @@ public class Generate {
                 }
                 doutConstructor.write(c);
                 doutConstructor.write(Command.putfield.commandCode);
-                doutConstructor.writeShort(classTable.addFieldRef(classTable.name, item.getKey(), item.getValue().type().getConstNameForTable()) + 1);
+                doutConstructor.writeShort(classTable.addFieldRef(classTable.name, item.getKey(), item.getValue().type().getDescriptorForTable()) + 1);
                 c++;
             }
             doutConstructor.write(Command.return_.commandCode);
@@ -183,7 +184,6 @@ public class Generate {
 
             // Name
             dout.writeShort(classTable.constantTable.add(Constant.UTF8, methodName) + 1);
-
             // Descriptor
             if(Objects.equals(classTable.name, "Main") && Objects.equals(methodName, "main")){
                 dout.writeShort(classTable.constantTable.add(Constant.UTF8, "([Ljava/lang/String;)V") + 1);
@@ -314,8 +314,10 @@ public class Generate {
                     }
                 }
                 else {
-                    for (ExpressionNode item : expr.exprList.list) {
-                        codeGen.write(generateExpr(item, classTable));
+                    if(expr.exprList!=null){
+                        for (ExpressionNode item : expr.exprList.list) {
+                            codeGen.write(generateExpr(item, classTable));
+                        }
                     }
                     codeGen.write(Command.invokestatic.commandCode);
                     codeGen.writeShort(classTable.constantAddMethodRef(classTable.name, expr.methodName, expr.methodTableItem().funcTypeForTable()) + 1);
@@ -335,20 +337,46 @@ public class Generate {
                 codeGen.writeShort(classTable.constantAddMethodRef(expr.name, "<init>", tree.tables.tableByName(expr.name).getConstructorDescriptor()) + 1);
             }
             case FIELD_ACCESS -> {
-                codeGen.write(Command.aload.commandCode);
-                codeGen.write(expr.exprLeft.variableTableItem().ID());
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
                 codeGen.write(Command.getfield.commandCode);
-                codeGen.writeShort(classTable.addFieldRef(expr.className(), expr.name, expr.countedType.getNameForTable()) + 1);
+                codeGen.writeShort(classTable.addFieldRef(expr.className(), expr.name, expr.countedType.getDescriptorForTable()) + 1);
             }
             case FIELD_ASGN -> {
                 codeGen.write(generateExpr(expr.exprLeft, classTable));
                 codeGen.write(generateExpr(expr.exprRight, classTable));
                 codeGen.write(Command.putfield.commandCode);
-                codeGen.writeShort(classTable.addFieldRef(expr.className(), expr.name, expr.body.fieldTableItem().type().getNameForTable()) + 1);
+                codeGen.writeShort(classTable.addFieldRef(expr.body.className(), expr.body.name, expr.body.fieldTableItem().type().getDescriptorForTable()) + 1);
             }
-            case STRUCT_FIELD -> {
+            case METHOD -> {
                 codeGen.write(generateExpr(expr.exprLeft, classTable));
+                if(expr.exprList!=null){
+                    for(ExpressionNode param : expr.exprList.list){
+                        codeGen.write(generateExpr(param, classTable));
+                    }
+                }
+                codeGen.write(Command.invokevirtual.commandCode);
+                codeGen.writeShort(classTable.constantAddMethodRef(expr.methodTable.className, expr.name, expr.methodTableItem().funcTypeForTable()) + 1);
             }
+            case SELF -> {
+                switch (expr.countedType.varType) {
+                    case VOID -> {
+                    }
+                    case INT, BOOL -> {
+                        codeGen.write(Command.iload.commandCode);
+                        codeGen.write(0);
+                    }
+                    case CHAR, STRING, ARRAY, ID -> {
+                        codeGen.write(Command.aload.commandCode);
+                        codeGen.write(0);
+                    }
+                    case FLOAT -> {
+                        codeGen.write(Command.fload.commandCode);
+                        codeGen.write(0);
+                    }
+                    case UNDEFINED -> throw new IllegalArgumentException("UNDEFINED тип у узла (ID: " + expr.id + ")");
+                }
+            }
+            case STRUCT_FIELD -> codeGen.write(generateExpr(expr.exprLeft, classTable));
             case PLUS -> {
                 codeGen.write(generateExpr(expr.exprLeft, classTable));
                 codeGen.write(generateExpr(expr.exprRight, classTable));
@@ -957,7 +985,14 @@ public class Generate {
                 codeGen.write(Command.goto_.commandCode);
                 codeGen.writeShort(1);
             }
+        }
 
+        if(expr.isReturn){
+            switch (expr.countedType.varType){
+                case INT, BOOL -> codeGen.write(Command.ireturn.commandCode);
+                case FLOAT -> codeGen.write(Command.freturn.commandCode);
+                case STRING, CHAR, ARRAY, ID -> codeGen.write(Command.areturn.commandCode);
+            }
         }
 
         return codeGenOut.toByteArray();

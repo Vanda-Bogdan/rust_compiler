@@ -164,7 +164,9 @@ public class TreeFromXml {
             functionNode.paramList = functionParamsBuild(((Element)function_).getElementsByTagName("func_params").item(0));
         }
 
-        functionNode.body = exprBuild(((Element)function_).getLastChild());
+        if(((Element)function_).getChildNodes().getLength()>2){
+            functionNode.body = exprBuild(((Element)function_).getLastChild());
+        }
 
         return functionNode;
     }

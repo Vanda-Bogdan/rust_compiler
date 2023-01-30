@@ -1022,6 +1022,8 @@ public class Tree {
                     throw new IllegalArgumentException("Доступ к неизвестному полю " + expr.name + " класса " + classTable.name + " (ID: " + expr.id + ")");
                 }
                 expr.setField(expr.name, classTable.fields());
+                expr.setVar(expr.exprLeft.varID, expr.exprLeft.variableTable);
+                expr.countedType = expr.fieldTableItem().type();
                 expr.setTypeFromField();
             }
 
@@ -1030,6 +1032,11 @@ public class Tree {
                 if(expr.exprLeft.countedType.varType!=VarType.ID){
                     throw new IllegalArgumentException("Доступ к полю возможен только у идентификатора (ID: " + expr.exprLeft.id + ")");
                 }
+
+                if(expr.exprLeft.variableTableItem().isMut()==Mutable.NOT_MUT){
+                    throw new IllegalArgumentException("Нельзя переопределить поле " + expr.body.name + " у неизменяемого " + expr.exprLeft.name + " (ID: " + expr.id + ")");
+                }
+
 
                 ClassTable classTable = tables.tableByName(expr.exprLeft.countedType.name);
                 if (classTable == null) {
@@ -1468,7 +1475,10 @@ public class Tree {
                 }
             }
             StatementNode lastStmt = body.stmtList.list.get(body.stmtList.list.size()-1);
-            return lastStmt.type == StatementType.EXPRESSION && lastStmt.expr.countedType.equals(function.returnType);
+            if(lastStmt.type == StatementType.EXPRESSION && lastStmt.expr.countedType!=null && lastStmt.expr.countedType.equals(function.returnType)){
+                lastStmt.expr.isReturn = true;
+                return true;
+            }
         }
         return false;
     }

@@ -44,6 +44,8 @@ public class ExpressionNode {
     //для расчета типов expr
     public TypeNode countedType;
 
+    public boolean isReturn = false;
+
     //------Ссылка на элемент таблицы------
     public IdType idType;
 
@@ -80,7 +82,7 @@ public class ExpressionNode {
     // *Если это вызов метода
     public String methodName;
     public String standardMethodName;
-    private MethodTable methodTable;
+    public MethodTable methodTable;
     private StandardFunctionList standardFunctionList;
     public boolean isRTLMethod = false;
 
