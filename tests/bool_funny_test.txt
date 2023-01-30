@@ -1,0 +1,5 @@
+fn main() {
+    if (true && loop { print("Hello"); break true; }) {
+        print(" world!!!");
+    };
+}
