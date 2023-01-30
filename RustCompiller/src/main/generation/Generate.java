@@ -406,7 +406,12 @@ public class Generate {
                     }
                 }
                 codeGen.write(Command.invokevirtual.commandCode);
-                codeGen.writeShort(classTable.constantAddMethodRef(expr.methodTable.className, expr.name, expr.methodTableItem().funcTypeForTable()) + 1);
+                if(!Objects.equals(expr.name, "len")){
+                    codeGen.writeShort(classTable.constantAddMethodRef(expr.methodTable.className, expr.name, expr.methodTableItem().funcTypeForTable()) + 1);
+                }
+                else {
+                    codeGen.writeShort(classTable.constantTable.addMethodRef("RTLArray", "len", "()I") + 1);
+                }
             }
             case SELF -> {
                 switch (expr.countedType.varType) {

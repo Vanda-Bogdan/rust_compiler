@@ -872,6 +872,9 @@ public class Tree {
                     else {
                         int num = 0;
                         for (ExpressionNode param : expr.exprList.list) {
+                            if(Objects.equals(param.name, "len")){
+                                param.countedType = new TypeNode(INT);
+                            }
                             exprTypes(param);
                             if (num > paramList.size() - 1) {
                                 throw new IllegalArgumentException("Лишний параметр (ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + ")");
@@ -888,41 +891,48 @@ public class Tree {
 
             case METHOD -> {
                 exprTypes(expr.exprLeft);
-                ClassTable classTable = tables.tableByName(expr.exprLeft.countedType.name);
-                if (classTable == null) {
-                    throw new IllegalArgumentException("Вызов метода к неизвестному классу " + expr.exprLeft.countedType.name + "(ID: " + expr.id + ")");
-                }
-                expr.setMethod(expr.name, classTable.methods());
-                if (expr.methodTableItem() == null) {
-                    throw new IllegalArgumentException("Неизвестный метод " + expr.name + " для класса " + expr.exprLeft.countedType.name + "(ID: " + expr.id + ")");
-                }
-                if(expr.methodTableItem().params().type == FunctionType.ASSOCIATED){
-                    throw new IllegalArgumentException("Метод " + expr.name + " является статическим (ID: " + expr.id + ")");
-                }
-
-                ArrayList<FunctionParamNode> paramList = expr.methodTableItem().params().list;
-
-                if (expr.exprList == null) {
-                    if (paramList.size() > 0) {
-                        throw new IllegalArgumentException("Несоответствие кол-ва параметров метода " + expr.name + ". Требуется " + paramList.size() + " параметров. (ID: " + expr.id + ")");
+                if(expr.exprLeft.countedType.varType == ARRAY && Objects.equals(expr.name, "len")){
+                    if(expr.exprList!=null){
+                        throw new IllegalArgumentException("Для функции len ожидалось 0 параметров (ID: " + expr.id + ")");
                     }
-                    expr.defineTypeOfExpr();
-                }
-                else if (expr.exprList.list.size() != paramList.size()) {
-                    throw new IllegalArgumentException("Несоответствие кол-ва параметров метода " + expr.name + ". Требуется " + paramList.size() + " параметров. (ID: " + expr.id + ")");
                 }
                 else {
-                    int num = 0;
-                    for (ExpressionNode param : expr.exprList.list) {
-                        param.defineTypeOfExpr();
-                        if (num > paramList.size() - 1) {
-                            throw new IllegalArgumentException("Лишний параметр (ID: " + param.id + ") вызова метода " + expr.name + "(ID: " + expr.id + ")");
-                        } else if (!paramList.get(num).type.equals(param.countedType)) {
-                            throw new IllegalArgumentException("Несоответствие типа " + (num + 1) + "-го по счету параметра (name: " + paramList.get(num).name + ", ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + "). Ожидаемый тип: " + paramList.get(num).type.getName() + ", реальный: " + param.countedType.getName());
-                        }
-                        num++;
+                    ClassTable classTable = tables.tableByName(expr.exprLeft.countedType.name);
+                    if (classTable == null) {
+                        throw new IllegalArgumentException("Вызов метода к неизвестному классу " + expr.exprLeft.countedType.name + "(ID: " + expr.id + ")");
                     }
-                    expr.defineTypeOfExpr();
+                    expr.setMethod(expr.name, classTable.methods());
+                    if (expr.methodTableItem() == null) {
+                        throw new IllegalArgumentException("Неизвестный метод " + expr.name + " для класса " + expr.exprLeft.countedType.name + "(ID: " + expr.id + ")");
+                    }
+                    if(expr.methodTableItem().params().type == FunctionType.ASSOCIATED){
+                        throw new IllegalArgumentException("Метод " + expr.name + " является статическим (ID: " + expr.id + ")");
+                    }
+
+                    ArrayList<FunctionParamNode> paramList = expr.methodTableItem().params().list;
+
+                    if (expr.exprList == null) {
+                        if (paramList.size() > 0) {
+                            throw new IllegalArgumentException("Несоответствие кол-ва параметров метода " + expr.name + ". Требуется " + paramList.size() + " параметров. (ID: " + expr.id + ")");
+                        }
+                        expr.defineTypeOfExpr();
+                    }
+                    else if (expr.exprList.list.size() != paramList.size()) {
+                        throw new IllegalArgumentException("Несоответствие кол-ва параметров метода " + expr.name + ". Требуется " + paramList.size() + " параметров. (ID: " + expr.id + ")");
+                    }
+                    else {
+                        int num = 0;
+                        for (ExpressionNode param : expr.exprList.list) {
+                            param.defineTypeOfExpr();
+                            if (num > paramList.size() - 1) {
+                                throw new IllegalArgumentException("Лишний параметр (ID: " + param.id + ") вызова метода " + expr.name + "(ID: " + expr.id + ")");
+                            } else if (!paramList.get(num).type.equals(param.countedType)) {
+                                throw new IllegalArgumentException("Несоответствие типа " + (num + 1) + "-го по счету параметра (name: " + paramList.get(num).name + ", ID: " + param.id + ") вызова функции " + expr.name + "(ID: " + expr.id + "). Ожидаемый тип: " + paramList.get(num).type.getName() + ", реальный: " + param.countedType.getName());
+                            }
+                            num++;
+                        }
+                        expr.defineTypeOfExpr();
+                    }
                 }
             }
 
