@@ -12,6 +12,7 @@ import main.nodes.expression.ExpressionType;
 import main.nodes.function.FunctionNode;
 import main.nodes.function.FunctionParamListNode;
 import main.nodes.function.FunctionParamNode;
+import main.nodes.function.FunctionType;
 import main.nodes.impl.ImplNode;
 import main.nodes.letstmt.LetStatementNode;
 import main.nodes.stmt.StatementListNode;
@@ -895,6 +896,9 @@ public class Tree {
                 if (expr.methodTableItem() == null) {
                     throw new IllegalArgumentException("Неизвестный метод " + expr.name + " для класса " + expr.exprLeft.countedType.name + "(ID: " + expr.id + ")");
                 }
+                if(expr.methodTableItem().params().type == FunctionType.ASSOCIATED){
+                    throw new IllegalArgumentException("Метод " + expr.name + " является статическим (ID: " + expr.id + ")");
+                }
 
                 ArrayList<FunctionParamNode> paramList = expr.methodTableItem().params().list;
 
@@ -930,6 +934,9 @@ public class Tree {
                 expr.setMethod(expr.name, classTable.methods());
                 if (expr.methodTableItem() == null) {
                     throw new IllegalArgumentException("Неизвестный статический метод " + expr.name + " для класса " + expr.parentId + "(ID: " + expr.id + ")");
+                }
+                if(expr.methodTableItem().params().type != FunctionType.ASSOCIATED){
+                    throw new IllegalArgumentException("Метод " + expr.name + " не является статическим (ID: " + expr.id + ")");
                 }
 
                 ArrayList<FunctionParamNode> paramList = expr.methodTableItem().params().list;
