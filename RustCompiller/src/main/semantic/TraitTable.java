@@ -16,7 +16,7 @@ public class TraitTable {
 
     public void add(TraitNode traitNode) {
         ArrayList<FunctionNode> methods = new ArrayList<>();
-        FieldTable fields = new FieldTable();
+        FieldTable fields = new FieldTable(null);
         traitNode.associatedItemList.list.forEach(
                 (item) -> {
                     if (item.fun != null) {

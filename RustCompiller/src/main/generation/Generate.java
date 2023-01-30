@@ -14,6 +14,7 @@ import main.semantic.MethodTable;
 import main.treeprint.Tree;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 
@@ -325,13 +326,25 @@ public class Generate {
             }
             case STRUCT -> {
                 codeGen.write(Command.new_.commandCode);
-                codeGen.writeShort(classTable.constantAddClass(expr.name));
+                codeGen.writeShort(classTable.constantAddClass(expr.name) + 1);
                 codeGen.write(Command.dup.commandCode);
-                for (ExpressionNode arg : expr.exprList.list) {
-                    codeGen.write(generateExpr(arg, classTable));
+                for (String item : tree.tables.tableByName(expr.name).getParamsForConstructor()) {
+                    codeGen.write(generateExpr(expr.exprList.getStructFieldExprByName(item), classTable));
                 }
                 codeGen.write(Command.invokespecial.commandCode);
                 codeGen.writeShort(classTable.constantAddMethodRef(expr.name, "<init>", tree.tables.tableByName(expr.name).getConstructorDescriptor()) + 1);
+            }
+            case FIELD_ACCESS -> {
+                codeGen.write(Command.aload.commandCode);
+                codeGen.write(expr.exprLeft.variableTableItem().ID());
+                codeGen.write(Command.getfield.commandCode);
+                codeGen.writeShort(classTable.addFieldRef(expr.className(), expr.name, expr.countedType.getNameForTable()) + 1);
+            }
+            case FIELD_ASGN -> {
+                codeGen.write(generateExpr(expr.exprLeft, classTable));
+                codeGen.write(generateExpr(expr.exprRight, classTable));
+                codeGen.write(Command.putfield.commandCode);
+                codeGen.writeShort(classTable.addFieldRef(expr.className(), expr.name, expr.body.fieldTableItem().type().getNameForTable()) + 1);
             }
             case STRUCT_FIELD -> {
                 codeGen.write(generateExpr(expr.exprLeft, classTable));

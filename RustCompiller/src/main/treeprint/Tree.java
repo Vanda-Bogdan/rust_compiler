@@ -1035,7 +1035,7 @@ public class Tree {
                 if (classTable == null) {
                     throw new IllegalArgumentException("Неизвестный класс " + expr.exprLeft.countedType.name + " (ID: " + expr.exprLeft.id + ")");
                 }
-                if(!classTable.containsField(expr.exprRight.name)){
+                if(!classTable.containsField(expr.body.name)){
                     throw new IllegalArgumentException("Доступ к неизвестному полю " + expr.body.name + " класса " + classTable.name + " (ID: " + expr.body.id + ")");
                 }
 

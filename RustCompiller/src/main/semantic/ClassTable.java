@@ -172,4 +172,14 @@ public class ClassTable {
 
         return "(" + typeDesc + ")V";
     }
+
+    public ArrayList<String> getParamsForConstructor() {
+        ArrayList<String> result = new ArrayList<>();
+        for (Map.Entry<String, FieldTable.FieldTableItem> item : fields().items.entrySet()) {
+            if (!item.getValue().isConst()) {
+                result.add(item.getKey());
+            }
+        }
+        return result;
+    }
 }
