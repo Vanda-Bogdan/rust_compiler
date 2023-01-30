@@ -369,7 +369,13 @@ public class Generate {
                 }
             }
             case STATIC_METHOD -> {
-
+                if(expr.exprList!=null){
+                    for(ExpressionNode param : expr.exprList.list){
+                        codeGen.write(generateExpr(param, classTable));
+                    }
+                }
+                codeGen.write(Command.invokestatic.commandCode);
+                codeGen.writeShort(classTable.constantAddMethodRef(expr.parentId, expr.name, expr.methodTableItem().funcTypeForTable()) + 1);
             }
             case STRUCT -> {
                 codeGen.write(Command.new_.commandCode);
