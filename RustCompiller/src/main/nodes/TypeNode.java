@@ -44,7 +44,7 @@ public class TypeNode {
             return typeParse(varType);
         }
         else {
-            return "[" + typeArr.getArrayName();
+            return "[" + typeArr.getDescriptorArrayName();
         }
     }
 
@@ -71,11 +71,28 @@ public class TypeNode {
                 return "Ljava/lang/String;";
             }
             else {
-                return "L" + varType.toString() + ";";
+                return typeParse(varType);
             }
         }
         else {
-            return "[" + typeArr.getArrayName();
+            return "[" + typeArr.getDescriptorArrayName();
+        }
+    }
+
+    public String getDescriptorArrayName(){
+        if(varType == VarType.ID){
+            return "L" + name + ";";
+        }
+        else if(varType != VarType.ARRAY){
+            if(varType == VarType.STRING){
+                return "Ljava/lang/String;";
+            }
+            else {
+                return typeParse(varType);
+            }
+        }
+        else {
+            return "[" + typeArr.getDescriptorArrayName();
         }
     }
 

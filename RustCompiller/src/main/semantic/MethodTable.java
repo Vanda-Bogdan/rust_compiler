@@ -16,6 +16,7 @@ import main.nodes.stmt.StatementType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MethodTable {
@@ -216,7 +217,12 @@ public class MethodTable {
                 }
             }
             else {
-                throw new IllegalArgumentException("Вызов неизвестной функции " + expression.name + " (ID: " + expression.id + ")");
+                if(!Objects.equals(expression.name, currentMethod)){
+                    throw new IllegalArgumentException("Вызов неизвестной функции " + expression.name + " (ID: " + expression.id + ")");
+                }
+                else{
+                    expression.setMethod(expression.name , this);
+                }
             }
         }
 
