@@ -28,7 +28,7 @@ public class ClassTable {
             ClassTable main = tables.tableByName("Main");
             this.methodTable = new MethodTable(name, main.fields(), main.methods());
         }
-
+        this.fieldTable = new FieldTable(name);
     }
 
     //------------------------------------------Constant Table-------------------------------------------------------
@@ -82,7 +82,7 @@ public class ClassTable {
     }
 
     //------------------------------------------Field Table------------------------------------------
-    private FieldTable fieldTable = new FieldTable();
+    private FieldTable fieldTable;
 
     public FieldTable fields(){
         return fieldTable;

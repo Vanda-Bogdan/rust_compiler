@@ -104,6 +104,18 @@ public class ExpressionNode {
         this.isRTLMethod = true;
     }
 
+    public String className(){
+        if(fieldName!=null){
+            return fieldTable.className;
+        }else if(methodName!=null){
+            return methodTable.className;
+        }else if(standardMethodName!=null){
+            return "Main";
+        }else {
+            return null;
+        }
+    }
+
     public void setTypeFromVarOrField() {
         if (variableTableItem() == null && fieldTableItem() == null) {
             throw new IllegalArgumentException("variableTableItem и fieldTableItem равны null в узле " + id);

@@ -51,7 +51,7 @@ public class MethodTable {
     }
 
     private Tables tables;
-    private String className;
+    public String className;
     private FieldTable mainFields;
     private MethodTable mainMethods;
     private boolean isMain;

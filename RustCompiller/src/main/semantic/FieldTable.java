@@ -13,6 +13,13 @@ import java.util.LinkedHashMap;
 
 public class FieldTable {
 
+    public String className;
+
+    public FieldTable(String class_){
+        this.className = class_;
+    }
+
+
     public LinkedHashMap<String, FieldTableItem> items = new LinkedHashMap<>();
 
     public FieldTableItem get(String name){
