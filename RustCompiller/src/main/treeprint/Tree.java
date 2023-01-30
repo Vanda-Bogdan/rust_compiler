@@ -56,6 +56,11 @@ public class Tree {
         tables.outputTablesToFiles();
     }
 
+    //----- счетчик для проверки break в циклах ------
+    int insideLoop = 0;
+
+    public ExpressionType currentLoopType = ExpressionType.QT;
+
     //---------------------------------Вывод дерева в дот-------------------------------
     public void print() throws IOException {
         writer = new FileWriter(fileName, false);
@@ -1127,6 +1132,8 @@ public class Tree {
             }
             //------------------------- LOOP --------------------------------
             case LOOP_WHILE -> {
+                currentLoopType = ExpressionType.LOOP_WHILE;
+                insideLoop++;
                 exprTypes(expr.exprLeft);
                 checkInitialization(expr.exprLeft);
 
@@ -1135,8 +1142,12 @@ public class Tree {
                 }
                 expr.defineTypeOfExpr();
                 exprTypes(expr.body);
+                insideLoop--;
+                currentLoopType = ExpressionType.QT;
             }
             case LOOP_FOR -> {
+                currentLoopType = ExpressionType.LOOP_FOR;
+                insideLoop++;
                 ExpressionType type = expr.exprLeft.type;
                 if(type!= ExpressionType.RANGE && type!=ExpressionType.RANGE_IN && type!=ExpressionType.RANGE_RIGHT
                         && type!=ExpressionType.RANGE_IN_RIGHT && type!=ExpressionType.RANGE_LEFT && type!=ExpressionType.ID){
@@ -1145,9 +1156,12 @@ public class Tree {
                 expr.defineTypeOfExpr();
                 exprTypes(expr.exprLeft);
                 exprTypes(expr.body);
-                //todo проверка break;
+                insideLoop--;
+                currentLoopType = ExpressionType.QT;
             }
             case LOOP -> {
+                currentLoopType = ExpressionType.LOOP;
+                insideLoop++;
                 // Массив break
                 ArrayList<ExpressionNode> breaks = new ArrayList<>();
 
@@ -1166,6 +1180,8 @@ public class Tree {
                     expr.countedType = breaks.get(0).countedType;
 
                 exprTypes(expr.body);
+                insideLoop--;
+                currentLoopType = ExpressionType.QT;
             }
             //------------------------- ARRAY --------------------------------
             case ARRAY -> {
@@ -1245,7 +1261,7 @@ public class Tree {
             }
 
             //------------------------- Остальное ----------------------------------
-            case BREAK, RETURN, STRUCT_FIELD -> {
+            case RETURN, STRUCT_FIELD -> {
                 if(expr.exprLeft!=null){
                     exprTypes(expr.exprLeft);
                     expr.defineTypeOfExpr();
@@ -1255,6 +1271,23 @@ public class Tree {
                     expr.countedType = new TypeNode(VOID);
                 }
             }
+            case BREAK -> {
+                if(insideLoop == 0){
+                    throw new IllegalArgumentException("Непредвиденный break вне цикла (ID: " + expr.id + ")");
+                }
+                if(expr.exprLeft!=null){
+                    if(currentLoopType==ExpressionType.LOOP_FOR || currentLoopType==ExpressionType.LOOP_WHILE){
+                        throw new IllegalArgumentException("break с выражением возможен только в цикле loop (ID: " + expr.id + ")");
+                    }
+                    exprTypes(expr.exprLeft);
+                    expr.defineTypeOfExpr();
+                    checkInitialization(expr.exprLeft);
+                }
+                else {
+                    expr.countedType = new TypeNode(VOID);
+                }
+            }
+
             case ARRAY_AUTO_FILL -> {
                 exprTypes(expr.exprLeft);
                 exprTypes(expr.exprRight);
@@ -1279,7 +1312,12 @@ public class Tree {
                 }
 
             }
-            //todo continue?
+
+            case CONTINUE -> {
+                if(insideLoop==0){
+                    throw new IllegalArgumentException("Непредвиденный continue вне цикла (ID: " + expr.id + ")");
+                }
+            }
             default -> expr.defineTypeOfExpr();
         }
     }
