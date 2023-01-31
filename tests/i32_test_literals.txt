@@ -1,0 +1,19 @@
+fn main() {
+
+    // literals
+    let decimalLiteral : i32 = 1_0_0_0_9_9_9i32;
+    let octalLiteral : i32 = 0o_3_6_4_3_0_4_7i32;
+    let binaryLiteral : i32 = 0b_111_000i32;
+    let hexLiteral : i32 = 0x0____9____a____Fi32;
+    println_i32("{}", decimalLiteral);
+    println_i32("{}", octalLiteral);
+    println_i32("{}", binaryLiteral);
+    println_i32("{}", hexLiteral);
+
+    // inizialization
+    let a = 1;
+    let c : i32 = 3;
+    print_i32("{} ", a);
+    println_i32("{}", c);
+
+}

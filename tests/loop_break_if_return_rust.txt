@@ -1,0 +1,11 @@
+fn main() {
+
+    println!("{}", loop {
+        break if false {
+                1
+            } else {
+                0
+            };
+    });
+
+}

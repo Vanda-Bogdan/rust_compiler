@@ -1,0 +1,11 @@
+fn main() {
+
+    println_i32("{}", loop {
+        break if (false) {
+                1;
+            } else {
+                0;
+            };
+    });
+
+}

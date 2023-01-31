@@ -1,0 +1,40 @@
+fn fill(mut arr : [[i32 ; 7]; 7], mut row : usize, mut column : usize, value : i32) -> [[i32 ; 7]; 7]{
+    let mut buffer = arr[row][column];
+    arr[row][column] = value;
+    if row <= 5 && arr[row+1][column] == buffer {
+         arr = fill(arr, row+1, column, value);
+    };
+    if column <= 5 && arr[row][column+1] == buffer {
+         arr = fill(arr, row, column+1, value);
+    };
+    if row >= 1 && arr[row-1][column] == buffer {
+         arr = fill(arr, row-1, column, value);
+    };
+    if  column >= 1 && arr[row][column-1] == buffer {
+         arr = fill(arr, row, column-1, value);
+    };
+    return arr;
+}
+
+
+fn main () {
+
+ let mut arr = [
+     [1, 1, 1, 1, 1, 1, 1],
+     [1, 0, 0, 0, 0, 0, 1],
+     [1, 0, 0, 1, 0, 0, 1],
+     [1, 0, 0, 1, 0, 0, 1],
+     [1, 0, 0, 0, 0, 0, 1],
+     [1, 0, 0, 0, 0, 0, 1],
+     [1, 1, 1, 1, 1, 1, 1],
+ ];
+
+ let arr = fill(arr, 2, 2, 7);
+
+ for i in 0..7 {
+     for j in 0..7 {
+         print!("{}", arr[i][j]);
+     }
+     println!("");
+ };
+}

@@ -1,0 +1,20 @@
+fn main() {
+
+    // literals
+    let a = '\'';
+    let b = '\"';
+    let c = '\n';
+    let d = '\r';
+    let e = '\t';
+    let f = '\\';
+    let k = '\x0F';
+
+    println_char("{}", a);
+    println_char("{}", b);
+    println_char("{}", c);
+    println_char("{}", d);
+    println_char("{}", e);
+    println_char("{}", f);
+    println_char("{}", k);
+
+}

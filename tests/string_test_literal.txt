@@ -1,0 +1,9 @@
+fn main() {
+
+    // literals
+    let a : String = "\'\"\n\r\t\\\0\x7F\
+123";
+
+    println(a);
+
+}

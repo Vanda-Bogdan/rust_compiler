@@ -1,0 +1,15 @@
+fn main() {
+
+    // literals
+    let a = 0_0_3_4___.5;
+    let b = 3_4__f64;
+    let c = 34.5__f64;
+    let d = 3__4__E+__00__00__10__f64;
+    let e = 0_0_3_4_.5__E__000_____34_f64;
+    println_f64("{}", a);
+    println_f64("{}", b);
+    println_f64("{}", c);
+    println_f64("{}", d);
+    println_f64("{}", e);
+
+}
