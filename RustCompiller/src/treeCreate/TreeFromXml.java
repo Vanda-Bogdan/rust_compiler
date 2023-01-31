@@ -446,7 +446,7 @@ public class TreeFromXml {
                 }
                 break;
             case CHAR_LIT:
-                exprNode.aChar = ((Element)expr).getAttribute("value").charAt(0); //todo проверить
+                exprNode.aChar = expr.getTextContent().charAt(0);
                 break;
             case STRING_LIT:
                 exprNode.string = expr.getTextContent();
